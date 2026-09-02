@@ -1,0 +1,13 @@
+documents/
+.DS_Store
+
+# Assets for reserves not yet wired into the prototype (script.js only
+# references Yalukit Willam Nature Reserve so far). Kept locally, excluded
+# here to keep the repo lean — add back (remove the relevant line) once a
+# reserve is actually wired in.
+assets/scenes/baw-baw-national-park/
+assets/scenes/enoch-falls/
+assets/scenes/jawbone-nature-conservation-reserve/
+assets/scenes/newport-lakes-reserve/
+assets/scenes/rosanna-golf-course/
+assets/scenes/trin-warren-tam-boore-bellbird-waterhole/

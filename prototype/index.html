@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frog Explorer — Prototype (One Loop)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+  <!-- Shared one-shot "play this frog's call" preview player — used by both
+       the Field Guide facts page and the quiz's frog photo sound button. -->
+  <audio id="preview-audio" preload="auto"></audio>
+  <!-- Quiz guess feedback stings (correct/incorrect) — separate from
+       preview-audio so a guess sting can't interrupt/be interrupted by the
+       player previewing a frog's call. -->
+  <audio id="feedback-audio" preload="auto"></audio>
+
+  <!-- ===================== MAP OVERVIEW ===================== -->
+  <section id="screen-map" class="screen active">
+    <div class="map-bg-wrap" id="map-bg-wrap">
+      <div class="map-pan-layer" id="map-pan-layer">
+        <img class="map-photo-img" id="map-photo-img" src="../assets/scenes/victoria-map-overview.jpg" alt="" draggable="false">
+        <div class="map-pins-frame" id="map-pins-frame">
+          <div class="pin unlocked label-right" style="left:25.45%; top:73%;" data-park="yalukit">
+            <img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt="">
+            <div class="pin-label">Yalukit Willam Nature Reserve</div>
+          </div>
+
+          <div class="pin locked label-left" style="left:20%; top:68%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Jawbone Marine Sanctuary <span class="lock">🔒</span></div></div>
+          <div class="pin locked label-left" style="left:18.95%; top:61.93%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Newport Lakes Reserve <span class="lock">🔒</span></div></div>
+          <div class="pin locked label-right" style="left:28.71%; top:58.27%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">The Rosanna Golf Club <span class="lock">🔒</span></div></div>
+          <div class="pin locked label-left" style="left:22.20%; top:56.17%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Trin Warren Tam-Boore <span class="lock">🔒</span></div></div>
+          <div class="pin locked" style="left:82.37%; top:29.38%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Enoch Falls <span class="lock">🔒</span></div></div>
+          <div class="pin locked" style="left:90%; top:66.98%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Baw Baw National Park <span class="lock">🔒</span></div></div>
+        </div>
+      </div>
+      <div class="drag-hint" id="map-drag-hint">Drag to explore</div>
+    </div>
+    <!-- Small-screen-only: arrows pointing toward pins currently panned out
+         of view — populated/positioned by setupOffscreenIndicators() in
+         script.js. Hidden above 768px via CSS, same breakpoint as .drag-hint. -->
+    <div class="offscreen-indicators" id="map-offscreen-indicators"></div>
+    <div class="top-bar">
+      <h1 class="title-chip">Victoria Map Overview</h1>
+    </div>
+    <button class="icon-btn top-right guide-btn" data-goto="fieldguide" title="Field Guide"><img src="../assets/buttons/Icon_Journal.png" alt="Field Guide"></button>
+
+    <p class="scope-note">Other locations are greyed out — this prototype demonstrates a single full loop.</p>
+  </section>
+
+  <!-- ===================== PARK MAP ===================== -->
+  <section id="screen-park" class="screen">
+    <div class="map-bg-wrap" id="park-bg-wrap">
+      <div class="map-pan-layer" id="park-pan-layer">
+        <img class="map-photo-img" id="park-map-img" src="../assets/scenes/yalukit-willam-nature-reserve/Yalukit Willam Nature Reserve Map.jpg" alt="" draggable="false">
+        <div class="map-pins-frame" id="map-points"></div>
+      </div>
+      <div class="drag-hint" id="park-drag-hint">Drag to explore</div>
+    </div>
+    <div class="top-bar">
+      <h1 class="title-chip">Yalukit Willam Nature Reserve</h1>
+      <button class="icon-btn" data-goto="map" title="Main Map"><img src="../assets/buttons/Icon_Overview.png" alt="">Main Map</button>
+    </div>
+    <button class="icon-btn top-right guide-btn" data-goto="fieldguide" title="Field Guide"><img src="../assets/buttons/Icon_Journal.png" alt="Field Guide"></button>
+  </section>
+
+  <!-- ===================== SCENE ===================== -->
+  <section id="screen-scene" class="screen">
+    <div class="scene-bg-wrap" id="scene-bg-wrap">
+      <div class="scene-backdrop" id="scene-backdrop"></div>
+      <img class="scene-photo-img" id="scene-photo-img" src="" alt="" draggable="false">
+      <video class="scene-photo-img media-hidden" id="scene-video" muted autoplay loop playsinline></video>
+      <div class="drag-hint" id="scene-drag-hint">Drag to explore</div>
+    </div>
+    <div id="hotspot-layer"></div>
+    <audio id="scene-ambient-audio" loop preload="auto"></audio>
+    <audio id="frog-call-audio" loop preload="auto"></audio>
+    <div class="top-bar">
+      <h1 class="title-chip" id="scene-title">Scene</h1>
+      <div class="subtitle-chip" id="scene-subtitle">Subtitle</div>
+    </div>
+    <div class="side-icons">
+      <button class="icon-btn round" data-goto="fieldguide" title="Field Guide"><img src="../assets/buttons/Icon_Journal.png" alt="Field Guide"></button>
+      <button class="icon-btn round" data-goto="park" title="Reserve Map"><img src="../assets/buttons/Icon_Map.png" alt="Reserve Map"></button>
+    </div>
+
+    <div class="call-indicator" id="call-indicator" hidden>
+      <span class="sound-icon">🔊</span> A frog call is echoing somewhere in this scene…
+    </div>
+    <div class="toast" id="scene-toast" hidden></div>
+  </section>
+
+  <!-- ===================== QUIZ ===================== -->
+  <section id="screen-quiz" class="screen">
+    <div class="scene-bg dim" id="quiz-bg"></div>
+    <div class="quiz-panel">
+      <div class="frog-card">
+        <h2 class="frog-card-title">Which frog is calling?</h2>
+        <div class="frog-photo" id="quiz-frog-photo"></div>
+        <div class="drop-field" id="drop-field" data-state="empty">
+          <span class="drop-hint">Drag frog name here</span>
+        </div>
+      </div>
+    </div>
+    <div class="quiz-bottom-band">
+      <div class="label-row" id="label-row"></div>
+      <div class="hint-box" id="hint-box" hidden></div>
+    </div>
+    <div class="buzz-overlay" id="buzz-overlay" hidden>✗✗✗</div>
+  </section>
+
+  <!-- ===================== SUCCESS ===================== -->
+  <section id="screen-success" class="screen">
+    <div class="scene-bg dim" id="success-bg"></div>
+    <div class="result-card success-card">
+      <div class="frog-photo big" id="success-photo">🐸</div>
+      <div class="species-pill success-pill" id="success-species"></div>
+    </div>
+    <div class="result-banner success-banner">
+      <p id="success-text">You've found the Southern Bell Frog!</p>
+      <div class="result-actions">
+        <button class="action-btn" data-goto="fieldguide"><img src="../assets/buttons/Icon_Journal.png" alt="">Check the Field Guide</button>
+        <button class="action-btn" data-action="return-map"><img src="../assets/buttons/Icon_Overview.png" alt="">Return to Main Map</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FAIL ===================== -->
+  <section id="screen-fail" class="screen">
+    <div class="scene-bg dim" id="fail-bg"></div>
+    <div class="result-card fail-card">
+      <div class="fail-mark"><img src="../assets/overlays/frog-escaped.jpg" alt="The frog escaped"></div>
+      <div class="species-pill fail-pill" id="fail-species"></div>
+    </div>
+    <div class="result-banner fail-banner">
+      <p>The frog fled! Try searching for it again!</p>
+      <div class="result-actions">
+        <button class="action-btn" data-action="open-park-map"><img src="../assets/buttons/Icon_Map.png" alt="">Open the Reserve's Map</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FIELD GUIDE ===================== -->
+  <section id="screen-fieldguide" class="screen">
+    <div class="scene-bg dim" id="fg-bg"></div>
+    <button class="icon-btn top-right" data-action="close-fieldguide" title="Close"><img src="../assets/buttons/Btn_X.png" alt="Close"></button>
+    <button class="icon-btn top-right print-btn" data-action="print-fieldguide" title="Print"><img src="../assets/buttons/Btn_Print.png" alt="Print"></button>
+    <div class="book" id="fg-book">
+      <div class="book-page left" id="fg-page-left"></div>
+      <div class="book-page right" id="fg-page-right"></div>
+      <button class="page-arrow left" id="fg-prev"><img src="../assets/buttons/Btn_Left.png" alt="Previous"></button>
+      <button class="page-arrow right" id="fg-next"><img src="../assets/buttons/Btn_Right.png" alt="Next"></button>
+    </div>
+    <div id="fg-print-pages" class="print-only"></div>
+  </section>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

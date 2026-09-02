@@ -1,0 +1,899 @@
+:root {
+  --brand-red: #a33636;
+  --brand-red-dark: #7a2626;
+  --cream: #f3ecd9;
+  --ink: #2b2b25;
+  --success-green: #cfe3b5;
+  --success-green-dark: #3d5a2c;
+  --fail-pink: #f1c9c9;
+  --fail-red-dark: #8f2b2b;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #111;
+  color: var(--ink);
+  overflow: hidden;
+}
+
+#app {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+.screen.active { display: block; }
+
+/* Scene transitions — only used for specific navigation edges, wired up via
+   transitionShowScreen() in script.js: Map Overview → Reserve Map
+   (zoom-fade, "diving in"), Reserve Map → a scene (fade), a scene or the
+   fail screen → Reserve Map (fade, the reverse of the previous), and
+   Reserve Map → Map Overview (zoom-out, the reverse of zoom-fade — scales
+   down/out instead of up/in). Every other navigation in the app still uses
+   the plain instant showScreen() above, unchanged. Outgoing and incoming
+   screens are both `.active` (display:block) for the ~300–380ms window the
+   two animations overlap in, driven by animation classes layered on top of
+   the existing display toggle rather than replacing it. */
+.screen.screen-exit-fade,
+.screen.screen-exit-zoom-fade,
+.screen.screen-exit-zoom-out { pointer-events: none; }
+.screen-exit-fade { animation: screen-fade-out 320ms ease forwards; }
+.screen-exit-zoom-fade { animation: screen-zoomfade-out 380ms ease forwards; }
+.screen-exit-zoom-out { animation: screen-zoomout-out 380ms ease forwards; }
+.screen-enter-fade { animation: screen-fade-in 320ms ease-out backwards; }
+.screen-enter-zoom-fade { animation: screen-zoomfade-in 380ms ease-out backwards; }
+.screen-enter-zoom-out { animation: screen-zoomout-in 380ms ease-out backwards; }
+@keyframes screen-fade-out { to { opacity: 0; } }
+@keyframes screen-fade-in { from { opacity: 0; } }
+@keyframes screen-zoomfade-out { to { opacity: 0; transform: scale(1.06); } }
+@keyframes screen-zoomfade-in { from { opacity: 0; transform: scale(0.94); } }
+@keyframes screen-zoomout-out { to { opacity: 0; transform: scale(0.94); } }
+@keyframes screen-zoomout-in { from { opacity: 0; transform: scale(1.06); } }
+
+/* ===================== Placeholder art blocks ===================== */
+.scene-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.scene-bg.dim::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.35);
+}
+
+/* ===================== Locked images (letterboxed, no crop) ===================== */
+/* Used by scene screens when not in pannable mode — pairs a full-bleed
+   blurred backdrop with a sharp, uncropped, centered photo, so an overlay
+   of interactive points can be locked to the photo's true content. Kept
+   available even though every current scene is pannable, in case a future
+   scene doesn't have drag-pan media. */
+.scene-bg-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #1c2415;
+}
+.scene-backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(24px) brightness(0.5);
+  transform: scale(1.15);
+}
+.scene-photo-img {
+  position: relative;
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+/* Overrides any element's own `display` rule — used to swap between the
+   scene's <img> and <video> without the two ever showing at once. */
+.media-hidden { display: none !important; }
+
+/* ===================== Drag-to-pan images (fills the screen, no crop lost) ===================== */
+/* Used by the map overview, the reserve map, and pannable scenes — the
+   photo is scaled to always cover the viewport and can be dragged to
+   reveal the rest. */
+.map-bg-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #1c2415;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.map-bg-wrap.dragging { cursor: grabbing; }
+/* The image and its pins share one positioned/transformed layer, so a pin's
+   plain CSS % position is always relative to the image's true content —
+   no separate JS math to keep them in sync, and nothing to fall out of
+   sync when the layer's size/position changes on drag or resize. */
+.map-pan-layer {
+  position: absolute;
+  top: 0; left: 0;
+  will-change: transform;
+}
+.map-photo-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  -webkit-user-drag: none;
+}
+.map-pins-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.scene-bg-wrap.pannable {
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y;
+}
+.scene-bg-wrap.pannable.dragging { cursor: grabbing; }
+.scene-bg-wrap.pannable .scene-backdrop { display: none; }
+.scene-bg-wrap.pannable .scene-photo-img {
+  position: absolute;
+  top: 0; left: 0;
+  max-width: none;
+  max-height: none;
+  will-change: transform;
+  -webkit-user-drag: none;
+}
+.drag-hint {
+  position: absolute;
+  bottom: 64px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.65);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  z-index: 6;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.drag-hint.show { opacity: 1; }
+
+/* Map Overview only: one arrow per pin, shown only while that pin is panned
+   out of view — see setupOffscreenIndicators() in script.js, which reads
+   live getBoundingClientRect() positions rather than the drag controller's
+   internal pan state, so the two stay decoupled. */
+.offscreen-indicators {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 7;
+}
+.offscreen-indicator {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--brand-red);
+  color: var(--brand-red-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+.offscreen-indicator[hidden] { display: none; }
+.offscreen-indicator.locked { border-color: #6b6b63; color: #6b6b63; opacity: 0.85; }
+.offscreen-arrow { display: inline-block; }
+
+/* Above this width there's enough room for the nav icons/buttons to stay
+   clearly visible, so the extra hint isn't needed — the JS timer/class
+   toggling behind it still runs either way, this just suppresses display. */
+@media (min-width: 769px) {
+  .drag-hint { display: none; }
+  .offscreen-indicators { display: none; }
+}
+
+/* ===================== Top bar / chips ===================== */
+.top-bar {
+  position: absolute;
+  top: 20px; left: 20px;
+  z-index: 5;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+#screen-scene .top-bar,
+#screen-park .top-bar {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.title-chip {
+  background: var(--cream) url('../assets/overlays/Paper-Texture.jpg') center/cover;
+  padding: 10px 20px;
+  border-radius: 10px;
+  margin: 0;
+  font-size: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.subtitle-chip {
+  background: var(--cream) url('../assets/overlays/Paper-Texture.jpg') center/cover;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.icon-btn {
+  background: white;
+  color: var(--brand-red-dark);
+  border: 2px solid var(--brand-red);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.icon-btn:hover { background: #fdeceb; }
+.icon-btn img,
+.action-btn img,
+.page-arrow img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+.icon-btn img { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; }
+/* Close/Print (Field Guide) and the standalone Field Guide button, 30%
+   bigger than the original 44px, matching the .icon-btn.round pair below. */
+.icon-btn.top-right {
+  position: absolute;
+  top: 20px; right: 20px;
+  z-index: 6;
+  border-radius: 50%;
+  width: 57px; height: 57px;
+  font-size: 23px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+}
+.icon-btn.top-right.print-btn { top: 87px; }
+.side-icons {
+  position: absolute;
+  top: 20px; right: 20px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+/* Reserve Map + Field Guide (scene side-icons), 30% bigger than the base
+   44px round/top-right icon button so they read as the primary nav pair. */
+.icon-btn.round {
+  border-radius: 50%;
+  width: 57px; height: 57px;
+  font-size: 23px;
+  padding: 0;
+}
+.icon-btn.round img,
+.icon-btn.top-right img {
+  width: 31px; height: 31px;
+  margin-right: 0;
+}
+.action-btn img { width: 18px; height: 18px; vertical-align: middle; margin-right: 6px; }
+
+/* ===================== Map pins ===================== */
+.pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  text-align: center;
+  cursor: default;
+  z-index: 3;
+  pointer-events: auto;
+}
+.pin.unlocked { cursor: pointer; }
+.pin-dot { width: 33px; height: auto; display: block; margin: 0 auto; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
+.pin.unlocked .pin-dot { animation: bob 1.6s ease-in-out infinite; }
+@keyframes bob { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-6px);} }
+
+.pin-label {
+  margin-top: 2px;
+  background: var(--brand-red);
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.pin.locked .pin-label { background: #6b6b63; opacity: 0.85; }
+.pin.locked .pin-dot { opacity: 0.6; filter: grayscale(0.6); }
+.pin.found .pin-label { background: var(--success-green); color: var(--success-green-dark); }
+.lock { margin-left: 4px; }
+
+/* Pulls the label out of normal flow and beside the icon instead of stacked
+   below it — for labels that would otherwise crowd a neighbour. Taking the
+   label out of flow also means the .pin container's box shrinks to just the
+   icon, so the existing translate(-50%, -100%) on .pin still anchors the
+   icon (not the icon+label pair) exactly on the marked point. */
+.pin.label-right .pin-label,
+.pin.label-left .pin-label {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-top: 0;
+}
+.pin.label-right .pin-label { left: calc(100% + 8px); }
+.pin.label-left .pin-label { right: calc(100% + 8px); }
+
+.scope-note {
+  position: absolute;
+  bottom: 14px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.85);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #333;
+}
+
+/* ===================== Park map points ===================== */
+.map-point {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.map-point-dot {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid var(--brand-red);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+.map-point.sounding .map-point-dot {
+  animation: pulse-ring 1.4s ease-out infinite;
+}
+.scene-card {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 190px;
+  background: var(--cream);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+.map-point:hover .scene-card {
+  opacity: 1;
+  visibility: visible;
+}
+.map-point.flip-down .scene-card {
+  bottom: auto;
+  top: calc(100% + 12px);
+}
+.scene-card .thumb {
+  height: 80px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background-size: cover;
+  background-position: center;
+}
+.scene-card .name { font-size: 14px; font-weight: 600; }
+.scene-card .sound-flag {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--brand-red-dark);
+}
+
+/* ===================== Scene / hotspots ===================== */
+#hotspot-layer { position: absolute; z-index: 2; pointer-events: none; }
+.hotspot {
+  position: absolute;
+  width: 54px; height: 54px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  border: 3px solid white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  pointer-events: auto;
+  opacity: 0.5;
+  transition: opacity 0.15s, background 0.15s;
+}
+.hotspot:hover { background: white; opacity: 1; }
+.hotspot img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.hotspot.sounding {
+  animation: pulse-ring-white 1.4s ease-out infinite;
+}
+/* Reserve map's sounding scene-point marker uses the original red
+   pulse-ring (below) — this white variant is scoped to scene hotspots only,
+   kept as a separate keyframe rather than recoloring the shared one. */
+@keyframes pulse-ring-white {
+  0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+  70% { box-shadow: 0 0 0 18px rgba(255,255,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(163,54,54,0.6); }
+  70% { box-shadow: 0 0 0 18px rgba(163,54,54,0); }
+  100% { box-shadow: 0 0 0 0 rgba(163,54,54,0); }
+}
+
+.call-indicator {
+  position: absolute;
+  bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--brand-red);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  z-index: 5;
+}
+.toast {
+  position: absolute;
+  bottom: 70px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 5;
+}
+
+/* ===================== Quiz ===================== */
+.quiz-panel {
+  position: absolute;
+  top: 60px; left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 4;
+  color: white;
+}
+
+/* Sized ~44% bigger than the base .frog-photo/.drop-field (used elsewhere,
+   e.g. the success screen's result card) — two successive 20% bumps —
+   scoped to .frog-card so only the quiz's frog card is affected. */
+.frog-card {
+  background: white;
+  border-radius: 23px;
+  padding: 29px;
+  width: min(374px, 32vw, calc(100vh - 440px));
+  min-width: 220px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+.frog-card-title { margin: 0 0 14px; font-size: 20px; color: var(--ink); }
+.frog-card .frog-photo {
+  aspect-ratio: 1 / 1;
+  height: auto;
+  border-radius: 14px;
+  margin-bottom: 20px;
+}
+.frog-card .frog-photo > img { padding: 14px; }
+.frog-card .drop-field {
+  border-width: 4px;
+  border-radius: 13px;
+  padding: 15px;
+  font-size: 18px;
+  min-height: 52px;
+}
+/* Quiz frog photo: grey instead of the base .frog-photo's light green
+   (success/fail keep the green — this is scoped to .frog-card, which only
+   the quiz uses). */
+.frog-card .frog-photo { background: #e6e6e2; }
+.frog-photo {
+  position: relative;
+  height: 140px;
+  display: flex; align-items: center; justify-content: center;
+  background: #eef3e4;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+/* Child combinator (not a descendant selector) so this only targets the
+   frog photo's own <img> — the quiz's sound button also nests an <img>
+   inside .frog-photo (via .quiz-photo-sound), and this rule's padding +
+   box-sizing:border-box was previously leaking onto that icon too,
+   shrinking its content box to ~0 and making it invisible. */
+.frog-photo > img { width: 100%; height: 100%; object-fit: contain; padding: 10px; box-sizing: border-box; }
+.frog-photo.big {
+  aspect-ratio: 1 / 1;
+  height: auto;
+  border-radius: 14px;
+  margin-bottom: 20px;
+}
+.frog-photo.big > img { padding: 14px; }
+/* Overlaid on the quiz's frog photo (not used on the success/fail screens,
+   which reuse the same .frog-photo base but don't get a sound button).
+   Sized 20% bigger than the base .sound-btn overall (two successive 10%
+   bumps: 28px → 31px → 34px). */
+.quiz-photo-sound {
+  position: absolute;
+  bottom: 10px; right: 10px;
+  z-index: 2;
+  width: 34px; height: 34px;
+  font-size: 15px;
+}
+.sound-btn.quiz-photo-sound img { width: 20px; height: 20px; }
+
+.drop-field {
+  border: 3px dashed #8c8c86;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  color: #8c8c86;
+  min-height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.drop-field[data-state="over"] { background: #ffe9e9; }
+.drop-field[data-state="filled"] {
+  border-style: solid;
+  background: #eef3e4;
+  color: var(--ink);
+}
+
+.quiz-bottom-band {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 4;
+  background: var(--cream) url('../assets/overlays/Paper-Texture.jpg') center/cover;
+  padding: 30px 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.25);
+}
+.label-row {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.species-label {
+  background: var(--cream);
+  border-radius: 26px;
+  padding: 13px 22px;
+  font-size: 14px;
+  text-align: center;
+  cursor: grab;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+  user-select: none;
+  min-width: 165px;
+  transition: background 0.15s;
+  /* Stops the browser treating a finger-drag as a page scroll, so the
+     touch-drag handler in startTouchDrag() (script.js) gets the gesture
+     instead. Native mouse drag is unaffected. */
+  touch-action: none;
+}
+.species-label:hover { background: #f2c14e; }
+.species-label .latin { font-style: italic; opacity: 0.75; font-size: 12px; display: block; }
+.species-label.crossed-out {
+  text-decoration: line-through;
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+/* Follows the finger during a touch-drag (see startTouchDrag() in
+   script.js) — the touch equivalent of the OS-rendered drag image a mouse
+   drag gets automatically from the native HTML5 drag-and-drop API. */
+.drag-ghost {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 50;
+  pointer-events: none;
+  cursor: grabbing;
+}
+.species-label.dragging { opacity: 0.3; }
+
+.hint-box {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  /* left is set per-hover in JS (showHint()), to sit above whichever label
+     is actually hovered rather than a fixed spot in the band. */
+  background: #f2c14e;
+  color: #3a2a00;
+  padding: 14px 18px;
+  border-radius: 10px;
+  width: 240px;
+  /* min-height is set in JS (showHint()), matched to the striped marsh
+     frog's hint — the longest of the 4 quiz hints — so the box is a
+     consistent size regardless of which label is hovered. */
+  font-size: 13px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+  z-index: 6;
+  transform: translateX(-50%) rotate(-1deg);
+}
+.hint-line { margin-bottom: 6px; }
+.hint-line:last-child { margin-bottom: 0; }
+
+.buzz-overlay {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 60px;
+  color: #ff3b3b;
+  font-weight: bold;
+  text-shadow: 0 0 20px rgba(255,0,0,0.8);
+  z-index: 10;
+  animation: buzz-flash 0.5s steps(2, jump-none) 3;
+}
+@keyframes buzz-flash { 50% { opacity: 0.1; } }
+
+/* ===================== Success / Fail ===================== */
+/* Matches the quiz's .frog-card position (top: 60px instead of vertically
+   centered), so the quiz, success, and fail cards all sit in the same spot.
+   Width is deliberately fixed, not responsive like .frog-card — the result
+   screens are a short, read-then-continue moment (not an interactive task
+   competing with a bottom band for space the way the quiz is), so there's
+   no need to shrink it on smaller screens. */
+.result-card {
+  position: absolute;
+  top: 60px; left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 23px;
+  padding: 29px;
+  width: 374px;
+  box-sizing: border-box;
+  text-align: center;
+  z-index: 4;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+.species-pill {
+  margin-top: 14px;
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.success-pill { background: var(--success-green); }
+.fail-pill { background: var(--fail-pink); }
+.fail-mark {
+  aspect-ratio: 1 / 1;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--fail-pink);
+  border-radius: 14px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.fail-mark img { width: 100%; height: 100%; object-fit: contain; padding: 14px; box-sizing: border-box; }
+
+.result-banner {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 30px 20px 40px;
+  text-align: center;
+  z-index: 4;
+}
+.success-banner { background: var(--success-green); }
+.fail-banner { background: var(--fail-pink); }
+.result-banner p { font-size: 22px; margin: 0 0 16px; font-weight: 600; }
+.success-banner p { color: var(--success-green-dark); }
+.fail-banner p { color: var(--fail-red-dark); }
+
+.result-actions { display: flex; gap: 16px; justify-content: center; }
+.action-btn {
+  background: white;
+  color: var(--brand-red-dark);
+  border: 2px solid var(--brand-red);
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.action-btn:hover { background: #fdeceb; }
+
+/* ===================== Field Guide ===================== */
+.book {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(990px, 99vw, calc(93.5vh * 1.616));
+  aspect-ratio: 1608 / 995;
+  background: url('../assets/overlays/field-guide-book.png') center/contain no-repeat;
+}
+/* Positioned to sit inside the book art's own drawn page areas rather than
+   painting a page background ourselves — measured against the actual
+   artwork's flat cream regions (roughly 5.7–48.9% and 50.3–94.6% width,
+   2–97.4% height), inset slightly further in for a safety margin. */
+.book-page {
+  position: absolute;
+  top: 3%;
+  bottom: 3%;
+  overflow-y: auto;
+  font-size: 13px;
+  padding: 16px 3% 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(63,82,51,0.5) transparent;
+}
+.book-page::-webkit-scrollbar { width: 6px; }
+.book-page::-webkit-scrollbar-track { background: transparent; }
+.book-page::-webkit-scrollbar-thumb { background: rgba(63,82,51,0.5); border-radius: 3px; }
+.book-page.left { left: 6%; width: 42%; }
+.book-page.right { right: 6%; width: 42%; }
+.fg-name-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
+.fg-name-row .fg-name { margin: 0; }
+.fg-name { font-size: 22px; margin: 0 0 2px; }
+/* Shared "play this frog's call" button style — used on the Field Guide
+   facts page (inline next to the name) and the quiz frog photo (overlaid,
+   see .quiz-photo-sound). 10% bigger than its original 28px. */
+.sound-btn {
+  background: white;
+  color: var(--brand-red-dark);
+  border: 2px solid var(--brand-red);
+  border-radius: 50%;
+  width: 31px; height: 31px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.sound-btn:hover { background: #fdeceb; }
+.sound-btn img { width: 18px; height: 18px; }
+.fg-latin { font-style: italic; opacity: 0.7; margin: 0 0 18px; font-size: 13px; }
+/* 50% bigger than the original 110px. */
+.fg-photo {
+  height: 165px;
+  background: white;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+.fg-photo img { width: 100%; height: 100%; object-fit: contain; padding: 6px; box-sizing: border-box; }
+.fg-locked-photo {
+  height: 165px;
+  background: #ddd8c5 url('../assets/buttons/Frog-Silhouette.png') center/contain no-repeat;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px;
+  color: #999;
+  margin-bottom: 18px;
+}
+.fg-field { margin-bottom: 20px; }
+.fg-field-label { font-weight: 700; font-size: 11px; text-transform: uppercase; opacity: 0.65; margin-bottom: 4px; }
+.calling-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.calling-grid div {
+  background: #e4ddc4; border-radius: 4px; text-align: center;
+  padding: 4px 0; font-size: 10px;
+}
+.calling-grid div.peak { background: #a9c98a; }
+.calling-grid div.yes { background: #f2d97e; }
+.calling-grid div.possible { background: #f0b98a; }
+.calling-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 6px;
+  font-size: 10px;
+  opacity: 0.75;
+}
+.calling-legend .legend-item { display: flex; align-items: center; gap: 4px; }
+.calling-legend .legend-swatch {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.calling-legend .legend-swatch.peak { background: #a9c98a; }
+.calling-legend .legend-swatch.yes { background: #f2d97e; }
+.calling-legend .legend-swatch.possible { background: #f0b98a; }
+.calling-legend .legend-swatch.none { background: #e4ddc4; }
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.status-caption { font-size: 11px; opacity: 0.7; min-width: 112px; }
+.status-pill {
+  display: inline-block;
+  background: #ddd;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+}
+.status-pill.vulnerable { background: #f2c14e; color: #3a2a00; }
+.status-pill.critical { background: #e05c5c; color: white; }
+.locked-lines div { height: 8px; background: #ddd8c5; border-radius: 4px; margin-bottom: 8px; }
+.locked-lines div:nth-child(4) { width: 60%; }
+
+/* 30% bigger than the original 40px, matching the Close/Print/Field Guide
+   button resize above. */
+.page-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  border: 2px solid var(--brand-red);
+  border-radius: 50%;
+  width: 52px; height: 52px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+}
+.page-arrow img { width: 31px; height: 31px; }
+.page-arrow.left { left: -50px; }
+.page-arrow.right { right: -50px; }
+
+@media (max-width: 640px) {
+  .page-arrow.left { left: 4px; }
+  .page-arrow.right { right: 4px; }
+}
+
+/* Built fresh (one `.fg-print-page` per species) right before printing —
+   see the print button's click handler — rather than printing whatever
+   2-frog spread happens to be on screen. */
+.print-only { display: none; }
+
+@media print {
+  /* The app is built entirely from absolutely-positioned, height:100%,
+     overflow:hidden boxes (html/body → #app → .screen) so it always fills
+     exactly one screen — which also means a print engine has no document
+     flow to paginate. Release all of that for print so the field guide's
+     content can grow past one page and actually break across sheets. */
+  html, body { height: auto; overflow: visible; background: white; }
+  #app { position: static; overflow: visible; }
+  .screen { display: none; }
+  #screen-fieldguide {
+    display: block;
+    position: static;
+    background: white;
+  }
+  #fg-bg, .page-arrow, .icon-btn.top-right, .book { display: none; }
+  .print-only { display: block; }
+  .fg-print-page {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 900px;
+    padding: 60px 80px;
+    page-break-after: always;
+    break-after: page;
+  }
+  .fg-print-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  .fg-print-page .fg-name { font-size: 36px; }
+  .fg-print-page .fg-latin { font-size: 18px; margin-bottom: 24px; }
+  .fg-print-page .fg-photo,
+  .fg-print-page .fg-locked-photo {
+    height: 280px;
+    margin-bottom: 24px;
+  }
+  .fg-print-page .fg-field { margin-bottom: 18px; }
+  .fg-print-page .fg-field-label { font-size: 14px; }
+  .fg-print-page .calling-grid div { font-size: 13px; padding: 8px 0; }
+  .fg-print-page .status-pill { font-size: 14px; padding: 6px 14px; }
+  .fg-print-page .status-caption { font-size: 14px; min-width: 150px; }
+  .fg-print-page .fg-field p { font-size: 15px; line-height: 1.5; }
+}
