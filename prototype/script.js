@@ -175,6 +175,7 @@ const state = {
   currentSceneIdx: 0,
   targetHotspotKey: null, // "sceneIdx:hotspotId"
   crossedOut: new Set(),
+  checkedHotspots: new Set(), // "sceneIdx:hotspotId" already clicked this reserve visit, for the Reserve Map pulse hint
   fieldGuideUnlocked: new Set(),
   discoveredSceneIdx: null, // scene the target was found in, for the success backdrop on a later revisit
   fgIdx: 0,
@@ -229,6 +230,14 @@ function transitionShowScreen(id, type) {
   }, duration);
 }
 
+// ===================== Intro instructions =====================
+// Shown on every load (no persistence layer in this prototype, so there's
+// no "seen it before" to check) — dismissed only via its own button, not by
+// clicking the dimmed backdrop, so the player has to actually acknowledge it.
+document.getElementById("intro-start-btn").addEventListener("click", () => {
+  document.getElementById("intro-overlay").hidden = true;
+});
+
 document.querySelectorAll("[data-goto]").forEach(btn => {
   btn.addEventListener("click", () => {
     const target = btn.getAttribute("data-goto");
@@ -260,6 +269,7 @@ function enterPark() {
     return;
   }
   state.crossedOut.clear();
+  state.checkedHotspots.clear();
   randomizeTarget(null);
   renderScenePoints();
   transitionShowScreen("park", "zoom-fade");
@@ -651,7 +661,7 @@ function openScene(idx) {
     el.style.left = h.x;
     el.style.top = h.y;
     el.innerHTML = '<img src="../assets/buttons/Icon_Eye.png" alt="">';
-    el.addEventListener("click", () => onHotspotClick(isTarget));
+    el.addEventListener("click", () => onHotspotClick(isTarget, key));
     layer.appendChild(el);
   });
   if (scene.pannable) scenePanController.layout();
@@ -660,11 +670,23 @@ function openScene(idx) {
   document.getElementById("scene-toast").hidden = true;
 
   if (soundingHere) startCallTone(); else stopCallTone();
+  updateSceneMapPulse();
 
   transitionShowScreen("scene", "fade");
 }
 
-function onHotspotClick(isTarget) {
+// Hints the player toward the Reserve Map once they've checked every point
+// in a scene that turns out to have no frog in it — a nudge to try
+// somewhere else rather than re-clicking the same two spots.
+function updateSceneMapPulse() {
+  const scene = SCENES[state.currentSceneIdx];
+  const soundingHere = scene.hotspots.some(h => `${state.currentSceneIdx}:${h.id}` === state.targetHotspotKey);
+  const allChecked = scene.hotspots.every(h => state.checkedHotspots.has(`${state.currentSceneIdx}:${h.id}`));
+  document.getElementById("scene-map-btn").classList.toggle("pulse-hint", !soundingHere && allChecked);
+}
+
+function onHotspotClick(isTarget, key) {
+  state.checkedHotspots.add(key);
   if (isTarget) {
     stopCallTone();
     // Ambient audio deliberately keeps playing through the quiz and its
@@ -674,6 +696,7 @@ function onHotspotClick(isTarget) {
     openQuiz();
     return;
   }
+  updateSceneMapPulse();
   const toast = document.getElementById("scene-toast");
   toast.textContent = "Nothing here — keep searching (try another point, or another scene).";
   toast.hidden = false;
@@ -794,6 +817,17 @@ function openQuiz() {
 // box — measured from the striped marsh frog's actual rendered content
 // (the longest of the 4 hints) rather than a guessed pixel value, so it
 // stays correct regardless of font/rendering differences.
+// Shared by showHint() and the measurement probe below, so the "Hints"
+// title can't end up in one and not the other and throw off the measured
+// height.
+function hintHtml(hint) {
+  return `
+    <div class="hint-title">Hints</div>
+    <div class="hint-line"><strong>Visual:</strong> ${hint.visual}</div>
+    <div class="hint-line"><strong>Call:</strong> ${hint.call}</div>
+  `;
+}
+
 let hintBoxMinHeight = null;
 function getHintBoxMinHeight() {
   if (hintBoxMinHeight != null) return hintBoxMinHeight;
@@ -803,11 +837,7 @@ function getHintBoxMinHeight() {
   probe.hidden = false;
   probe.style.visibility = "hidden";
   probe.style.minHeight = "";
-  const sp = SPECIES["striped-marsh"];
-  probe.innerHTML = `
-    <div class="hint-line"><strong>Visual:</strong> ${sp.hint.visual}</div>
-    <div class="hint-line"><strong>Call:</strong> ${sp.hint.call}</div>
-  `;
+  probe.innerHTML = hintHtml(SPECIES["striped-marsh"].hint);
   band.appendChild(probe);
   hintBoxMinHeight = probe.offsetHeight;
   probe.remove();
@@ -816,10 +846,7 @@ function getHintBoxMinHeight() {
 
 function showHint(hint, labelEl) {
   const box = document.getElementById("hint-box");
-  box.innerHTML = `
-    <div class="hint-line"><strong>Visual:</strong> ${hint.visual}</div>
-    <div class="hint-line"><strong>Call:</strong> ${hint.call}</div>
-  `;
+  box.innerHTML = hintHtml(hint);
   box.style.minHeight = getHintBoxMinHeight() + "px";
   // Center the box over whichever label triggered it, measured live (like
   // the reserve-map popup fix) rather than a fixed spot in the band.
@@ -909,11 +936,11 @@ document.querySelector('[data-action="return-map"]').addEventListener("click", (
 
 function showFail() {
   stopPreviewAudio();
-  const sp = SPECIES[TARGET_SPECIES];
   const failBg = document.getElementById("fail-bg");
   failBg.className = "scene-bg dim";
   setPhotoBg(failBg, SCENES[state.currentSceneIdx].photo);
-  document.getElementById("fail-species").textContent = `${sp.name} (${sp.latin})`;
+  // Deliberately doesn't reveal which species was correct — a wrong guess
+  // shouldn't hand the player the answer, since they can keep guessing.
   // Relocate the frog to a different point, preferably a different scene
   const currentKey = state.targetHotspotKey;
   const otherSceneKeys = allHotspotKeys().filter(k => !k.startsWith(`${state.currentSceneIdx}:`));
@@ -935,11 +962,12 @@ function openFieldGuide() {
 
   // Field guide overlays onto whichever screen it was opened from, dimmed —
   // same pattern as the quiz screen's backdrop.
+  // Only "map" and "success" are reachable now that the Field Guide button
+  // is hidden everywhere else (park/scene) — the "park"/"scene" backdrop
+  // cases this used to branch on can no longer happen.
   const fgBg = document.getElementById("fg-bg");
   fgBg.className = "scene-bg dim";
-  const bgPhoto = state.returnScreen === "park"
-    ? "../assets/scenes/yalukit-willam-nature-reserve/Yalukit Willam Nature Reserve Map.jpg"
-    : state.returnScreen === "scene" || state.returnScreen === "success"
+  const bgPhoto = state.returnScreen === "success"
     ? SCENES[state.currentSceneIdx].photo
     : "../assets/scenes/victoria-map-overview.jpg";
   setPhotoBg(fgBg, bgPhoto);
@@ -1031,6 +1059,7 @@ function renderFieldGuide() {
   const id = FIELD_GUIDE_ORDER[state.fgIdx];
   document.getElementById("fg-page-left").innerHTML = fgFactsHtml(id);
   document.getElementById("fg-page-right").innerHTML = fgStoryHtml(id);
+  document.getElementById("fg-empty-overlay").hidden = state.fieldGuideUnlocked.size > 0;
 }
 
 // Calling-period likelihood scale: 0 none (grey/default), 1 possible

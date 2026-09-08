@@ -44,8 +44,8 @@
     <div class="offscreen-indicators" id="map-offscreen-indicators"></div>
     <div class="top-bar">
       <h1 class="title-chip">Victoria Map Overview</h1>
+      <button class="icon-btn" data-goto="fieldguide" title="Field Guide"><img src="../assets/buttons/Icon_Journal.png" alt="">Field Guide</button>
     </div>
-    <button class="icon-btn top-right guide-btn" data-goto="fieldguide" title="Field Guide"><img src="../assets/buttons/Icon_Journal.png" alt="Field Guide"></button>
 
     <p class="scope-note">Other locations are greyed out — this prototype demonstrates a single full loop.</p>
   </section>
@@ -63,7 +63,6 @@
       <h1 class="title-chip">Yalukit Willam Nature Reserve</h1>
       <button class="icon-btn" data-goto="map" title="Main Map"><img src="../assets/buttons/Icon_Overview.png" alt="">Main Map</button>
     </div>
-    <button class="icon-btn top-right guide-btn" data-goto="fieldguide" title="Field Guide"><img src="../assets/buttons/Icon_Journal.png" alt="Field Guide"></button>
   </section>
 
   <!-- ===================== SCENE ===================== -->
@@ -81,10 +80,7 @@
       <h1 class="title-chip" id="scene-title">Scene</h1>
       <div class="subtitle-chip" id="scene-subtitle">Subtitle</div>
     </div>
-    <div class="side-icons">
-      <button class="icon-btn round" data-goto="fieldguide" title="Field Guide"><img src="../assets/buttons/Icon_Journal.png" alt="Field Guide"></button>
-      <button class="icon-btn round" data-goto="park" title="Reserve Map"><img src="../assets/buttons/Icon_Map.png" alt="Reserve Map"></button>
-    </div>
+    <button class="icon-btn scene-map-btn" id="scene-map-btn" data-goto="park" title="Reserve Map"><img src="../assets/buttons/Icon_Map.png" alt="">Reserve Map</button>
 
     <div class="call-indicator" id="call-indicator" hidden>
       <span class="sound-icon">🔊</span> A frog call is echoing somewhere in this scene…
@@ -114,14 +110,14 @@
   <!-- ===================== SUCCESS ===================== -->
   <section id="screen-success" class="screen">
     <div class="scene-bg dim" id="success-bg"></div>
-    <div class="result-card success-card">
-      <div class="frog-photo big" id="success-photo">🐸</div>
-      <div class="species-pill success-pill" id="success-species"></div>
-    </div>
-    <div class="result-banner success-banner">
-      <p id="success-text">You've found the Southern Bell Frog!</p>
-      <div class="result-actions">
+    <div class="result-stack">
+      <div class="result-card success-card">
+        <div class="frog-photo big" id="success-photo">🐸</div>
+        <p class="success-text" id="success-text">You've found the Southern Bell Frog!</p>
+        <div class="species-pill success-pill" id="success-species"></div>
         <button class="action-btn" data-goto="fieldguide"><img src="../assets/buttons/Icon_Journal.png" alt="">Check the Field Guide</button>
+      </div>
+      <div class="result-actions">
         <button class="action-btn" data-action="return-map"><img src="../assets/buttons/Icon_Overview.png" alt="">Return to Main Map</button>
       </div>
     </div>
@@ -132,13 +128,8 @@
     <div class="scene-bg dim" id="fail-bg"></div>
     <div class="result-card fail-card">
       <div class="fail-mark"><img src="../assets/overlays/frog-escaped.jpg" alt="The frog escaped"></div>
-      <div class="species-pill fail-pill" id="fail-species"></div>
-    </div>
-    <div class="result-banner fail-banner">
-      <p>The frog fled! Try searching for it again!</p>
-      <div class="result-actions">
-        <button class="action-btn" data-action="open-park-map"><img src="../assets/buttons/Icon_Map.png" alt="">Open the Reserve's Map</button>
-      </div>
+      <p class="fail-text">The frog has fled. Look for it again in another scene!</p>
+      <button class="action-btn" data-action="open-park-map"><img src="../assets/buttons/Icon_Map.png" alt="">Open the Reserve's Map</button>
     </div>
   </section>
 
@@ -152,9 +143,22 @@
       <div class="book-page right" id="fg-page-right"></div>
       <button class="page-arrow left" id="fg-prev"><img src="../assets/buttons/Btn_Left.png" alt="Previous"></button>
       <button class="page-arrow right" id="fg-next"><img src="../assets/buttons/Btn_Right.png" alt="Next"></button>
+      <div class="fg-empty-overlay" id="fg-empty-overlay" hidden>
+        <p>Explore and search for the frogs to populate the guide.</p>
+      </div>
     </div>
     <div id="fg-print-pages" class="print-only"></div>
   </section>
+
+  <!-- ===================== INTRO INSTRUCTIONS ===================== -->
+  <div class="intro-overlay" id="intro-overlay">
+    <div class="intro-card">
+      <h2 class="intro-title">Instructions</h2>
+      <p>You are exploring different wetland habitats around Victoria. Select a location to explore. Navigate around the wetland with the map. Explore each scene to search for frog calls. Use the call, visuals, clues, and your knowledge to identify each species.</p>
+      <p>Listen carefully. Some calls may need to be played more than once.</p>
+      <button class="action-btn intro-start-btn" id="intro-start-btn">Click to begin</button>
+    </div>
+  </div>
 
 </div>
 

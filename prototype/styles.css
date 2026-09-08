@@ -217,7 +217,8 @@ html, body {
   align-items: center;
 }
 #screen-scene .top-bar,
-#screen-park .top-bar {
+#screen-park .top-bar,
+#screen-map .top-bar {
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
@@ -256,8 +257,7 @@ html, body {
   object-fit: cover;
 }
 .icon-btn img { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; }
-/* Close/Print (Field Guide) and the standalone Field Guide button, 30%
-   bigger than the original 44px, matching the .icon-btn.round pair below. */
+/* Field Guide's own Close/Print buttons, 30% bigger than the original 44px. */
 .icon-btn.top-right {
   position: absolute;
   top: 20px; right: 20px;
@@ -269,23 +269,6 @@ html, body {
   padding: 0;
 }
 .icon-btn.top-right.print-btn { top: 87px; }
-.side-icons {
-  position: absolute;
-  top: 20px; right: 20px;
-  z-index: 6;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-/* Reserve Map + Field Guide (scene side-icons), 30% bigger than the base
-   44px round/top-right icon button so they read as the primary nav pair. */
-.icon-btn.round {
-  border-radius: 50%;
-  width: 57px; height: 57px;
-  font-size: 23px;
-  padding: 0;
-}
-.icon-btn.round img,
 .icon-btn.top-right img {
   width: 31px; height: 31px;
   margin-right: 0;
@@ -436,6 +419,18 @@ html, body {
   0% { box-shadow: 0 0 0 0 rgba(163,54,54,0.6); }
   70% { box-shadow: 0 0 0 18px rgba(163,54,54,0); }
   100% { box-shadow: 0 0 0 0 rgba(163,54,54,0); }
+}
+
+.scene-map-btn {
+  position: absolute;
+  bottom: 20px; left: 20px;
+  z-index: 6;
+}
+/* Hints toward the Reserve Map once every point in a no-frog scene has been
+   checked (see updateSceneMapPulse() in script.js) — reuses the same red
+   pulse-ring animation already used for "sounding" markers elsewhere. */
+.scene-map-btn.pulse-hint {
+  animation: pulse-ring 1.4s ease-out infinite;
 }
 
 .call-indicator {
@@ -626,6 +621,7 @@ html, body {
   z-index: 6;
   transform: translateX(-50%) rotate(-1deg);
 }
+.hint-title { font-weight: 700; font-size: 14px; margin-bottom: 8px; }
 .hint-line { margin-bottom: 6px; }
 .hint-line:last-child { margin-bottom: 0; }
 
@@ -643,16 +639,23 @@ html, body {
 @keyframes buzz-flash { 50% { opacity: 0.1; } }
 
 /* ===================== Success / Fail ===================== */
-/* Matches the quiz's .frog-card position (top: 60px instead of vertically
-   centered), so the quiz, success, and fail cards all sit in the same spot.
+/* Vertically centered — was pinned to top:60px (matching the quiz's
+   .frog-card) back when a bottom banner ate into the screen's lower space
+   on both result screens; now that neither has one, centering reads better
+   than sitting near the top of otherwise-empty space. The quiz's frog-card
+   is unrelated and keeps its own top:60px (it still has the bottom band).
    Width is deliberately fixed, not responsive like .frog-card — the result
    screens are a short, read-then-continue moment (not an interactive task
    competing with a bottom band for space the way the quiz is), so there's
-   no need to shrink it on smaller screens. */
+   no need to shrink it on smaller screens.
+   On the fail screen this is used directly (still absolutely positioned).
+   On the success screen it's nested inside .result-stack instead, which
+   owns the centering and stacks the card above the action buttons below it
+   — see .result-stack below. */
 .result-card {
   position: absolute;
-  top: 60px; left: 50%;
-  transform: translateX(-50%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
   background: white;
   border-radius: 23px;
   padding: 29px;
@@ -669,8 +672,21 @@ html, body {
   font-size: 13px;
   font-weight: 600;
 }
+/* "Check the Field Guide" now lives inside the success card, right after
+   the species pill — targeted by adjacency rather than a new class so this
+   spacing can't accidentally also apply to the fail card's in-card button
+   (which follows .fail-text, not .species-pill). */
+.species-pill + .action-btn { margin-top: 20px; }
 .success-pill { background: var(--success-green); }
-.fail-pill { background: var(--fail-pink); }
+/* Sits between the photo and the species pill inside .result-card — spacing
+   comes from the photo's own margin-bottom above and the pill's margin-top
+   below, rather than adding a redundant margin here too. */
+.success-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--success-green-dark);
+  margin: 0;
+}
 .fail-mark {
   aspect-ratio: 1 / 1;
   height: auto;
@@ -683,19 +699,35 @@ html, body {
   overflow: hidden;
 }
 .fail-mark img { width: 100%; height: 100%; object-fit: contain; padding: 14px; box-sizing: border-box; }
-
-.result-banner {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  padding: 30px 20px 40px;
-  text-align: center;
-  z-index: 4;
+/* Fail screen's text + "Reserve Map" button live directly in the card,
+   below the image — deliberately no species reveal here (see showFail() in
+   script.js), just the retry prompt and a way back to the map. */
+.fail-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fail-red-dark);
+  margin: 0 0 16px;
 }
-.success-banner { background: var(--success-green); }
-.fail-banner { background: var(--fail-pink); }
-.result-banner p { font-size: 22px; margin: 0 0 16px; font-weight: 600; }
-.success-banner p { color: var(--success-green-dark); }
-.fail-banner p { color: var(--fail-red-dark); }
+
+/* Success screen only: stacks the card and the action buttons in normal
+   flow below it, since the card's height now varies with its text content
+   and a fixed pixel offset for the buttons wouldn't reliably clear it.
+   Overrides .result-card's own absolute positioning only when nested here
+   (the fail screen's un-wrapped .result-card is unaffected). */
+.result-stack {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.result-stack .result-card {
+  position: static;
+  transform: none;
+}
 
 .result-actions { display: flex; gap: 16px; justify-content: center; }
 .action-btn {
@@ -844,9 +876,86 @@ html, body {
 .page-arrow.left { left: -50px; }
 .page-arrow.right { right: -50px; }
 
+/* Covers the book (pages + arrows) while nothing's been discovered yet —
+   toggled in renderFieldGuide() off state.fieldGuideUnlocked's size, so it
+   clears the moment the first species is found. */
+.fg-empty-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(255,255,255,0.85);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10% 14%;
+}
+.fg-empty-overlay[hidden] { display: none; }
+.fg-empty-overlay p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
 @media (max-width: 640px) {
   .page-arrow.left { left: 4px; }
   .page-arrow.right { right: 4px; }
+}
+
+/* ===================== Intro instructions ===================== */
+/* Shown on load, above every screen (only the Map Overview is ever active
+   underneath it in practice) — dismissed via its own button only, not by
+   clicking the dimmed backdrop. No persistence layer in this prototype, so
+   it shows again on every fresh page load rather than only once ever. */
+.intro-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.intro-overlay[hidden] { display: none; }
+/* Card sized 10% bigger than the original, then another 20% on top
+   (max-width/padding/radius, and the title/paragraph/button below),
+   per request — two successive relative bumps, not one 30% jump. */
+.intro-card {
+  background: white;
+  border-radius: 30px;
+  padding: 38px;
+  max-width: 634px;
+  width: 100%;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+.intro-title { margin: 0 0 14px; font-size: 22px; font-weight: 700; color: var(--ink); }
+.intro-card p {
+  margin: 0 0 22px;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.5;
+}
+/* Inverted from the base .action-btn (white bg/red text) to a solid red
+   button with white text, so the call-to-action reads as the primary
+   action on the card rather than matching the app's usual secondary style. */
+.intro-start-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 16px 26px;
+  border-radius: 31px;
+  background: var(--brand-red);
+  color: white;
+  border-color: var(--brand-red);
+}
+.intro-start-btn:hover {
+  background: var(--brand-red-dark);
+  border-color: var(--brand-red-dark);
 }
 
 /* Built fresh (one `.fg-print-page` per species) right before printing —
