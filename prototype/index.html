@@ -46,8 +46,6 @@
       <h1 class="title-chip">Victoria Map Overview</h1>
       <button class="icon-btn" data-goto="fieldguide" title="Field Guide"><img src="../assets/buttons/Icon_Journal.png" alt="">Field Guide</button>
     </div>
-
-    <p class="scope-note">Other locations are greyed out — this prototype demonstrates a single full loop.</p>
   </section>
 
   <!-- ===================== PARK MAP ===================== -->
@@ -147,6 +145,16 @@
         <p>Explore and search for the frogs to populate the guide.</p>
       </div>
     </div>
+    <div class="fg-mobile" id="fg-mobile">
+      <div class="fg-mobile-scroll" id="fg-mobile-scroll"></div>
+      <div class="fg-empty-overlay" id="fg-mobile-empty-overlay" hidden>
+        <p>Explore and search for the frogs to populate the guide.</p>
+      </div>
+      <div class="fg-mobile-arrows">
+        <button class="fg-mobile-arrow" id="fg-mobile-up" title="Previous"><img src="../assets/buttons/Btn_Up.png" alt="Previous"></button>
+        <button class="fg-mobile-arrow" id="fg-mobile-down" title="Next"><img src="../assets/buttons/Btn_Down.png" alt="Next"></button>
+      </div>
+    </div>
     <div id="fg-print-pages" class="print-only"></div>
   </section>
 
@@ -155,8 +163,8 @@
     <div class="intro-card">
       <h2 class="intro-title">Instructions</h2>
       <p>You are exploring different wetland habitats around Victoria. Select a location to explore. Navigate around the wetland with the map. Explore each scene to search for frog calls. Use the call, visuals, clues, and your knowledge to identify each species.</p>
-      <p>Listen carefully. Some calls may need to be played more than once.</p>
-      <button class="action-btn intro-start-btn" id="intro-start-btn">Click to begin</button>
+      <p class="intro-listen"><img src="../assets/buttons/Icon_Ear.png" alt="" class="intro-ear-icon">Listen carefully. Some calls may need to be played more than once.</p>
+      <button class="action-btn intro-start-btn" id="intro-start-btn">Start</button>
     </div>
   </div>
 

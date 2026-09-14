@@ -172,6 +172,10 @@ html, body {
   transition: opacity 0.5s ease;
 }
 .drag-hint.show { opacity: 1; }
+/* Sits lower than the other two drag-hints (park/scene, still at the base
+   bottom: 64px) — this is the spot the now-removed .scope-note ("Other
+   locations are greyed out...") used to occupy on the Map Overview. */
+#map-drag-hint { bottom: 14px; }
 
 /* Map Overview only: one arrow per pin, shown only while that pin is panned
    out of view — see setupOffscreenIndicators() in script.js, which reads
@@ -201,9 +205,12 @@ html, body {
 
 /* Above this width there's enough room for the nav icons/buttons to stay
    clearly visible, so the extra hint isn't needed — the JS timer/class
-   toggling behind it still runs either way, this just suppresses display. */
+   toggling behind it still runs either way, this just suppresses display.
+   #map-drag-hint is exempted: per 2026-09-14 request, the Map Overview's
+   hint (the very first screen of the experience) stays visible at every
+   screen size, unlike the Reserve Map's and each scene's hints. */
 @media (min-width: 769px) {
-  .drag-hint { display: none; }
+  .drag-hint:not(#map-drag-hint) { display: none; }
   .offscreen-indicators { display: none; }
 }
 
@@ -290,6 +297,7 @@ html, body {
 @keyframes bob { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-6px);} }
 
 .pin-label {
+  display: inline-block;
   margin-top: 2px;
   background: var(--brand-red);
   color: white;
@@ -298,7 +306,12 @@ html, body {
   border-radius: 6px;
   white-space: nowrap;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: transform 0.15s ease;
 }
+/* :not(.label-right):not(.label-left) so this doesn't clobber the
+   translateY(-50%) those two variants rely on for vertical centering — see
+   the composed hover rule alongside that transform further down. */
+.pin:not(.label-right):not(.label-left):hover .pin-label { transform: scale(1.1); }
 .pin.locked .pin-label { background: #6b6b63; opacity: 0.85; }
 .pin.locked .pin-dot { opacity: 0.6; filter: grayscale(0.6); }
 .pin.found .pin-label { background: var(--success-green); color: var(--success-green-dark); }
@@ -316,19 +329,15 @@ html, body {
   transform: translateY(-50%);
   margin-top: 0;
 }
+/* Composed with the translateY(-50%) above (not a plain scale()) so
+   hovering doesn't knock these two variants off their vertical centering. */
+.pin.label-right:hover .pin-label,
+.pin.label-left:hover .pin-label {
+  transform: translateY(-50%) scale(1.1);
+}
 .pin.label-right .pin-label { left: calc(100% + 8px); }
 .pin.label-left .pin-label { right: calc(100% + 8px); }
 
-.scope-note {
-  position: absolute;
-  bottom: 14px; left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,255,255,0.85);
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #333;
-}
 
 /* ===================== Park map points ===================== */
 .map-point {
@@ -468,13 +477,15 @@ html, body {
 
 /* Sized ~44% bigger than the base .frog-photo/.drop-field (used elsewhere,
    e.g. the success screen's result card) — two successive 20% bumps —
-   scoped to .frog-card so only the quiz's frog card is affected. */
+   scoped to .frog-card so only the quiz's frog card is affected. Width caps
+   bumped again 2026-09-14 (374px→430px, 38vw→44vw, 260px→300px floor) after
+   the first bump still looked narrow at a normal desktop window width. */
 .frog-card {
   background: white;
   border-radius: 23px;
   padding: 29px;
-  width: min(374px, 32vw, calc(100vh - 440px));
-  min-width: 220px;
+  width: min(430px, 44vw, calc(100vh - 440px));
+  min-width: 300px;
   box-shadow: 0 6px 16px rgba(0,0,0,0.4);
 }
 .frog-card-title { margin: 0 0 14px; font-size: 20px; color: var(--ink); }
@@ -506,10 +517,10 @@ html, body {
   overflow: hidden;
 }
 /* Child combinator (not a descendant selector) so this only targets the
-   frog photo's own <img> — the quiz's sound button also nests an <img>
-   inside .frog-photo (via .quiz-photo-sound), and this rule's padding +
-   box-sizing:border-box was previously leaking onto that icon too,
-   shrinking its content box to ~0 and making it invisible. */
+   frog photo's own <img> — the frog-photo-sound button also nests an <img>
+   inside .frog-photo, and this rule's padding + box-sizing:border-box was
+   previously leaking onto that icon too, shrinking its content box to ~0
+   and making it invisible. */
 .frog-photo > img { width: 100%; height: 100%; object-fit: contain; padding: 10px; box-sizing: border-box; }
 .frog-photo.big {
   aspect-ratio: 1 / 1;
@@ -518,18 +529,30 @@ html, body {
   margin-bottom: 20px;
 }
 .frog-photo.big > img { padding: 14px; }
-/* Overlaid on the quiz's frog photo (not used on the success/fail screens,
-   which reuse the same .frog-photo base but don't get a sound button).
-   Sized 20% bigger than the base .sound-btn overall (two successive 10%
-   bumps: 28px → 31px → 34px). */
-.quiz-photo-sound {
+/* Overlaid on a frog photo box — the quiz's frog card and the success
+   screen's result card both use this (fail doesn't: it deliberately never
+   reveals the correct species, see showFail()). Sized 20% bigger than the
+   base .sound-btn overall (two successive 10% bumps: 28px → 31px → 34px). */
+.frog-photo-sound {
   position: absolute;
   bottom: 10px; right: 10px;
   z-index: 2;
   width: 34px; height: 34px;
   font-size: 15px;
 }
-.sound-btn.quiz-photo-sound img { width: 20px; height: 20px; }
+.sound-btn.frog-photo-sound img { width: 20px; height: 20px; }
+/* Success screen's button only (quiz keeps bottom-right + the brand red
+   outline/hover, unchanged) — centered along the photo's bottom edge
+   instead of right-aligned, with a neutral grey outline (the same #8c8c86
+   already used for the drop-field border and label hover) and a matching
+   light-grey hover tint instead of the base .sound-btn's pink. */
+#success-photo .sound-btn {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  border-color: #8c8c86;
+}
+#success-photo .sound-btn:hover { background: #e6e5e2; }
 
 .drop-field {
   border: 3px dashed #8c8c86;
@@ -613,17 +636,18 @@ html, body {
   padding: 14px 18px;
   border-radius: 10px;
   width: 240px;
-  /* min-height is set in JS (showHint()), matched to the striped marsh
-     frog's hint — the longest of the 4 quiz hints — so the box is a
-     consistent size regardless of which label is hovered. */
+  /* min-height is set in JS (showHint()), matched to whichever of the 4
+     quiz hints renders tallest, so the box is a consistent size regardless
+     of which label is hovered. */
   font-size: 13px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.35);
   z-index: 6;
   transform: translateX(-50%) rotate(-1deg);
 }
 .hint-title { font-weight: 700; font-size: 14px; margin-bottom: 8px; }
-.hint-line { margin-bottom: 6px; }
-.hint-line:last-child { margin-bottom: 0; }
+.hint-list { margin: 0; padding-left: 18px; }
+.hint-list li { margin-bottom: 6px; }
+.hint-list li:last-child { margin-bottom: 0; }
 
 .buzz-overlay {
   position: absolute;
@@ -773,8 +797,9 @@ html, body {
 .fg-name-row .fg-name { margin: 0; }
 .fg-name { font-size: 22px; margin: 0 0 2px; }
 /* Shared "play this frog's call" button style — used on the Field Guide
-   facts page (inline next to the name) and the quiz frog photo (overlaid,
-   see .quiz-photo-sound). 10% bigger than its original 28px. */
+   facts page (inline next to the name) and overlaid on a frog photo box
+   (the quiz and success screens, see .frog-photo-sound). 10% bigger than
+   its original 28px. */
 .sound-btn {
   background: white;
   color: var(--brand-red-dark);
@@ -904,6 +929,86 @@ html, body {
   .page-arrow.right { right: 4px; }
 }
 
+/* ===================== Field Guide — small-screen paper-sheet view =====================
+   Below 769px (the same "small screen" breakpoint used elsewhere, e.g. the
+   drag-to-explore hint and off-screen pin indicators) the two-page book
+   doesn't fit, so it's replaced with one paper-textured sheet per species —
+   same content grouping as the print layout (fgPageHtml(), built by
+   renderFieldGuideMobile() in script.js) — stacked in a single scrollable
+   column. The Close/Print buttons (.icon-btn.top-right) are untouched and
+   stay pinned above this view exactly as they do above the book. */
+.fg-mobile { display: none; }
+@media (max-width: 768px) {
+  .book { display: none; }
+  .fg-mobile {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
+.fg-mobile-scroll {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 28px 0;
+}
+/* Each species is a fixed-width "sheet" whose aspect ratio matches the
+   rotated Paper-Texture-Portrait.jpg (1365:1920, the same approach the
+   desktop .book uses for its own artwork) as a MINIMUM shape — sized
+   near-fullscreen via the same width/height-cap pattern .book uses, so the
+   dimmed scene backdrop (#fg-bg) shows through around and between sheets as
+   the column scrolls. aspect-ratio only sets the height when width is the
+   sole constraint; with no explicit height and default overflow, a sheet
+   whose content is taller than that (an unlocked species with full
+   description text) grows past it to fit everything with no internal
+   scrollbar — the outer column scroll is the only scrolling.
+   Ordinary padding on all sides (not reserved space for the pinned
+   Close/Print buttons) — those buttons are fixed to the screen, not the
+   card, so no amount of top padding actually keeps them clear of a tall
+   sheet's content once you scroll past the first screenful of it anyway;
+   they're opaque and already above everything (z-index: 6), so they simply
+   sit over whatever scrolls beneath them, the same way a pinned button
+   normally behaves over a scrolling list. */
+.fg-sheet {
+  position: relative;
+  flex-shrink: 0;
+  width: min(480px, 92vw, calc(90vh * 0.711));
+  aspect-ratio: 1365 / 1920;
+  box-sizing: border-box;
+  padding: 32px 24px 32px;
+  background: var(--cream) url('../assets/overlays/Paper-Texture-Portrait.jpg') center/cover;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.fg-sheet .fg-field p,
+.fg-sheet .calling-period-text { font-size: 15px; line-height: 1.5; }
+.fg-mobile-arrows {
+  position: fixed;
+  right: 20px;
+  bottom: 24px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fg-mobile-arrow {
+  background: white;
+  border: 2px solid var(--brand-red);
+  border-radius: 50%;
+  width: 52px; height: 52px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+}
+.fg-mobile-arrow img { width: 31px; height: 31px; }
+
 /* ===================== Intro instructions ===================== */
 /* Shown on load, above every screen (only the Map Overview is ever active
    underneath it in practice) — dismissed via its own button only, not by
@@ -937,6 +1042,18 @@ html, body {
   color: var(--ink);
   font-size: 20px;
   line-height: 1.5;
+}
+.intro-listen {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.intro-ear-icon {
+  width: 60px;
+  height: 60px;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 /* Inverted from the base .action-btn (white bg/red text) to a solid red
    button with white text, so the call-to-action reads as the primary

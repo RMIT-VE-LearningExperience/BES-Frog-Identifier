@@ -5,97 +5,128 @@
    All art/audio below is a placeholder — see documents/.
 =========================================================== */
 
-// Content sourced from documents/Australian_Frog_Species_Profiles.docx
-// (FrogID, frogid.net.au). Calling-period scale: 0 none, 1 possible, 2 yes,
-// 3 peak — see callingClassFor(). Two conservation ratings per species
-// (Federal EPBC Act, IUCN Red List) since the source treats them separately
-// and they don't always agree — see statusPillClass(). `hint` (quiz-label
-// hover text) sourced separately from documents/Frog_ID_Hints.md.
+// Calling-period months and conservation status sourced from
+// documents/Australian_Frog_Species_Profiles.docx (FrogID, frogid.net.au).
+// Calling-period scale: 0 none, 1 possible, 2 yes, 3 peak — see
+// callingClassFor(). Two conservation ratings per species (Federal EPBC Act,
+// IUCN Red List) since the source treats them separately and they don't
+// always agree — see statusPillClass(). `description`/`habitat`/`hint` (an
+// array of quiz-label hover bullets, visual ID cues only — this source
+// doesn't cover calls) replaced 2026-09-14 with the updated text from
+// documents/Frog hints and descriptions.docx, superseding the prior
+// Australian_Frog_Species_Profiles.docx description/habitat text and the
+// separate documents/Frog_ID_Hints.md hint content.
 const SPECIES = {
   banjo: {
     id: "banjo", name: "Eastern Banjo Frog", latin: "Limnodynastes dumerilii",
     photo: "../assets/frogs/04-Banjo-Frog.png",
-    hint: { visual: "Orange/yellow mottling on the sides.", call: "Single deep “bonk” — the classic banjo-string pluck it's named for." },
+    hint: [
+      "Brown or grey-brown back with mottling along the sides",
+      "Pale or yellow stripe running from below the eye to the shoulder",
+      "Golden-brown iris with a horizontal pupil"
+    ],
     statusFederal: "Unlisted", statusIucn: "Least Concern",
     calling: [2,2,2,2,1,1,1,2,3,3,3,3],
     description: [
-      "A large species of frog reaching up to 7.5 cm in body length. It has a brown or grey-brown back, with orange or yellow mottling on the sides. There is a pale or yellow stripe from under the eye to the shoulder. The belly is mottled brown and yellow, and the throat is sometimes yellow.",
-      "The pupil is horizontal and the iris is golden-brown. Fingers are unwebbed and toes are one-quarter webbed, both without discs. Research led by the Australian Museum, published in 2024, revealed that coastal NSW populations formerly considered a subspecies (Limnodynastes dumerilii grayi) are in fact a distinct species, Limnodynastes superciliaris."
+      "A large frog species that can reach 7.5 cm in body length. It has a brown to grey-brown back with distinctive mottling along the sides. A pale or yellow stripe extends from beneath the eye to the shoulder. Its eyes have horizontal pupils and golden-brown irises. The fingers are unwebbed, while the toes are only one-quarter webbed, and neither has enlarged discs.",
+      "Research led by the Australian Museum and published in 2024 found that coastal New South Wales populations previously classified as the subspecies Limnodynastes dumerilii grayi are actually a separate species, Limnodynastes superciliaris. Recordings contributed through FrogID played a key role in this discovery."
     ],
-    habitat: "Occurs in many different habitats including woodland, heathland, farmland, and even suburban areas."
+    habitat: "Occupies a broad range of habitats, from natural landscapes such as woodland and heathland to agricultural and urban environments."
   },
   "striped-marsh": {
     id: "striped-marsh", name: "Striped Marsh Frog", latin: "Limnodynastes peronii",
     photo: "../assets/frogs/05-Striped-Marsh-Frog.png",
-    hint: { visual: "Dark longitudinal stripes on a brown back (not spots).", call: "Single sharp “toc” — like tapping two stones together, repeated at intervals." },
+    hint: [
+      "Brown back with dark longitudinal stripes, sometimes with a cream or reddish stripe along the middle",
+      "White belly and pale stripe running from below the eye to the arm",
+      "Gold iris with a horizontal pupil; fingers and toes unwebbed"
+    ],
     statusFederal: "Unlisted", statusIucn: "Least Concern",
     calling: [3,3,3,3,2,2,2,2,3,3,3,3],
     description: [
-      "A large species of frog reaching up to 7.5 cm in body length. It has a brown back with dark brown longitudinal stripes, and sometimes a cream-coloured or reddish stripe along the middle. There is a pale stripe from under the eye to the top of the arm. The belly is white, and the male has a pale yellow throat with brown mottling.",
-      "The pupil is horizontal and the iris is gold. Fingers and toes are unwebbed, both without discs. The male has distinctly larger forearms than the female."
+      "A large frog species that can grow to 7.5 cm in body length. Its back is typically brown, featuring dark brown stripes that run lengthwise along the body, and some individuals have a cream or reddish stripe down the centre of the back. A pale stripe extends from beneath the eye to the upper part of the arm. The underside is white, while males have a pale yellow throat marked with brown mottling. The eyes are characterised by horizontal pupils and gold-coloured irises. Both the fingers and toes are unwebbed and lack enlarged discs. Males can also be distinguished by their noticeably larger forearms compared with females."
     ],
-    habitat: "Occurs in many different habitat types except deserts and alpine areas. It can even occur in suburban and polluted areas."
+    habitat: "Found in a wide variety of habitats, excluding deserts and alpine regions. It is also capable of living in suburban environments and areas affected by pollution."
   },
   "spotted-marsh": {
     id: "spotted-marsh", name: "Spotted Marsh Frog", latin: "Limnodynastes tasmaniensis",
     photo: "../assets/frogs/03-Spotted-Marsh-Frog.png",
-    hint: { visual: "Olive-green patches with a pale mid-back stripe, round pupil (not horizontal).", call: "Rapid “uk-uk-uk” notes in the north, or a single short “click” in the south — regional call races." },
+    hint: [
+      "Grey-brown or olive-green back with darker patches and often a pale stripe down the middle",
+      "Cream stripe running from below the eye to the upper arm",
+      "Gold iris with a nearly round pupil"
+    ],
     statusFederal: "Unlisted", statusIucn: "Least Concern",
     calling: [2,2,2,2,2,1,2,2,3,3,3,3],
     description: [
-      "A medium-sized species of frog reaching up to nearly 5 cm in body length. It has a grey-brown or olive-green back with darker olive-green or brown patches. There is often a pale cream-coloured or red longitudinal stripe along the middle of the back. There is a cream-coloured stripe from under the eye to the top of the arm. The belly is white, and the male has a yellow throat during the breeding season.",
-      "The pupil is nearly round and the iris is gold. Fingers are unwebbed and toes are slightly webbed, both without discs. Three vastly different call races exist throughout the range of these frogs, varying by region in pitch and note pattern, with hybrid zones where they meet."
+      "A medium-sized frog that grows to almost 5 cm in body length. Its back is typically grey-brown or olive-green and patterned with darker olive-green or brown markings. Many individuals display a pale cream or reddish stripe running down the centre of the back. A cream-coloured stripe extends from beneath the eye to the upper arm. The underside is white, and males develop a yellow throat during the breeding season. The eyes have a gold iris and a pupil that is nearly round. The fingers are unwebbed and the toes are slightly webbed, with neither having enlarged discs.",
+      "This species is notable for having three distinct call races across its range. In northern New South Wales, Queensland, and northern Victoria, the call consists of three to four rapid, high-pitched \"uk-uk-uk\" notes. In southern Victoria and Tasmania, the call is a short \"click\". In south-eastern South Australia, both call types occur. Frogs at the northern end of the Coorong produce a lower-pitched call of four to five \"uk-uk-uk-uk\" notes, similar to the northern form. Areas where these different call types interbreed occur in central Victoria and west of the Murray River in South Australia."
     ],
-    habitat: "Occurs near most water bodies surrounded by grassy areas, including in suburban areas and other disturbed habitat."
+    habitat: "Usually found around ponds, wetlands, dams, and other water bodies surrounded by grassy vegetation, including suburban and disturbed environments."
   },
   "brown-tree": {
     id: "brown-tree", name: "Brown Tree Frog", latin: "Rawlinsonia ewingii",
     photo: "../assets/frogs/02-Brown-Tree-Frog.png",
-    hint: { visual: "Dark bifurcated stripe splitting between the eyes.", call: "Rising “weeek” followed by a series of short clicks." },
+    hint: [
+      "Cream, brown, copper or sometimes lime-green back",
+      "Dark stripe running from the tip of the snout past the arm",
+      "Gold iris with a horizontal pupil",
+      "Unwebbed fingers and moderately to extensively webbed toes with large discs"
+    ],
     statusFederal: "Unlisted", statusIucn: "Least Concern",
     calling: [2,2,2,2,2,3,3,3,3,3,3,2],
     description: [
-      "A medium-sized species of frog reaching up to 4.5 cm in body length. It has a cream-coloured, brown, copper or occasionally lime green back, with a wide, darker bifurcated stripe along the middle that starts between the eyes. There is a black or dark brown stripe from the tip of the snout to past the arm. There is often a white stripe from below the eye to the end of the upper lip. The belly is white, and the male often has a darker throat.",
-      "The pupil is horizontal, and the iris is gold. The backs of the thighs are typically orange-yellow and unpatterned. The groin region is usually plain and unpatterned. Fingers are unwebbed and toes are moderate-extensively webbed, both with discs wider than the digits. This species was previously known as Litoria ewingii."
+      "A medium-sized frog that can reach 4.5 cm in body length. Its back varies in colour from cream, brown, or copper to, less commonly, lime green, and is marked by a broad, darker stripe running down the centre, beginning between the eyes. A black or dark brown stripe extends from the tip of the snout past the forelimb, and many individuals also have a white stripe running from beneath the eye to the end of the upper lip. The underside is white, while males often develop a darker-coloured throat. The eyes have gold irises with horizontal pupils. The groin area is typically plain and lacks any distinct markings or patterns. Its fingers are unwebbed, while the toes are moderately to extensively webbed, and both fingers and toes end in discs that are wider than the digits themselves."
     ],
-    habitat: "Occurs in forest, heathland, alpine areas, farmland, and even suburban areas."
+    habitat: "This species occurs across a wide range of habitats, including forests, heathlands, alpine environments, agricultural land, and suburban areas. Its adaptability allows it to thrive in both natural and human-modified landscapes."
   },
   bell: {
-    id: "bell", name: "Southern Bell Frog", latin: "Ranoidea raniformis",
+    id: "bell", name: "Southern Bell Frog", latin: "Litoria raniformis",
     photo: "../assets/frogs/01-Southern-Bell-Frog.png",
     callAudio: "../assets/scenes/yalukit-willam-nature-reserve/frog-sound/fr-southern-bell-frog.mp4",
-    hint: { visual: "Bright blue groin and thighs, gold eye.", call: "A long, rattling groan — often likened to a distant motorbike revving." },
+    hint: [
+      "Green back with brown patches and a pale longitudinal stripe along the middle",
+      "White belly",
+      "Horizontal pupil with gold iris"
+    ],
     statusFederal: "Vulnerable", statusIucn: "Vulnerable",
     calling: [2,2,1,1,0,0,1,2,3,3,3,3], // Jan/Feb/Aug yes, Mar/Apr/Jul possible, May/Jun none, Sep-Dec peak
     description: [
-      "A large species of frog that can reach up to 10 cm in body length. It has a green-brown back, with brown or bronze patches, and sometimes a pale longitudinal stripe along the middle. There is also a cream-coloured stripe from behind the eye that widens along the sides, and often a dark brown stripe from the nostril to the eye. The belly is white.",
-      "The pupil is horizontal and the iris is gold. The groin and backs of the thighs are bright blue, and sometimes have small, bright yellow patches. Fingers are unwebbed and toes are fully webbed, both with small discs. This species was previously known as Litoria raniformis."
+      "A large frog that can grow to 10 cm long, this species is recognised by its greenish-brown upper body, which is typically marked with brown or bronze blotches. Some individuals also have a pale stripe running down the centre of the back. A cream stripe begins behind the eye and expands along the sides of the body, while a dark brown stripe is often visible between the nostril and the eye. The underside is white, and the eyes feature gold irises with horizontal pupils. Its fingers lack webbing, whereas the toes are fully webbed, and both fingers and toes have small disc-shaped tips. Following a June 2025 taxonomic review of Australian treefrogs, this species was proposed for reclassification into the genus Ranoidea, with the suggested scientific name Ranoidea raniformis."
     ],
-    habitat: "Occurs in woodland and near large permanent ponds that have emergent reeds and other vegetation, sometimes in suburban areas."
+    habitat: "This species is found in woodland habitats and around large, permanent ponds with emergent reeds and other aquatic vegetation. It may also occur in suburban environments, particularly where suitable wetland habitat is available."
   },
   "baw-baw": {
     id: "baw-baw", name: "Baw Baw Frog", latin: "Philoria frosti",
     photo: "../assets/frogs/06-Baw-Baw-Frog.png",
-    hint: { visual: "Dark back with a bold yellow patch over the head/shoulders.", call: "Soft, low pulsing grunt, usually muffled since it calls from under moss/logs." },
+    hint: [
+      "Dark grey, dark brown, or pink-brown back",
+      "Cream or pale-yellow belly with brown speckling",
+      "Dark brown iris with a horizontal pupil"
+    ],
     statusFederal: "Critically Endangered", statusIucn: "Critically Endangered",
     calling: [0,0,0,0,0,0,0,0,0,2,3,2],
     description: [
-      "A medium-sized species of frog reaching up to 5.5 cm in body length. It has a dark grey, dark brown, or pink-brown back. There is often a large yellow patch covering the head and upper half of the back. The belly is cream-coloured or pale yellow, with brown specks.",
-      "The pupil is horizontal, and the iris is dark brown. Fingers and toes are unwebbed, both without discs. The female has large flanges on the first and second finger, which help to whip up protective foam around the eggs as they are laid."
+      "A medium-sized frog that can grow to 5.5 cm in body length. Its back is typically dark grey, dark brown, or pinkish-brown, and many individuals have a large yellow patch covering the head and upper portion of the back. The underside is cream to pale yellow and marked with fine brown speckling. The eyes feature horizontal pupils and dark brown irises. Both the fingers and toes are unwebbed and lack enlarged discs. Females are distinguished by large flanges on the first and second fingers, which are used to whip protective foam around the eggs during laying.",
+      "This species is found only on the Mt Baw Baw Plateau east of Melbourne, Victoria. It has suffered a dramatic decline due to amphibian chytrid fungus, with populations decreasing by approximately 98% since 1985. A captive breeding program has been established to help safeguard the species from extinction."
     ],
-    habitat: "Occurs in alpine forest and nearby bogs."
+    habitat: "Occurs in alpine forests and adjacent bog habitats on the Mt Baw Baw Plateau."
   },
   "spotted-tree": {
     id: "spotted-tree", name: "Spotted Tree Frog", latin: "Dryopsophus spenceri",
     photo: "../assets/frogs/07-Spotted-Tree-Frog.png",
-    hint: { visual: "Yellow/orange backs of thighs and groin, found only right beside rocky mountain streams.", call: "Soft clicking trill, easy to miss over rushing water." },
+    hint: [
+      "Brown or green back, sometimes mottled, with a gold or brown stripe running from the snout past the arm",
+      "Yellow or orange groin and backs of the thighs",
+      "Gold iris with a horizontal pupil; large discs on fingers and toes"
+    ],
     statusFederal: "Critically Endangered", statusIucn: "Critically Endangered",
     calling: [0,0,0,0,0,0,0,0,0,2,2,2],
     description: [
-      "A medium-sized species of frog reaching up to 5 cm in body length. It has a brown or green back, with or without brown or olive-green mottling. There is a gold or brown stripe from the tip of the snout to past the arm, becoming spots on the side. There is often a green stripe along the upper lip if the back is brown. The belly is white or yellow.",
-      "The pupil is horizontal and the iris is gold. The backs of the thighs and the groin are yellow or orange. Fingers are slightly webbed and toes are fully webbed, both with large discs. This species was previously known as Litoria spenceri."
+      "A medium-sized frog that grows to around 5 cm in body length. Its back may be brown or green, sometimes plain and sometimes marked with brown or olive-green mottling. A distinctive gold or brown stripe runs from the tip of the snout past the forelimb, breaking into spots along the sides of the body. Individuals with a brown back often have a green stripe along the upper lip. The underside is white to yellow. The eyes have horizontal pupils and gold-coloured irises. The groin and backs of the thighs are yellow or orange. The fingers are slightly webbed and the toes are fully webbed, with both ending in large discs.",
+      "This species was formerly known as Litoria spenceri."
     ],
-    habitat: "Occurs near rocky streams in mountainous areas with wet or dry forest nearby."
+    habitat: "Occurs near rocky creek systems in mountainous areas, with surrounding wet or dry forest habitat."
   }
 };
 
@@ -358,7 +389,7 @@ function lockOverlayToImage(imgId, overlayId, screenId, isActive) {
 // The media element itself isn't fixed at construction time — `activate()`
 // takes it — since a scene can swap between an <img> and a <video> using
 // the same controller. `naturalSize()` reads whichever properties apply.
-function createDragPanController({ wrapId, hintId, axis, panLayerId, mirrorId }) {
+function createDragPanController({ wrapId, hintId, axis, panLayerId, mirrorId, alwaysVisibleAtStart }) {
   const wrap = document.getElementById(wrapId);
   const hint = hintId ? document.getElementById(hintId) : null;
   const panLayer = panLayerId ? document.getElementById(panLayerId) : null;
@@ -483,7 +514,19 @@ function createDragPanController({ wrapId, hintId, axis, panLayerId, mirrorId })
         media.addEventListener("loadedmetadata", layout, { once: true });
       }
       layout();
-      restartIdleTimer();
+      // The Map Overview's hint (alwaysVisibleAtStart) shows immediately
+      // rather than going through the usual hide-then-reappear-after-3s
+      // idle cycle — it's meant to be visible from the very start of the
+      // experience. Once the user actually interacts, the normal
+      // pointerdown/pointermove-driven restartIdleTimer() below takes over
+      // (hide on interaction, reappear after 3s idle), same as every other
+      // pannable screen.
+      if (alwaysVisibleAtStart && hint) {
+        clearTimeout(idleTimer);
+        hint.classList.add("show");
+      } else {
+        restartIdleTimer();
+      }
     },
     deactivate() {
       active = false;
@@ -513,7 +556,7 @@ lockOverlayToImage("scene-photo-img", "hotspot-layer", "screen-scene",
 
 const mapPanController = createDragPanController({
   wrapId: "map-bg-wrap", panLayerId: "map-pan-layer",
-  hintId: "map-drag-hint", axis: "both"
+  hintId: "map-drag-hint", axis: "both", alwaysVisibleAtStart: true
 });
 if (mapPanController) mapPanController.activate(document.getElementById("map-photo-img"));
 
@@ -714,6 +757,7 @@ function onHotspotClick(isTarget, key) {
 function startTouchDrag(e, labelEl, id) {
   if (e.pointerType === "mouse") return;
   e.preventDefault();
+  hideHint(); // in case a hint was left open from a prior mouse hover on a hybrid touch/mouse device
 
   const rect = labelEl.getBoundingClientRect();
   const offsetX = e.clientX - rect.left;
@@ -771,7 +815,7 @@ function openQuiz() {
   const targetSp = SPECIES[TARGET_SPECIES];
   document.getElementById("quiz-frog-photo").innerHTML = `
     <img src="${targetSp.photo}" alt="${targetSp.name}">
-    ${targetSp.callAudio ? `<button class="sound-btn quiz-photo-sound" data-audio="${targetSp.callAudio}" title="Play call">${SOUND_ICON_HTML}</button>` : ""}
+    ${targetSp.callAudio ? `<button class="sound-btn frog-photo-sound" data-audio="${targetSp.callAudio}" title="Play call">${SOUND_ICON_HTML}</button>` : ""}
   `;
   stopPreviewAudio();
 
@@ -792,6 +836,11 @@ function openQuiz() {
     el.addEventListener("dragstart", e => {
       e.dataTransfer.setData("text/plain", id);
       el.classList.add("dragging");
+      // Hidden explicitly here rather than relying on the mouseleave below
+      // — whether starting a native drag also fires a mouseleave on the
+      // source element turns out to be inconsistent across browsers, so
+      // this is the one path guaranteed to run the moment a drag begins.
+      hideHint();
     });
     el.addEventListener("dragend", () => el.classList.remove("dragging"));
     el.addEventListener("mouseenter", () => showHint(sp.hint, el));
@@ -814,17 +863,17 @@ function openQuiz() {
 
 // Cached the first time it's needed. All 4 quiz hint boxes are held to this
 // height (see showHint()) so hovering different labels doesn't resize the
-// box — measured from the striped marsh frog's actual rendered content
-// (the longest of the 4 hints) rather than a guessed pixel value, so it
-// stays correct regardless of font/rendering differences.
+// box — measured from whichever of the 4 quiz species' hints renders
+// tallest (currently Brown Tree Frog, with 4 bullets vs. 3 for the others)
+// rather than a guessed or hardcoded species, so it stays correct if the
+// hint content changes again later.
 // Shared by showHint() and the measurement probe below, so the "Hints"
 // title can't end up in one and not the other and throw off the measured
 // height.
 function hintHtml(hint) {
   return `
     <div class="hint-title">Hints</div>
-    <div class="hint-line"><strong>Visual:</strong> ${hint.visual}</div>
-    <div class="hint-line"><strong>Call:</strong> ${hint.call}</div>
+    <ul class="hint-list">${hint.map(line => `<li>${line}</li>`).join("")}</ul>
   `;
 }
 
@@ -837,9 +886,11 @@ function getHintBoxMinHeight() {
   probe.hidden = false;
   probe.style.visibility = "hidden";
   probe.style.minHeight = "";
-  probe.innerHTML = hintHtml(SPECIES["striped-marsh"].hint);
   band.appendChild(probe);
-  hintBoxMinHeight = probe.offsetHeight;
+  hintBoxMinHeight = Math.max(...QUIZ_LABEL_IDS.map(id => {
+    probe.innerHTML = hintHtml(SPECIES[id].hint);
+    return probe.offsetHeight;
+  }));
   probe.remove();
   return hintBoxMinHeight;
 }
@@ -922,7 +973,10 @@ function showSuccess() {
   const successBg = document.getElementById("success-bg");
   successBg.className = "scene-bg dim";
   setPhotoBg(successBg, SCENES[state.currentSceneIdx].photo);
-  document.getElementById("success-photo").innerHTML = `<img src="${sp.photo}" alt="${sp.name}">`;
+  document.getElementById("success-photo").innerHTML = `
+    <img src="${sp.photo}" alt="${sp.name}">
+    ${sp.callAudio ? `<button class="sound-btn frog-photo-sound" data-audio="${sp.callAudio}" title="Play call">${SOUND_ICON_HTML}</button>` : ""}
+  `;
   document.getElementById("success-species").textContent = `${sp.name} (${sp.latin})`;
   document.getElementById("success-text").textContent = `You've found the ${sp.name}!`;
   showScreen("success");
@@ -959,6 +1013,7 @@ document.querySelector('[data-action="open-park-map"]').addEventListener("click"
 function openFieldGuide() {
   state.fgIdx = FIELD_GUIDE_ORDER.indexOf(TARGET_SPECIES);
   renderFieldGuide();
+  renderFieldGuideMobile();
 
   // Field guide overlays onto whichever screen it was opened from, dimmed —
   // same pattern as the quiz screen's backdrop.
@@ -1220,6 +1275,42 @@ function fgPageHtml(id) {
     </div>
   `;
 }
+
+// ===================== Field Guide: small-screen paper-sheet view =====================
+// Below 769px the two-page book is swapped for one paper-textured sheet per
+// species (see styles.css), stacked in a single scrollable column instead of
+// a facts/story spread — same content grouping as the print layout, so this
+// reuses fgPageHtml() rather than duplicating markup. Rebuilt fresh each time
+// the Field Guide opens; unlocked species can't change while it's open, so no
+// separate live-update path is needed.
+function renderFieldGuideMobile() {
+  const container = document.getElementById("fg-mobile-scroll");
+  container.innerHTML = FIELD_GUIDE_ORDER
+    .map(id => `<div class="fg-sheet">${fgPageHtml(id)}</div>`)
+    .join("");
+  document.getElementById("fg-mobile-empty-overlay").hidden = state.fieldGuideUnlocked.size > 0;
+  container.scrollTop = 0;
+}
+
+// Jumps to the previous/next full sheet (by measured position, not a fixed
+// pixel amount) since a locked "???" sheet is much shorter than an unlocked
+// one — mirrors how the book's own page arrows step by whole page.
+function scrollFieldGuideMobile(dir) {
+  const container = document.getElementById("fg-mobile-scroll");
+  const sheets = [...container.querySelectorAll(".fg-sheet")];
+  if (!sheets.length) return;
+  const pos = container.scrollTop;
+  let target;
+  if (dir > 0) {
+    target = sheets.find(el => el.offsetTop > pos + 4) || sheets[sheets.length - 1];
+  } else {
+    const before = sheets.filter(el => el.offsetTop < pos - 4);
+    target = before.length ? before[before.length - 1] : sheets[0];
+  }
+  container.scrollTo({ top: target.offsetTop, behavior: "smooth" });
+}
+document.getElementById("fg-mobile-up").addEventListener("click", () => scrollFieldGuideMobile(-1));
+document.getElementById("fg-mobile-down").addEventListener("click", () => scrollFieldGuideMobile(1));
 
 // ===================== Frog call (looping search audio) =====================
 // Prefers the target species' real call recording (SPECIES[..].callAudio)
