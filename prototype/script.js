@@ -24,6 +24,10 @@ const SPECIES = {
     // added 2026-09-18 for the Field Guide only; quiz/success keep the
     // square .photo, unchanged.
     photoFull: "../assets/frogs/04-Banjo-Frog.jpg",
+    // The Jawbone Nature Conservation Reserve's target species — added when
+    // wiring in that reserve. Path convention matches SPECIES.bell/.striped-marsh's
+    // callAudio (frog-sound folder under that reserve's own scenes/ subfolder).
+    callAudio: "../assets/scenes/jawbone-nature-conservation-reserve/jawbone-frog-sound/fr-banjo-frog-Jodi Rowley.mp4",
     hint: [
       "Brown or grey-brown back with mottling along the sides",
       "Pale or yellow stripe running from below the eye to the shoulder",
@@ -78,6 +82,11 @@ const SPECIES = {
     id: "brown-tree", name: "Brown Tree Frog", latin: "Rawlinsonia ewingii",
     photo: "../assets/frogs/02-Brown-Tree-Frog-square.jpg",
     photoFull: "../assets/frogs/02-Brown-Tree-Frog.jpg",
+    // Trin Warren Tam-Boore Bellbird Waterhole's target species — added when
+    // wiring in that reserve. Path convention matches the other reserves'
+    // callAudio fields (frog-sound folder under that reserve's own scenes/
+    // subfolder).
+    callAudio: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-frog-sound/fr-brown-tree-frog-Murray Littlejohn.mp4",
     hint: [
       "Cream, brown, copper or sometimes lime-green back",
       "Dark stripe running from the tip of the snout past the arm",
@@ -270,6 +279,128 @@ const RESERVES = {
         pannable: true,
         mapX: "40.1%", mapY: "85.5%",
         hotspots: [{ id: "pr1", x: "63.8%", y: "53.3%" }, { id: "pr2", x: "26.3%", y: "73.3%" }] }
+    ]
+  },
+  // Wired in following the Rosanna pattern. Target species (Eastern Banjo
+  // Frog) inferred from the one new frog-call recording supplied
+  // (jawbone-frog-sound/); quiz distractors confirmed with the user.
+  // quizLabelIds' 3rd slot changed from "spotted-marsh" to "baw-baw"
+  // 2026-09-21 (cont'd) — a full-reserve audit found this reserve's 4-species
+  // quiz set was byte-for-byte identical to Rosanna's (banjo/bell/
+  // spotted-marsh/striped-marsh, just a different one marked correct each
+  // time). Fixed by swapping in Baw Baw Frog, per the user's direction to
+  // draw replacements from species whose own reserves aren't wired in yet
+  // (spotted-marsh/baw-baw/spotted-tree — the 3 species never yet used as
+  // any reserve's target) rather than reshuffling among the same 4 species
+  // every reserve keeps reusing. Baw Baw Frog specifically chosen over
+  // Spotted Tree Frog since the latter had already appeared once (Trin
+  // Warren's distractors) — this keeps every quiz distractor pool feeling
+  // fresh rather than re-picking from an already-touched species.
+  // Reserve name confirmed with the user too: "Jawbone Marine Sanctuary"
+  // (the Map Overview pin's original placeholder label) and "Jawbone Nature
+  // Conservation Reserve" (the name on the supplied map file and hotspots
+  // doc) are two real, adjacent-but-distinct protected areas in
+  // Williamstown, VIC — user confirmed to use the latter, matching the
+  // actually-supplied assets.
+  // Scene names/map alt text written after looking at the actual scene
+  // stills/map, not guessed from filenames. mapX/mapY/hotspot positions
+  // detected programmatically (Pillow/scipy, connected-component marker
+  // detection — same method used for Rosanna and the original Map Overview
+  // pins) from documents/Jawbone_Hotspots.png.
+  // IMPORTANT: that reference doc's 3 scene panels are NOT in filename
+  // order (its 2nd panel is actually 03-Saltmarsh-Lagoon and its 3rd panel
+  // is actually 02-Wetland-Lake) — verified by directly comparing the
+  // doc's panel images against the real asset files pixel-for-pixel before
+  // assigning any hotspot, not assumed from the doc's or filenames' own
+  // ordering. The scenes array below is ordered to match the doc's actual
+  // panel order (boardwalk, lagoon, lake) for readability, same as
+  // Rosanna's array above isn't in filename order either for the same
+  // reason.
+  jawbone: {
+    id: "jawbone",
+    name: "Jawbone Nature Conservation Reserve",
+    mapImage: "../assets/scenes/jawbone-nature-conservation-reserve/Jawbone Nature Conservation Reserve Map.jpg",
+    mapAlt: "Illustrated aerial map of Jawbone Nature Conservation Reserve, showing a rocky coastline with two inland ponds set among grassy parkland, and a sheltered reef and lagoon at the reserve's southern point. A residential street grid borders the reserve to the north and east, with a small boat harbour near its southeastern corner.",
+    quizLabelIds: ["banjo","striped-marsh","baw-baw","bell"],
+    targetSpecies: "banjo",
+    scenes: [
+      { id: "boardwalk-marsh", name: "The estuary boardwalk",
+        photo: "../assets/scenes/jawbone-nature-conservation-reserve/01-Jawbone-Estuary-Boardwalk-Marsh-still.jpg",
+        video: "../assets/scenes/jawbone-nature-conservation-reserve/01-Jawbone-Estuary-Boardwalk-Marsh.mp4",
+        ambientAudio: "../assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/01-Jawbone-Estuary-Boardwalk-Marsh.mp3",
+        pannable: true,
+        mapX: "25.15%", mapY: "36.51%",
+        hotspots: [{ id: "bw1", x: "33.71%", y: "68.23%" }, { id: "bw2", x: "76.83%", y: "54.92%" }] },
+      { id: "saltmarsh-lagoon", name: "The saltmarsh lagoon",
+        photo: "../assets/scenes/jawbone-nature-conservation-reserve/03-Jawbone-Saltmarsh-Lagoon-still.jpg",
+        video: "../assets/scenes/jawbone-nature-conservation-reserve/03-Jawbone-Saltmarsh-Lagoon.mp4",
+        ambientAudio: "../assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/03-Jawbone-Saltmarsh-Lagoon.mp3",
+        pannable: true,
+        mapX: "65.34%", mapY: "42.63%",
+        hotspots: [{ id: "lg1", x: "18.71%", y: "65.73%" }, { id: "lg2", x: "71.21%", y: "75.72%" }] },
+      { id: "wetland-lake", name: "The wetland lake",
+        photo: "../assets/scenes/jawbone-nature-conservation-reserve/02-Jawbone-Wetland-Lake-still.jpg",
+        video: "../assets/scenes/jawbone-nature-conservation-reserve/02-Jawbone-Wetland-Lake.mp4",
+        ambientAudio: "../assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/02-Jawbone-Wetland-Lake.mp3",
+        pannable: true,
+        mapX: "44.67%", mapY: "63.42%",
+        hotspots: [{ id: "wl1", x: "20.59%", y: "73.23%" }, { id: "wl2", x: "84.33%", y: "46.58%" }] }
+    ]
+  },
+  // Wired in following the Jawbone/Rosanna pattern. Target species (Brown
+  // Tree Frog) inferred from the one new frog-call recording supplied
+  // (trin-frog-sound/). Quiz distractors: user asked for a randomised pick
+  // (rather than reusing the same distractor pool as every other reserve)
+  // — rolled once now via `random.sample` over the 6 non-target species and
+  // fixed in the data below, same as every other reserve's quiz labels are
+  // authored (not re-randomised at runtime; that was explicitly not what
+  // was asked for).
+  // Reserve name extended from the Map Overview pin's existing abbreviated
+  // placeholder ("Trin Warren Tam-Boore") to the full name on the supplied
+  // map file/hotspots doc ("Trin Warren Tam-Boore Bellbird Waterhole") —
+  // unlike Jawbone, this isn't two distinct real places, just a shorter vs.
+  // fuller form of the same reserve's name, so not treated as needing a
+  // confirmation question.
+  // Scene names/map alt text written after looking at the actual scene
+  // stills/map. mapX/mapY/hotspot positions detected programmatically
+  // (Pillow/scipy, connected-component marker detection) from
+  // documents/Trin_Warren_Hotspots.png.
+  // IMPORTANT: same doc/filename mismatch as Jawbone's hotspots doc — this
+  // doc's 2nd scene panel is actually 03-Trin-billabong-edge and its 3rd
+  // panel is actually 02-Trin-Wetland-Waterhole. Verified by directly
+  // comparing the doc's cropped panel images against the real asset files
+  // pixel-for-pixel before assigning any hotspot. The scenes array below is
+  // ordered to match the doc's actual panel order (channel, billabong,
+  // waterhole) for readability, same as Jawbone's and Rosanna's arrays.
+  trin: {
+    id: "trin",
+    name: "Trin Warren Tam-Boore Bellbird Waterhole",
+    mapImage: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/Trin Warren Tam-Boore Bellbird Waterhole Reserve Map.jpg",
+    mapAlt: "Illustrated aerial map of Trin Warren Tam-Boore Bellbird Waterhole, showing a large lake beside a road on the western side of the reserve, and a pair of smaller ponds within a wooded loop track to the east. A car park sits between the two areas, a residential street borders the reserve to the north, and a sports oval sits to the south.",
+    quizLabelIds: ["brown-tree","spotted-tree","banjo","bell"],
+    targetSpecies: "brown-tree",
+    scenes: [
+      { id: "wetland-channel", name: "The narrow wetland channel",
+        photo: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/01-Trin-narrow-wetland-channel-still.jpg",
+        video: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/01-Trin-narrow-wetland-channel.mp4",
+        ambientAudio: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-bg-sound/01-Trin-narrow-wetland-channel.mp3",
+        pannable: true,
+        mapX: "58.44%", mapY: "38.55%",
+        hotspots: [{ id: "wc1", x: "37.46%", y: "54.91%" }, { id: "wc2", x: "80.58%", y: "74.89%" }] },
+      { id: "billabong-edge", name: "The billabong edge",
+        photo: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/03-Trin-billabong-edge-still.jpg",
+        video: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/03-Trin-billabong-edge.mp4",
+        ambientAudio: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-bg-sound/03-Trin-billabong-edge.mp3",
+        pannable: true,
+        mapX: "18.26%", mapY: "56.93%",
+        hotspots: [{ id: "be1", x: "28.09%", y: "82.38%" }, { id: "be2", x: "54.34%", y: "59.07%" }] },
+      { id: "wetland-waterhole", name: "The wetland waterhole",
+        photo: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/02-Trin-Wetland-Waterhole-still.jpg",
+        video: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/02-Trin-Wetland-Waterhole.mp4",
+        ambientAudio: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-bg-sound/02-Trin-Wetland-Waterhole.mp3",
+        pannable: true,
+        mapX: "74.53%", mapY: "61.01%",
+        hotspots: [{ id: "ww1", x: "33.71%", y: "49.92%" }, { id: "ww2", x: "82.45%", y: "83.21%" }] }
     ]
   }
 };
@@ -537,13 +668,23 @@ function runStagger(screenId, immediateSelector, delayedSelector) {
 // with role="dialog"/aria-modal on the overlay (index.html) and moving
 // focus onto the Start button, this makes it behave like an actual modal
 // for every input method, not just mouse/touch.
-document.getElementById("app-content").inert = true;
-document.getElementById("intro-start-btn").focus();
+function showIntro() {
+  document.getElementById("intro-overlay").hidden = false;
+  document.getElementById("app-content").inert = true;
+  document.getElementById("intro-start-btn").focus();
+}
+showIntro();
 document.getElementById("intro-start-btn").addEventListener("click", () => {
   document.getElementById("intro-overlay").hidden = true;
   document.getElementById("app-content").inert = false;
   document.getElementById("map-title").focus();
 });
+
+// Map Overview's "Instructions" button — re-opens the same intro dialog
+// shown on load, so a player can re-read it later. Only ever reachable from
+// the Map Overview screen, so the dismiss handler above's focus target
+// (#map-title) stays correct without needing return-screen tracking.
+document.querySelector('[data-action="show-instructions"]').addEventListener("click", showIntro);
 
 // `inert` on #app-content keeps Tab from reaching the background, but does
 // nothing to stop Tab from leaving the dialog forward past its last
