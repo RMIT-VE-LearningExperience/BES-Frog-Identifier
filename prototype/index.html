@@ -9,19 +9,32 @@
 <body>
 
 <div id="app">
+  <!-- Wraps everything except the intro dialog below, so opening the intro
+       can make this whole thing `inert` — otherwise nothing stops a
+       keyboard/screen-reader user from reaching the Map Overview underneath
+       while the modal is still supposed to be blocking it (see the
+       intro-start-btn listener in script.js). -->
+  <div id="app-content">
   <!-- Shared one-shot "play this frog's call" preview player — used by both
        the Field Guide facts page and the quiz's frog photo sound button. -->
   <audio id="preview-audio" preload="auto"></audio>
-  <!-- Quiz guess feedback stings (correct/incorrect) — separate from
-       preview-audio so a guess sting can't interrupt/be interrupted by the
-       player previewing a frog's call. -->
+  <!-- One-shot "event just happened" feedback stings (guess results, scene
+       navigation, frog found/escaped, Field Guide open/page-turn) —
+       separate from preview-audio so a guess sting can't interrupt/be
+       interrupted by the player previewing a frog's call. -->
   <audio id="feedback-audio" preload="auto"></audio>
+  <!-- Mouse-hover blip on interactive elements (see HOVER_SOUND_SELECTOR,
+       script.js) — its own channel so a stray hover can't cut off one of
+       the more meaningful stings above mid-playback. Only ever plays this
+       one sound, so its src is fixed here rather than set from JS each
+       time (unlike feedback-audio, which switches source per event). -->
+  <audio id="hover-audio" src="../assets/overlays/feedback-sounds/button_hover.mp3" preload="auto"></audio>
 
   <!-- ===================== MAP OVERVIEW ===================== -->
   <section id="screen-map" class="screen active">
     <div class="map-bg-wrap" id="map-bg-wrap">
       <div class="map-pan-layer" id="map-pan-layer">
-        <img class="map-photo-img" id="map-photo-img" src="../assets/scenes/victoria-map-overview.jpg" alt="" draggable="false">
+        <img class="map-photo-img" id="map-photo-img" src="../assets/scenes/victoria-map-overview.jpg" alt="Illustrated watercolor map of Victoria, Australia, centered on Melbourne and Port Phillip Bay. Seven wetland reserve locations are marked: five clustered around Melbourne's bayside and inner suburbs, and two further east in forested hill country." draggable="false">
         <div class="map-pins-frame" id="map-pins-frame">
           <div class="pin unlocked label-right" style="left:25.45%; top:73%;" data-park="yalukit">
             <img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt="">
@@ -30,7 +43,7 @@
 
           <div class="pin locked label-left" style="left:20%; top:68%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Jawbone Marine Sanctuary <span class="lock">🔒</span></div></div>
           <div class="pin locked label-left" style="left:18.95%; top:61.93%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Newport Lakes Reserve <span class="lock">🔒</span></div></div>
-          <div class="pin locked label-right" style="left:28.71%; top:58.27%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">The Rosanna Golf Club <span class="lock">🔒</span></div></div>
+          <div class="pin unlocked label-right" style="left:28.71%; top:58.27%;" data-park="rosanna"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">The Rosanna Golf Club</div></div>
           <div class="pin locked label-left" style="left:22.20%; top:56.17%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Trin Warren Tam-Boore <span class="lock">🔒</span></div></div>
           <div class="pin locked" style="left:82.37%; top:29.38%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Enoch Falls <span class="lock">🔒</span></div></div>
           <div class="pin locked" style="left:90%; top:66.98%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Baw Baw National Park <span class="lock">🔒</span></div></div>
@@ -40,10 +53,13 @@
     </div>
     <!-- Small-screen-only: arrows pointing toward pins currently panned out
          of view — populated/positioned by setupOffscreenIndicators() in
-         script.js. Hidden above 768px via CSS, same breakpoint as .drag-hint. -->
-    <div class="offscreen-indicators" id="map-offscreen-indicators"></div>
+         script.js. Hidden above 768px via CSS, same breakpoint as .drag-hint.
+         aria-hidden: purely decorative/redundant with the pins themselves
+         (already focusable and labeled) — without this, a screen reader
+         would announce a meaningless "➤" per off-screen pin. -->
+    <div class="offscreen-indicators" id="map-offscreen-indicators" aria-hidden="true"></div>
     <div class="top-bar">
-      <h1 class="title-chip">Victoria Map Overview</h1>
+      <h1 class="title-chip" id="map-title" tabindex="-1">Victoria Map Overview</h1>
       <button class="icon-btn" data-goto="fieldguide" title="Field Guide"><img src="../assets/buttons/Icon_Journal.png" alt="">Field Guide</button>
     </div>
   </section>
@@ -52,13 +68,13 @@
   <section id="screen-park" class="screen">
     <div class="map-bg-wrap" id="park-bg-wrap">
       <div class="map-pan-layer" id="park-pan-layer">
-        <img class="map-photo-img" id="park-map-img" src="../assets/scenes/yalukit-willam-nature-reserve/Yalukit Willam Nature Reserve Map.jpg" alt="" draggable="false">
+        <img class="map-photo-img" id="park-map-img" src="../assets/scenes/yalukit-willam-nature-reserve/Yalukit Willam Nature Reserve Map.jpg" alt="Illustrated aerial map of Yalukit Willam Nature Reserve, showing a chain of ponds and wetlands connected by walking paths and bordered by scattered trees. A sports oval sits to the northwest of the reserve, and a residential street grid borders it to the east." draggable="false">
         <div class="map-pins-frame" id="map-points"></div>
       </div>
       <div class="drag-hint" id="park-drag-hint">Drag to explore</div>
     </div>
     <div class="top-bar">
-      <h1 class="title-chip">Yalukit Willam Nature Reserve</h1>
+      <h1 class="title-chip" id="park-title" tabindex="-1">Yalukit Willam Nature Reserve</h1>
       <button class="icon-btn" data-goto="map" title="Main Map"><img src="../assets/buttons/Icon_Overview.png" alt="">Main Map</button>
     </div>
   </section>
@@ -75,8 +91,18 @@
     <audio id="scene-ambient-audio" loop preload="auto"></audio>
     <audio id="frog-call-audio" loop preload="auto"></audio>
     <div class="top-bar">
-      <h1 class="title-chip" id="scene-title">Scene</h1>
+      <h1 class="title-chip" id="scene-title" tabindex="-1">Scene</h1>
       <div class="subtitle-chip" id="scene-subtitle">Subtitle</div>
+      <!-- Nested here (not a standalone top-right button, unlike the Field
+           Guide's identical-looking Close/Print) so that on mobile it can
+           stack below the title chips using .top-bar's own flex-column
+           layout — robust to the title stack's actual rendered height
+           (e.g. a long reserve name wrapping) rather than a guessed fixed
+           offset. Desktop pops it back out to the usual top-right corner
+           via position:fixed (styles.css), which ignores this nesting
+           entirely, so nothing about its established desktop position
+           changes. -->
+      <button class="icon-btn top-right" id="scene-mute-btn" title="Mute scene sound" aria-label="Mute scene sound"><img id="scene-mute-icon" src="../assets/buttons/Btn_Sound.png" alt="Mute scene sound"></button>
     </div>
     <button class="icon-btn scene-map-btn" id="scene-map-btn" data-goto="park" title="Reserve Map"><img src="../assets/buttons/Icon_Map.png" alt="">Reserve Map</button>
 
@@ -88,17 +114,29 @@
 
   <!-- ===================== QUIZ ===================== -->
   <section id="screen-quiz" class="screen">
+    <!-- Announces guess results for screen readers — a correct/incorrect
+         guess only ever showed as a visual/audio cue otherwise (drop-field
+         text, buzz overlay, feedback sound). See onCorrectGuess()/
+         onWrongGuess() in script.js. -->
+    <div class="sr-only" id="quiz-live-status" aria-live="polite"></div>
     <div class="scene-bg dim" id="quiz-bg"></div>
     <div class="quiz-panel">
-      <div class="frog-card">
-        <h2 class="frog-card-title">Which frog is calling?</h2>
+      <!-- stagger-immediate/stagger-motion (styles.css) are the staggered
+           reveal's un-revealed base state, baked in here (not added by JS
+           at open time) so it's in place before the very first paint — see
+           runStagger() in script.js. -->
+      <div class="frog-card stagger-immediate stagger-motion">
+        <h2 class="frog-card-title" id="frog-card-title" tabindex="-1">Which frog is calling?</h2>
         <div class="frog-photo" id="quiz-frog-photo"></div>
         <div class="drop-field" id="drop-field" data-state="empty">
           <span class="drop-hint">Drag frog name here</span>
         </div>
       </div>
     </div>
-    <div class="quiz-bottom-band">
+    <!-- Second wave of the same reveal — stagger-motion here too since the
+         quiz's labels "pop" like the frog card does (unlike the Field
+         Guide's chrome, which just fades — see runStagger()). -->
+    <div class="quiz-bottom-band stagger-delayed stagger-motion">
       <div class="label-row" id="label-row"></div>
       <div class="hint-box" id="hint-box" hidden></div>
     </div>
@@ -111,7 +149,7 @@
     <div class="result-stack">
       <div class="result-card success-card">
         <div class="frog-photo big" id="success-photo">🐸</div>
-        <p class="success-text" id="success-text">You've found the Southern Bell Frog!</p>
+        <p class="success-text" id="success-text" tabindex="-1">Woohoo! You have found the</p>
         <div class="species-pill success-pill" id="success-species"></div>
         <button class="action-btn" data-goto="fieldguide"><img src="../assets/buttons/Icon_Journal.png" alt="">Check the Field Guide</button>
       </div>
@@ -126,43 +164,90 @@
     <div class="scene-bg dim" id="fail-bg"></div>
     <div class="result-card fail-card">
       <div class="fail-mark"><img src="../assets/overlays/frog-escaped.jpg" alt="The frog escaped"></div>
-      <p class="fail-text">The frog has fled. Look for it again in another scene!</p>
+      <p class="fail-text" id="fail-text" tabindex="-1">The frog has fled. Look for it again in another scene!</p>
       <button class="action-btn" data-action="open-park-map"><img src="../assets/buttons/Icon_Map.png" alt="">Open the Reserve's Map</button>
     </div>
   </section>
 
   <!-- ===================== FIELD GUIDE ===================== -->
   <section id="screen-fieldguide" class="screen">
+    <!-- Focused on open (openFieldGuide(), script.js) so a screen reader
+         has something to land on and announce — the screen had no heading
+         at all before, and opening it (like closing it) hides whatever was
+         focused previously, which the browser resolves by silently
+         blurring to <body> with no orientation cue. Visually hidden since
+         the book/paper-sheet art already conveys "Field Guide" to sighted
+         users.
+         aria-describedby references BOTH empty-state messages below
+         (desktop and mobile) rather than picking one in JS based on
+         viewport/discovery state — a referenced element that's hidden
+         (the HTML `hidden` attribute, or display:none from the
+         768px book/mobile breakpoint) is automatically excluded from the
+         computed description by every major browser/screen reader, so
+         whichever one is NOT currently showing contributes nothing. The
+         net effect: "Field Guide" alone once a species has been found (both
+         messages hidden), or "Field Guide, Explore and search for the
+         frogs to populate the guide." right on open while the guide is
+         still empty — confirmed with the user 2026-09-18 as the preferred
+         combination over replacing this focus target with the message
+         alone, so the screen doesn't lose its own identity announcement. -->
+    <h2 class="sr-only" id="fg-heading" tabindex="-1" aria-describedby="fg-empty-message fg-mobile-empty-message">Field Guide</h2>
+    <!-- Announces page turns (fg-prev/fg-next) for screen readers — the
+         visible content swaps silently otherwise, with no other signal
+         that anything changed. Kept separate from the page content itself
+         (rather than making #fg-page-left/right aria-live) so each turn
+         announces one concise line, not the whole page's text. -->
+    <div class="sr-only" id="fg-live-status" aria-live="polite"></div>
     <div class="scene-bg dim" id="fg-bg"></div>
-    <button class="icon-btn top-right" data-action="close-fieldguide" title="Close"><img src="../assets/buttons/Btn_X.png" alt="Close"></button>
-    <button class="icon-btn top-right print-btn" data-action="print-fieldguide" title="Print"><img src="../assets/buttons/Btn_Print.png" alt="Print"></button>
-    <div class="book" id="fg-book">
+    <!-- stagger-delayed (styles.css) = the Field Guide's second wave, baked
+         in here rather than added by JS at open time so the un-revealed
+         base state is in place before the very first paint — see
+         runStagger() in script.js. Fade-only (no stagger-motion), unlike
+         the quiz's second wave. -->
+    <button class="icon-btn top-right stagger-delayed" data-action="close-fieldguide" title="Close Field Guide"><img src="../assets/buttons/Btn_X.png" alt="Close Field Guide"></button>
+    <button class="icon-btn top-right print-btn stagger-delayed" data-action="print-fieldguide" title="Print Field Guide"><img src="../assets/buttons/Btn_Print.png" alt="Print Field Guide"></button>
+    <div class="book stagger-immediate stagger-motion" id="fg-book">
       <div class="book-page left" id="fg-page-left"></div>
       <div class="book-page right" id="fg-page-right"></div>
-      <button class="page-arrow left" id="fg-prev"><img src="../assets/buttons/Btn_Left.png" alt="Previous"></button>
-      <button class="page-arrow right" id="fg-next"><img src="../assets/buttons/Btn_Right.png" alt="Next"></button>
+      <!-- Same "X of 7" on both corners, matching the screen-reader page-turn
+           announcement — one spread = one species, not two separate pages,
+           so the left/right halves share a single page number. Placed as
+           siblings of .book-page (not inside it), since .book-page scrolls
+           internally and this shouldn't scroll away with the content. -->
+      <div class="fg-page-num fg-page-num-left" id="fg-page-num-left"></div>
+      <div class="fg-page-num fg-page-num-right" id="fg-page-num-right"></div>
+      <button class="page-arrow left stagger-delayed" id="fg-prev"><img src="../assets/buttons/Btn_Left.png" alt="Field Guide Previous Page"></button>
+      <button class="page-arrow right stagger-delayed" id="fg-next"><img src="../assets/buttons/Btn_Right.png" alt="Field Guide Next Page"></button>
       <div class="fg-empty-overlay" id="fg-empty-overlay" hidden>
-        <p>Explore and search for the frogs to populate the guide.</p>
+        <p id="fg-empty-message">Explore and search for the frogs to populate the guide.</p>
       </div>
     </div>
     <div class="fg-mobile" id="fg-mobile">
-      <div class="fg-mobile-scroll" id="fg-mobile-scroll"></div>
-      <div class="fg-empty-overlay" id="fg-mobile-empty-overlay" hidden>
-        <p>Explore and search for the frogs to populate the guide.</p>
+      <div class="fg-mobile-scroll stagger-immediate stagger-motion" id="fg-mobile-scroll"></div>
+      <div class="fg-empty-overlay stagger-immediate stagger-motion" id="fg-mobile-empty-overlay" hidden>
+        <p id="fg-mobile-empty-message">Explore and search for the frogs to populate the guide.</p>
       </div>
       <div class="fg-mobile-arrows">
-        <button class="fg-mobile-arrow" id="fg-mobile-up" title="Previous"><img src="../assets/buttons/Btn_Up.png" alt="Previous"></button>
-        <button class="fg-mobile-arrow" id="fg-mobile-down" title="Next"><img src="../assets/buttons/Btn_Down.png" alt="Next"></button>
+        <button class="fg-mobile-arrow stagger-delayed" id="fg-mobile-up" title="Field Guide Previous Page"><img src="../assets/buttons/Btn_Up.png" alt="Field Guide Previous Page"></button>
+        <button class="fg-mobile-arrow stagger-delayed" id="fg-mobile-down" title="Field Guide Next Page"><img src="../assets/buttons/Btn_Down.png" alt="Field Guide Next Page"></button>
       </div>
     </div>
     <div id="fg-print-pages" class="print-only"></div>
   </section>
+  </div>
 
   <!-- ===================== INTRO INSTRUCTIONS ===================== -->
-  <div class="intro-overlay" id="intro-overlay">
+  <!-- role="dialog" + aria-modal + aria-labelledby/aria-describedby so a
+       screen reader announces this as a dialog (not just more page content)
+       and reads its actual text, not a mystery unlabeled region. Focus is
+       moved onto intro-start-btn on load and #app-content is made inert
+       (script.js) so keyboard/AT users can't reach the page underneath
+       until this is dismissed — mirrors the sighted-user experience, where
+       the dimmed backdrop already blocks clicking through to it. -->
+  <div class="intro-overlay" id="intro-overlay" role="dialog" aria-modal="true" aria-labelledby="intro-title" aria-describedby="intro-desc">
     <div class="intro-card">
-      <h2 class="intro-title">Instructions</h2>
-      <p>You are exploring different wetland habitats around Victoria. Select a location to explore. Navigate around the wetland with the map. Explore each scene to search for frog calls. Use the call, visuals, clues, and your knowledge to identify each species.</p>
+      <h2 class="intro-title" id="intro-title">Instructions</h2>
+      <p id="intro-desc">You are exploring different wetland habitats around Victoria. Select a location to explore. Navigate around the wetland with the map. Explore each scene to search for frog calls. Use the call, visuals, clues, and your knowledge to identify each species.</p>
       <p class="intro-listen"><img src="../assets/buttons/Icon_Ear.png" alt="" class="intro-ear-icon">Listen carefully. Some calls may need to be played more than once.</p>
       <button class="action-btn intro-start-btn" id="intro-start-btn">Start</button>
     </div>

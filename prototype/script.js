@@ -1,8 +1,8 @@
 /* ===========================================================
-   Frog Explorer — one-loop prototype
-   Data-driven per the GDD (Section 4.3): scenes, hotspots, and
-   species are config objects, not bespoke per-encounter logic.
-   All art/audio below is a placeholder — see documents/.
+   Frog Explorer — prototype
+   Data-driven per the GDD (Section 4.3): reserves, scenes,
+   hotspots, and species are config objects, not bespoke
+   per-encounter logic — see RESERVES below.
 =========================================================== */
 
 // Calling-period months and conservation status sourced from
@@ -15,11 +15,15 @@
 // doesn't cover calls) replaced 2026-09-14 with the updated text from
 // documents/Frog hints and descriptions.docx, superseding the prior
 // Australian_Frog_Species_Profiles.docx description/habitat text and the
-// separate documents/Frog_ID_Hints.md hint content.
+// now-deleted documents/Frog_ID_Hints.md (outdated, no longer used).
 const SPECIES = {
   banjo: {
     id: "banjo", name: "Eastern Banjo Frog", latin: "Limnodynastes dumerilii",
-    photo: "../assets/frogs/04-Banjo-Frog.png",
+    photo: "../assets/frogs/04-Banjo-Frog-square.jpg",
+    // Wide "full image" crop (1820×1024, vs. the 1024×1024 square above) —
+    // added 2026-09-18 for the Field Guide only; quiz/success keep the
+    // square .photo, unchanged.
+    photoFull: "../assets/frogs/04-Banjo-Frog.jpg",
     hint: [
       "Brown or grey-brown back with mottling along the sides",
       "Pale or yellow stripe running from below the eye to the shoulder",
@@ -35,7 +39,12 @@ const SPECIES = {
   },
   "striped-marsh": {
     id: "striped-marsh", name: "Striped Marsh Frog", latin: "Limnodynastes peronii",
-    photo: "../assets/frogs/05-Striped-Marsh-Frog.png",
+    photo: "../assets/frogs/05-Striped-Marsh-Frog-square.jpg",
+    photoFull: "../assets/frogs/05-Striped-Marsh-Frog.jpg",
+    // The Rosanna Golf Club's target species — added 2026-09-18 wiring in
+    // that reserve. Path convention matches SPECIES.bell.callAudio below
+    // (frog-sound folder under that reserve's own scenes/ subfolder).
+    callAudio: "../assets/scenes/rosanna-golf-course/rosanna-frog-sound/fr-striped-marsh-frog-Dani Kowalski.mp4",
     hint: [
       "Brown back with dark longitudinal stripes, sometimes with a cream or reddish stripe along the middle",
       "White belly and pale stripe running from below the eye to the arm",
@@ -50,7 +59,8 @@ const SPECIES = {
   },
   "spotted-marsh": {
     id: "spotted-marsh", name: "Spotted Marsh Frog", latin: "Limnodynastes tasmaniensis",
-    photo: "../assets/frogs/03-Spotted-Marsh-Frog.png",
+    photo: "../assets/frogs/03-Spotted-Marsh-Frog-square.jpg",
+    photoFull: "../assets/frogs/03-Spotted-Marsh-Frog.jpg",
     hint: [
       "Grey-brown or olive-green back with darker patches and often a pale stripe down the middle",
       "Cream stripe running from below the eye to the upper arm",
@@ -66,7 +76,8 @@ const SPECIES = {
   },
   "brown-tree": {
     id: "brown-tree", name: "Brown Tree Frog", latin: "Rawlinsonia ewingii",
-    photo: "../assets/frogs/02-Brown-Tree-Frog.png",
+    photo: "../assets/frogs/02-Brown-Tree-Frog-square.jpg",
+    photoFull: "../assets/frogs/02-Brown-Tree-Frog.jpg",
     hint: [
       "Cream, brown, copper or sometimes lime-green back",
       "Dark stripe running from the tip of the snout past the arm",
@@ -82,7 +93,8 @@ const SPECIES = {
   },
   bell: {
     id: "bell", name: "Southern Bell Frog", latin: "Litoria raniformis",
-    photo: "../assets/frogs/01-Southern-Bell-Frog.png",
+    photo: "../assets/frogs/01-Southern-Bell-Frog-square.jpg",
+    photoFull: "../assets/frogs/01-Southern-Bell-Frog.jpg",
     callAudio: "../assets/scenes/yalukit-willam-nature-reserve/frog-sound/fr-southern-bell-frog.mp4",
     hint: [
       "Green back with brown patches and a pale longitudinal stripe along the middle",
@@ -98,7 +110,8 @@ const SPECIES = {
   },
   "baw-baw": {
     id: "baw-baw", name: "Baw Baw Frog", latin: "Philoria frosti",
-    photo: "../assets/frogs/06-Baw-Baw-Frog.png",
+    photo: "../assets/frogs/06-Baw-Baw-Frog-square.jpg",
+    photoFull: "../assets/frogs/06-Baw-Baw-Frog.jpg",
     hint: [
       "Dark grey, dark brown, or pink-brown back",
       "Cream or pale-yellow belly with brown speckling",
@@ -114,7 +127,8 @@ const SPECIES = {
   },
   "spotted-tree": {
     id: "spotted-tree", name: "Spotted Tree Frog", latin: "Dryopsophus spenceri",
-    photo: "../assets/frogs/07-Spotted-Tree-Frog.png",
+    photo: "../assets/frogs/07-Spotted-Tree-Frog-square.jpg",
+    photoFull: "../assets/frogs/07-Spotted-Tree-Frog.jpg",
     hint: [
       "Brown or green back, sometimes mottled, with a gold or brown stripe running from the snout past the arm",
       "Yellow or orange groin and backs of the thighs",
@@ -132,33 +146,133 @@ const SPECIES = {
 
 const FIELD_GUIDE_ORDER = ["banjo","striped-marsh","spotted-marsh","brown-tree","bell","baw-baw","spotted-tree"];
 
-// Only these 4 appear as ID-quiz labels for this prototype's park (bell is correct)
-const QUIZ_LABEL_IDS = ["striped-marsh","banjo","bell","brown-tree"];
-const TARGET_SPECIES = "bell";
+// One extra "page" appended after the last species — the field guide's own
+// References entry (see fgReferencesFactsHtml()/fgReferencesStoryHtml()/
+// fgReferencesPageHtml() below). Deliberately a separate list rather than
+// pushed into FIELD_GUIDE_ORDER itself, since that array is also used for
+// the quiz/unlock logic elsewhere and "references" isn't a species.
+const FIELD_GUIDE_PAGES = [...FIELD_GUIDE_ORDER, "references"];
 
-const SCENES = [
-  { id: "gum-trees", name: "Elster Creek through the gum trees",
-    photo: "../assets/scenes/yalukit-willam-nature-reserve/03-Elster Creek-Still.jpg",
-    video: "../assets/scenes/yalukit-willam-nature-reserve/03-ElsterCreek.mp4",
-    ambientAudio: "../assets/scenes/yalukit-willam-nature-reserve/bg-sound/03-Au-ElsterCreek.mp3",
-    pannable: true,
-    mapX: "24%", mapY: "58%",
-    hotspots: [{ id: "gt1", x: "23%", y: "62%" }, { id: "gt2", x: "67%", y: "82%" }] },
-  { id: "ponds", name: "The northern chain of ponds",
-    photo: "../assets/scenes/yalukit-willam-nature-reserve/02-Northern Chain Ponds-Still.jpg",
-    video: "../assets/scenes/yalukit-willam-nature-reserve/02-NorthernChain.mp4",
-    ambientAudio: "../assets/scenes/yalukit-willam-nature-reserve/bg-sound/02-Au-NorthernChains.mp3",
-    pannable: true,
-    mapX: "60%", mapY: "28%",
-    hotspots: [{ id: "p1", x: "57%", y: "50%" }, { id: "p2", x: "80%", y: "80%" }] },
-  { id: "lake", name: "The southern lake",
-    photo: "../assets/scenes/yalukit-willam-nature-reserve/01-Southern Lake-Still.jpg",
-    video: "../assets/scenes/yalukit-willam-nature-reserve/01-SouthernLake.mp4",
-    ambientAudio: "../assets/scenes/yalukit-willam-nature-reserve/bg-sound/01-Au-SouthernLake.mp3",
-    pannable: true,
-    mapX: "48%", mapY: "68%",
-    hotspots: [{ id: "l1", x: "22%", y: "48%" }, { id: "l2", x: "39%", y: "82%" }] }
-];
+// The set of pages actually reachable right now — References is skipped
+// entirely (not just shown locked) until at least one species has been
+// found, confirmed with the user 2026-09-18. Same threshold
+// (state.fieldGuideUnlocked.size > 0) the empty-state overlay already uses
+// to decide whether to show at all, so the two conditions can't drift out
+// of sync. Used everywhere FIELD_GUIDE_PAGES previously drove what's
+// actually navigable/printable/rendered (the desktop Next/Prev cycle, the
+// mobile sheet stack, print, and every page-number label) — species
+// indices are stable either way, since References only ever sits at the
+// end of the full array.
+function visibleFieldGuidePages() {
+  return state.fieldGuideUnlocked.size > 0 ? FIELD_GUIDE_PAGES : FIELD_GUIDE_ORDER;
+}
+
+// Sourced from documents/FrogID-References.docx, supplied by the user.
+const FIELD_GUIDE_REFERENCES = {
+  species: [
+    { id: "banjo", citation: "Australian Museum (n.d.) Limnodynastes dumerilii, FrogID website, accessed 27 August 2026.", url: "https://www.frogid.net.au/frogs/limnodynastes-dumerilii/" },
+    { id: "striped-marsh", citation: "Australian Museum (n.d.) Limnodynastes peronii, FrogID website, accessed 27 August 2026.", url: "https://www.frogid.net.au/frogs/limnodynastes-peronii/" },
+    { id: "spotted-marsh", citation: "Australian Museum (n.d.) Limnodynastes tasmaniensis, FrogID website, accessed 27 August 2026.", url: "https://www.frogid.net.au/frogs/limnodynastes-tasmaniensis/" },
+    { id: "brown-tree", citation: "Australian Museum (n.d.) Litoria ewingii, FrogID website, accessed 27 August 2026.", url: "https://www.frogid.net.au/frogs/litoria-ewingii/" },
+    { id: "bell", citation: "Australian Museum (n.d.) Litoria raniformis, FrogID website, accessed 27 August 2026.", url: "https://www.frogid.net.au/frogs/litoria-raniformis/" },
+    { id: "baw-baw", citation: "Australian Museum (n.d.) Philoria frosti, FrogID website, accessed 27 August 2026.", url: "https://www.frogid.net.au/frogs/philoria-frosti/" },
+    { id: "spotted-tree", citation: "Australian Museum (n.d.) Litoria spenceri, FrogID website, accessed 27 August 2026.", url: "https://www.frogid.net.au/frogs/litoria-spenceri/" }
+  ],
+  assetGeneration: [
+    { citation: "RMIT (2026). Val Open AI Chat GPT 5.1 [Large language model], accessed 10 June 2026.", url: "https://val.rmit.edu.au/" },
+    { citation: "OpenAI (2026). ChatGPT-5.6 Sol [Large language model].", url: "https://chatgpt.com/" },
+    { citation: "Google Flow (2026). Veo 3.1 - Fast.", url: "https://labs.google/fx/tools/flow" }
+  ],
+  audioSources: [
+    { citation: "Envato Elements (2026). Sound Effects.", url: "https://app.envato.com/sound-effects" }
+  ]
+};
+
+// ===================== Reserves =====================
+// One entry per playable reserve — each holds everything that used to be
+// single global constants (SCENES/TARGET_SPECIES/QUIZ_LABEL_IDS) before
+// wiring in a second reserve (The Rosanna Golf Club) made those genuinely
+// ambiguous. entering a reserve (enterPark(reserveId)) copies the relevant
+// fields onto `state` (state.scenes/state.targetSpecies/state.quizLabelIds/
+// state.currentReserveId) — everything downstream (openScene(), openQuiz(),
+// allHotspotKeys(), etc.) reads those state fields instead of a bare global,
+// so scene indices/hotspot keys/target-relocation pools are automatically
+// scoped to whichever reserve is actually active and can't cross over into
+// the other reserve's scenes.
+const RESERVES = {
+  yalukit: {
+    id: "yalukit",
+    name: "Yalukit Willam Nature Reserve",
+    mapImage: "../assets/scenes/yalukit-willam-nature-reserve/Yalukit Willam Nature Reserve Map.jpg",
+    mapAlt: "Illustrated aerial map of Yalukit Willam Nature Reserve, showing a chain of ponds and wetlands connected by walking paths and bordered by scattered trees. A sports oval sits to the northwest of the reserve, and a residential street grid borders it to the east.",
+    // Only these 4 appear as ID-quiz labels for this reserve (bell is correct)
+    quizLabelIds: ["striped-marsh","banjo","bell","brown-tree"],
+    targetSpecies: "bell",
+    scenes: [
+      { id: "gum-trees", name: "Elster Creek through the gum trees",
+        photo: "../assets/scenes/yalukit-willam-nature-reserve/03-Elster Creek-Still.jpg",
+        video: "../assets/scenes/yalukit-willam-nature-reserve/03-ElsterCreek.mp4",
+        ambientAudio: "../assets/scenes/yalukit-willam-nature-reserve/bg-sound/03-Au-ElsterCreek.mp3",
+        pannable: true,
+        mapX: "24%", mapY: "58%",
+        hotspots: [{ id: "gt1", x: "23%", y: "62%" }, { id: "gt2", x: "67%", y: "82%" }] },
+      { id: "ponds", name: "The northern chain of ponds",
+        photo: "../assets/scenes/yalukit-willam-nature-reserve/02-Northern Chain Ponds-Still.jpg",
+        video: "../assets/scenes/yalukit-willam-nature-reserve/02-NorthernChain.mp4",
+        ambientAudio: "../assets/scenes/yalukit-willam-nature-reserve/bg-sound/02-Au-NorthernChains.mp3",
+        pannable: true,
+        mapX: "60%", mapY: "28%",
+        hotspots: [{ id: "p1", x: "57%", y: "50%" }, { id: "p2", x: "80%", y: "80%" }] },
+      { id: "lake", name: "The southern lake",
+        photo: "../assets/scenes/yalukit-willam-nature-reserve/01-Southern Lake-Still.jpg",
+        video: "../assets/scenes/yalukit-willam-nature-reserve/01-SouthernLake.mp4",
+        ambientAudio: "../assets/scenes/yalukit-willam-nature-reserve/bg-sound/01-Au-SouthernLake.mp3",
+        pannable: true,
+        mapX: "48%", mapY: "68%",
+        hotspots: [{ id: "l1", x: "22%", y: "48%" }, { id: "l2", x: "39%", y: "82%" }] }
+    ]
+  },
+  // Wired in 2026-09-18. Target species/quiz labels confirmed with the user;
+  // scene names, map alt text, and every mapX/mapY/hotspot x/y position
+  // below are read directly off documents/Rosanna_Golf_Hotspots.png (the
+  // user-supplied reference image marking exactly where each scene sits on
+  // the reserve map and where its 2 search hotspots sit within the scene
+  // still) — detected programmatically by marker color/shape (same method
+  // used for the Map Overview pins on 2026-08-25) rather than eyeballed, so
+  // these should already be accurate; still worth a look in-browser since
+  // it's the first time this reserve's ever been rendered at all.
+  rosanna: {
+    id: "rosanna",
+    name: "The Rosanna Golf Club",
+    mapImage: "../assets/scenes/rosanna-golf-course/Rosanna Golf Course Reserve Map.jpg",
+    mapAlt: "Illustrated aerial map of The Rosanna Golf Club, showing golf fairways and sand bunkers across the course, a tree-lined creek (the Plenty River) running diagonally through the middle of the course from the northeast down to the southwest, and a clubhouse with a car park on the eastern edge.",
+    quizLabelIds: ["striped-marsh","spotted-marsh","banjo","bell"],
+    targetSpecies: "striped-marsh",
+    scenes: [
+      { id: "riverbend", name: "A quiet bend in the river",
+        photo: "../assets/scenes/rosanna-golf-course/01-rosanna-quiet-riverbend-still.jpg",
+        video: "../assets/scenes/rosanna-golf-course/01-rosanna-quiet-riverbend.mp4",
+        ambientAudio: "../assets/scenes/rosanna-golf-course/rosanna-bg-sound/01-Au-rosanna-quiet-riverbend.mp3",
+        pannable: true,
+        mapX: "66.3%", mapY: "20.2%",
+        hotspots: [{ id: "rb1", x: "13.1%", y: "78.3%" }, { id: "rb2", x: "69.4%", y: "61.7%" }] },
+      { id: "pond", name: "A small pond fed by the river",
+        photo: "../assets/scenes/rosanna-golf-course/03-rosanna-small-pond-fed-by-the-river-still.jpg",
+        video: "../assets/scenes/rosanna-golf-course/03-rosanna-small-pond-fed-by-the-river.mp4",
+        ambientAudio: "../assets/scenes/rosanna-golf-course/rosanna-bg-sound/03-Au-rosanna-small-pond-fed-by-the-river.mp3",
+        pannable: true,
+        mapX: "64.2%", mapY: "54.9%",
+        hotspots: [{ id: "pd1", x: "15.0%", y: "52.5%" }, { id: "pd2", x: "82.5%", y: "55.8%" }] },
+      { id: "plenty-river", name: "The Plenty River",
+        photo: "../assets/scenes/rosanna-golf-course/02-rosanna-Plenty-River-still.jpg",
+        video: "../assets/scenes/rosanna-golf-course/02-rosanna-Plenty-River.mp4",
+        ambientAudio: "../assets/scenes/rosanna-golf-course/rosanna-bg-sound/02-Au-rosanna-Plenty-River.mp3",
+        pannable: true,
+        mapX: "40.1%", mapY: "85.5%",
+        hotspots: [{ id: "pr1", x: "63.8%", y: "53.3%" }, { id: "pr2", x: "26.3%", y: "73.3%" }] }
+    ]
+  }
+};
 
 function setPhotoBg(el, url) {
   el.style.backgroundImage = `url('${url}')`;
@@ -203,6 +317,16 @@ function peakPeriodText(sp) {
 
 // ===================== State =====================
 const state = {
+  // Populated from RESERVES[reserveId] by enterPark() — see that function
+  // and the comment above RESERVES. currentReserveId/scenes/targetSpecies/
+  // quizLabelIds all default to Yalukit here purely so nothing is ever
+  // undefined before the player's first enterPark() call; they're
+  // overwritten every time a reserve is entered.
+  currentReserveId: "yalukit",
+  scenes: RESERVES.yalukit.scenes,
+  targetSpecies: RESERVES.yalukit.targetSpecies,
+  quizLabelIds: RESERVES.yalukit.quizLabelIds,
+  completedReserves: new Set(), // reserve ids whose frog has been found — see enterPark()/onCorrectGuess()
   currentSceneIdx: 0,
   targetHotspotKey: null, // "sceneIdx:hotspotId"
   crossedOut: new Set(),
@@ -211,12 +335,37 @@ const state = {
   discoveredSceneIdx: null, // scene the target was found in, for the success backdrop on a later revisit
   fgIdx: 0,
   audioCtx: null,
-  callNodes: null
+  callNodes: null,
+  audioMuted: false // scene ambient + frog-call audio only — see toggleSceneMute()
 };
 
+// Makes a plain, click-driven <div> (map pins, reserve-map scene points,
+// scene search hotspots) keyboard-operable: focusable, announced as a
+// button, and activatable with Enter/Space — these can't just be real
+// <button> elements since their absolute-positioned layout and existing
+// styling assume a div, but they still need to work for keyboard/screen
+// reader users, not just mouse and touch. `label`, when given, sets the
+// accessible name explicitly rather than relying on (possibly
+// hover-only-visible) descendant text content.
+function makeKeyboardClickable(el, label) {
+  el.tabIndex = 0;
+  el.setAttribute("role", "button");
+  if (label) el.setAttribute("aria-label", label);
+  el.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+      e.preventDefault();
+      el.click();
+    }
+  });
+}
+
+// Scoped to state.scenes (the current reserve's own scene list) so a
+// relocation (randomizeTarget()/showFail()) can never send the target frog
+// into a scene that belongs to a different reserve — see the RESERVES
+// comment above.
 function allHotspotKeys() {
   const keys = [];
-  SCENES.forEach((s, si) => s.hotspots.forEach(h => keys.push(`${si}:${h.id}`)));
+  state.scenes.forEach((s, si) => s.hotspots.forEach(h => keys.push(`${si}:${h.id}`)));
   return keys;
 }
 
@@ -240,11 +389,17 @@ let screenTransitionActive = false;
 // (see styles.css) layer on top of the existing .active/display toggle
 // rather than replacing it, so this doesn't touch how any other screen
 // transition in the app works.
-function transitionShowScreen(id, type) {
+//
+// Optional `onShown` runs right as the incoming screen becomes .active —
+// every call site uses it to move focus onto that screen's own heading
+// (same "screen hides, focus silently blurs to <body>" fix already applied
+// to the intro dialog, the Field Guide, and the quiz — this closes the same
+// gap for the map/park/scene transitions, which all go through here).
+function transitionShowScreen(id, type, onShown) {
   if (screenTransitionActive) return; // ignore re-entrant calls mid-transition
   const outgoing = document.querySelector(".screen.active");
   const incoming = document.getElementById(`screen-${id}`);
-  if (!outgoing || outgoing === incoming) { showScreen(id); return; }
+  if (!outgoing || outgoing === incoming) { showScreen(id); if (onShown) onShown(); return; }
 
   screenTransitionActive = true;
   const duration = SCREEN_TRANSITION_MS[type];
@@ -254,6 +409,7 @@ function transitionShowScreen(id, type) {
     incoming.classList.add("active");
     void incoming.offsetWidth; // force a reflow so display:block is committed before the enter animation is requested
     incoming.classList.add(`screen-enter-${type}`);
+    if (onShown) onShown();
     setTimeout(() => {
       incoming.classList.remove(`screen-enter-${type}`);
       screenTransitionActive = false;
@@ -261,12 +417,154 @@ function transitionShowScreen(id, type) {
   }, duration);
 }
 
+// ===================== Staggered reveal (quiz / Field Guide open) =====================
+// Two-wave reveal used when the quiz or the Field Guide opens, per the
+// design agreed 2026-09-16 (see the Progress Log's Known Gaps entry): an
+// immediate wave, then a second wave ~1s later. Motion is separate from
+// timing — the quiz's second wave (species labels) still "pops" (translateY
+// + fade) like its first wave does; the Field Guide's second wave (Close/
+// Print/page-turn buttons) fades only, no motion — a deliberately quieter
+// treatment for controls vs. content. Replays every time the screen opens
+// (not once per session) — a deliberate choice, not an oversight.
+//
+// The un-revealed base state (.stagger-immediate/.stagger-delayed, and
+// .stagger-motion for elements that pop rather than just fade) is baked
+// directly into index.html on each element, not added here at open time —
+// a first version added those classes from JS right as the screen opened,
+// which left a real window (particularly around the focus() call each open
+// function also makes) for the browser to commit a visible first frame
+// before the hidden classes landed, so everything flashed visible, then
+// hid, then staggered back in — the opposite of the intended reveal. Baking
+// the classes into the HTML means the hidden state exists before any JS
+// runs at all, so there's nothing left to race.
+//
+// Skippable: a click anywhere on the screen while mid-stagger snaps
+// straight to the fully-revealed state. Not-yet-revealed elements are
+// pointer-events:none for mouse/touch specifically, so an early click can't
+// double as both "skip" and "activate whatever's about to appear there" —
+// e.g. a click landing where a quiz label will be would otherwise register
+// as an actual guess. Because pointer-events:none makes the browser's
+// hit-test for that click resolve to whatever's underneath (ultimately the
+// screen itself), the not-yet-visible element never receives that click at
+// all — it's caught here instead, by a capture-phase listener on the
+// screen. Keyboard/screen-reader access is never gated by any of this: the
+// DOM content is focusable/announced from the very first frame regardless
+// of animation state — only the mouse/touch visual reveal is staggered.
+const STAGGER_DELAY_MS = 1000;
+
+function revealStaggerNow(elements) {
+  // "Snap" rather than fast-play: force transition:none for one frame so
+  // opacity/transform jump straight to the end state instead of animating
+  // there quickly, then restore normal transitions afterward — harmless,
+  // since these elements get reset from scratch next time this screen opens.
+  elements.forEach(el => { el.style.transition = "none"; el.classList.add("stagger-in"); });
+  void document.body.offsetWidth; // force the transition:none to commit before it's removed
+  elements.forEach(el => { el.style.transition = ""; });
+}
+
+// Clears a leftover .stagger-in from the *previous* open of this screen —
+// these elements are reused across opens, not rebuilt each time, so a
+// second (or later) open starts with them still fully revealed from last
+// time. Bug found 2026-09-18: this used to happen inside runStagger()
+// itself, called *after* showScreen()/.focus() — i.e. while the screen was
+// already visible — which reopened the exact same "a paint can slip in
+// before the class change lands" race the HTML-baked base state was meant
+// to close off for good (see the comment above). On a first-ever open
+// there's nothing to reset (the HTML's base state already has it hidden),
+// so the race was invisible; on a reopen, the still-revealed content would
+// flash visible for a frame before snapping hidden and staggering back in.
+// Fixed by splitting this reset out and calling it *before* showScreen(),
+// while the screen is still display:none — with nothing on it being
+// rendered at all, there's no frame for any paint to catch mid-reset,
+// regardless of what's happening with focus() a few statements later.
+function resetStagger(screenId, immediateSelector, delayedSelector) {
+  const screen = document.getElementById(`screen-${screenId}`);
+  const all = [...screen.querySelectorAll(immediateSelector), ...screen.querySelectorAll(delayedSelector)];
+  all.forEach(el => { el.classList.remove("stagger-in"); el.style.transition = ""; });
+}
+
+// Call resetStagger() (above) with the same arguments before showScreen(),
+// then this after — see openQuiz()/openFieldGuide() for both call sites.
+function runStagger(screenId, immediateSelector, delayedSelector) {
+  const screen = document.getElementById(`screen-${screenId}`);
+  const immediate = [...screen.querySelectorAll(immediateSelector)];
+  const delayed = [...screen.querySelectorAll(delayedSelector)];
+  const all = [...immediate, ...delayed];
+
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // No delay either, not just no animation — an artificial 1s wait with
+    // nothing visibly moving would be a worse experience than this
+    // preference is meant to prevent.
+    revealStaggerNow(all);
+    return;
+  }
+
+  let delayTimer = null;
+  function skip() {
+    clearTimeout(delayTimer);
+    revealStaggerNow(all);
+    screen.removeEventListener("click", skip, true);
+  }
+  screen.addEventListener("click", skip, true);
+
+  // Two nested rAFs (not one) so the screen's hidden starting state (set by
+  // resetStagger(), before showScreen() made it visible) is definitely
+  // committed as a real painted frame before the transition-triggering
+  // class is added — a single rAF can still land before that paint on some
+  // browsers, which would silently skip the "pop in" animation entirely.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    immediate.forEach(el => el.classList.add("stagger-in"));
+  }));
+
+  delayTimer = setTimeout(() => {
+    delayed.forEach(el => el.classList.add("stagger-in"));
+    screen.removeEventListener("click", skip, true);
+  }, STAGGER_DELAY_MS);
+}
+
 // ===================== Intro instructions =====================
 // Shown on every load (no persistence layer in this prototype, so there's
 // no "seen it before" to check) — dismissed only via its own button, not by
 // clicking the dimmed backdrop, so the player has to actually acknowledge it.
+//
+// A dimmed backdrop + a click-does-nothing handler is enough to block a
+// mouse user, but does nothing for keyboard/screen-reader users — without
+// more, they could Tab or read straight past this into the Map Overview
+// underneath, which is exactly what was happening (flagged: a screen
+// reader started on the Map Overview and never announced this dialog at
+// all). `inert` on #app-content removes everything behind the dialog from
+// both the tab order and the accessibility tree while it's open — combined
+// with role="dialog"/aria-modal on the overlay (index.html) and moving
+// focus onto the Start button, this makes it behave like an actual modal
+// for every input method, not just mouse/touch.
+document.getElementById("app-content").inert = true;
+document.getElementById("intro-start-btn").focus();
 document.getElementById("intro-start-btn").addEventListener("click", () => {
   document.getElementById("intro-overlay").hidden = true;
+  document.getElementById("app-content").inert = false;
+  document.getElementById("map-title").focus();
+});
+
+// `inert` on #app-content keeps Tab from reaching the background, but does
+// nothing to stop Tab from leaving the dialog forward past its last
+// focusable element (or Shift+Tab backward past its first) into the
+// browser's own UI — there's nothing else in the document for focus to land
+// on. Wrap it back around so Tab/Shift+Tab always stay inside the dialog.
+document.getElementById("intro-overlay").addEventListener("keydown", e => {
+  if (e.key !== "Tab") return;
+  const focusable = [...document.getElementById("intro-overlay")
+    .querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+    .filter(el => el.offsetParent !== null);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
 });
 
 document.querySelectorAll("[data-goto]").forEach(btn => {
@@ -277,39 +575,79 @@ document.querySelectorAll("[data-goto]").forEach(btn => {
       state.returnScreen = activeScreen ? activeScreen.id.replace("screen-", "") : "map";
       openFieldGuide();
     }
-    else if (target === "park") { stopCallTone(); stopSceneMedia(); transitionShowScreen("park", "fade"); }
-    else if (target === "map") { stopCallTone(); stopSceneMedia(); transitionShowScreen("map", "zoom-out"); }
+    else if (target === "park") { stopCallTone(); stopSceneMedia(); transitionShowScreen("park", "fade", () => document.getElementById("park-title").focus()); }
+    else if (target === "map") { stopCallTone(); stopSceneMedia(); transitionShowScreen("map", "zoom-out", () => document.getElementById("map-title").focus()); }
   });
 });
 
 // ===================== Map Overview =====================
+// Reads which reserve was clicked from the pin's own data-park attribute
+// (set on every reserve pin in index.html, unlocked or not — only unlocked
+// pins reach this listener) rather than hardcoding a single reserve, so
+// this loop needs no changes when a further reserve is unlocked later.
 document.querySelectorAll(".pin.unlocked").forEach(pin => {
-  pin.addEventListener("click", () => enterPark());
+  pin.addEventListener("click", () => enterPark(pin.dataset.park));
+  // Locked pins are deliberately left non-interactive/unfocusable — they
+  // don't do anything on click, so making them keyboard-focusable would
+  // just be a dead stop for no reason.
+  makeKeyboardClickable(pin);
 });
 
-// Single-reserve, single-frog prototype: "already found this reserve" is
-// currently just "already found TARGET_SPECIES", since there's only one
-// possible frog and one possible reserve. NOTE: this check will need to
-// become per-reserve (not just per-species) once frogs can have overlapping
-// habitats across more than one reserve — finding a species in one reserve
-// won't necessarily mean *this* reserve's frog has been found.
-function enterPark() {
-  if (state.fieldGuideUnlocked.has(TARGET_SPECIES)) {
+function enterPark(reserveId) {
+  const reserve = RESERVES[reserveId];
+  state.currentReserveId = reserveId;
+  state.scenes = reserve.scenes;
+  state.targetSpecies = reserve.targetSpecies;
+  state.quizLabelIds = reserve.quizLabelIds;
+  document.getElementById("park-title").textContent = reserve.name;
+  const mapImg = document.getElementById("park-map-img");
+  mapImg.src = reserve.mapImage;
+  mapImg.alt = reserve.mapAlt;
+  // parkPanController.activate() only ever ran once before, at page load,
+  // against whatever image src the HTML started with — it has no way to
+  // notice a later src swap on its own, so its pan/scale math would stay
+  // derived from the *previous* reserve's map dimensions (Yalukit's
+  // 1624×969 vs. Rosanna's 1672×940 — different enough aspect ratios that
+  // this would visibly mis-crop/mis-scale). naturalWidth/naturalHeight
+  // aren't valid until the new image actually finishes loading, so
+  // re-activate from its own "load" event (same technique already used for
+  // video metadata in createDragPanController()'s activate()) rather than
+  // just calling .layout() directly — re-activating also resets the pan
+  // anchor to centered, which a plain .layout() wouldn't do, so a freshly
+  // entered reserve doesn't inherit wherever the previous reserve's map was
+  // left panned to.
+  if (parkPanController) mapImg.addEventListener("load", () => parkPanController.activate(mapImg), { once: true });
+
+  if (state.completedReserves.has(reserveId)) {
     state.currentSceneIdx = state.discoveredSceneIdx;
-    showSuccess();
+    // Revisit flow bypasses openScene() entirely (goes straight to the
+    // Success screen), so it's the one path that never starts the scene's
+    // ambient audio — on a first-time win it's already playing, carried
+    // over from openScene(), but here nothing ever started it. Same
+    // start-ambient logic openScene() uses, minus the scene-specific setup
+    // (video/hotspots/frog-call tone) that doesn't apply since we're not
+    // actually showing the scene itself.
+    const scene = state.scenes[state.currentSceneIdx];
+    const ambientAudio = document.getElementById("scene-ambient-audio");
+    if (scene.ambientAudio) {
+      ambientAudio.src = scene.ambientAudio;
+      ambientAudio.currentTime = 0;
+      if (!state.audioMuted) ambientAudio.play().catch(() => {});
+    }
+    showSuccess(true); // zoom-in from the Map Overview, same "diving in" feel as entering a reserve
     return;
   }
   state.crossedOut.clear();
   state.checkedHotspots.clear();
   randomizeTarget(null);
   renderScenePoints();
-  transitionShowScreen("park", "zoom-fade");
+  transitionShowScreen("park", "zoom-fade", () => document.getElementById("park-title").focus());
 }
 
 function renderScenePoints() {
   const wrap = document.getElementById("map-points");
   wrap.innerHTML = "";
-  SCENES.forEach((scene, idx) => {
+  state.scenes.forEach((scene, idx) => {
     const hasSound = scene.hotspots.some(h => `${idx}:${h.id}` === state.targetHotspotKey);
     const point = document.createElement("div");
     point.className = "map-point" + (hasSound ? " sounding" : "");
@@ -327,19 +665,39 @@ function renderScenePoints() {
       playFeedbackSound(WALKING_SOUND);
       openScene(idx);
     });
+    // Explicit aria-label (not left to compute from descendant content)
+    // since .scene-card is only visually revealed on hover/focus — matches
+    // exactly what a sighted player sees on hover, including the "a call
+    // echoes here" cue, rather than adding information beyond that.
+    makeKeyboardClickable(point, `${scene.name}${hasSound ? " — a call echoes here" : ""}`);
     // The reserve map is drag-pannable, so a point's on-screen position
     // shifts as the user pans — check live position at hover time rather
     // than relying on its static mapY, and flip the popup below the point
-    // when there isn't enough room above it to stay on-screen.
-    point.addEventListener("mouseenter", () => {
+    // when there isn't enough room above it to stay on-screen. Shared by
+    // mouseenter and focus so keyboard users get the same popup placement
+    // sighted/mouse users do.
+    function updateCardFlip() {
       const dot = point.querySelector(".map-point-dot");
       const card = point.querySelector(".scene-card");
       const neededSpace = card.offsetHeight + 12; // matches the CSS gap above the point
       point.classList.toggle("flip-down", dot.getBoundingClientRect().top < neededSpace);
-    });
+    }
+    point.addEventListener("mouseenter", updateCardFlip);
+    point.addEventListener("focus", updateCardFlip);
     wrap.appendChild(point);
   });
 }
+// WCAG 1.4.13 "Dismissible": the scene-card popup is pure CSS
+// (.map-point:focus .scene-card), so for a keyboard user the only way to
+// close it without moving to the next/previous point is to remove focus
+// from the point that's showing it — Escape does that here. Delegated once
+// rather than attached per-point, since renderScenePoints() rebuilds the
+// points fresh on every reserve visit.
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  const focused = document.activeElement;
+  if (focused && focused.classList.contains("map-point")) focused.blur();
+});
 
 // Keeps a point overlay locked to an image's actual rendered box (not the
 // screen), since the image letterboxes instead of cropping — so a point at
@@ -658,8 +1016,8 @@ function stopSceneMedia() {
 // ===================== Scene =====================
 function openScene(idx) {
   state.currentSceneIdx = idx;
-  const scene = SCENES[idx];
-  document.getElementById("scene-title").textContent = "Yalukit Willam Nature Reserve";
+  const scene = state.scenes[idx];
+  document.getElementById("scene-title").textContent = RESERVES[state.currentReserveId].name;
   document.getElementById("scene-subtitle").textContent = scene.name;
 
   const wrap = document.getElementById("scene-bg-wrap");
@@ -684,7 +1042,7 @@ function openScene(idx) {
   if (scene.ambientAudio) {
     ambientAudio.src = scene.ambientAudio;
     ambientAudio.currentTime = 0;
-    ambientAudio.play().catch(() => {});
+    if (!state.audioMuted) ambientAudio.play().catch(() => {});
   } else {
     ambientAudio.pause();
   }
@@ -705,6 +1063,10 @@ function openScene(idx) {
     el.style.top = h.y;
     el.innerHTML = '<img src="../assets/buttons/Icon_Eye.png" alt="">';
     el.addEventListener("click", () => onHotspotClick(isTarget, key));
+    // Matches exactly what a sighted player already perceives (the pulsing
+    // "sounding" ring), not revealing anything a mouse/touch player doesn't
+    // already have — see .hotspot.sounding in styles.css.
+    makeKeyboardClickable(el, isTarget ? "Search here — a call sounds nearby" : "Search here");
     layer.appendChild(el);
   });
   if (scene.pannable) scenePanController.layout();
@@ -715,14 +1077,14 @@ function openScene(idx) {
   if (soundingHere) startCallTone(); else stopCallTone();
   updateSceneMapPulse();
 
-  transitionShowScreen("scene", "fade");
+  transitionShowScreen("scene", "fade", () => document.getElementById("scene-title").focus());
 }
 
 // Hints the player toward the Reserve Map once they've checked every point
 // in a scene that turns out to have no frog in it — a nudge to try
 // somewhere else rather than re-clicking the same two spots.
 function updateSceneMapPulse() {
-  const scene = SCENES[state.currentSceneIdx];
+  const scene = state.scenes[state.currentSceneIdx];
   const soundingHere = scene.hotspots.some(h => `${state.currentSceneIdx}:${h.id}` === state.targetHotspotKey);
   const allChecked = scene.hotspots.every(h => state.checkedHotspots.has(`${state.currentSceneIdx}:${h.id}`));
   document.getElementById("scene-map-btn").classList.toggle("pulse-hint", !soundingHere && allChecked);
@@ -757,7 +1119,7 @@ function onHotspotClick(isTarget, key) {
 function startTouchDrag(e, labelEl, id) {
   if (e.pointerType === "mouse") return;
   e.preventDefault();
-  hideHint(); // in case a hint was left open from a prior mouse hover on a hybrid touch/mouse device
+  hideHintNow(); // in case a hint was left open from a prior mouse hover on a hybrid touch/mouse device
 
   const rect = labelEl.getBoundingClientRect();
   const offsetX = e.clientX - rect.left;
@@ -808,11 +1170,27 @@ function startTouchDrag(e, labelEl, id) {
   labelEl.addEventListener("pointercancel", onCancel);
 }
 
+// ===================== Quiz: click/keyboard answer =====================
+// Native drag (mouse) and startTouchDrag() (finger) both require following a
+// path from label to drop-field — WCAG 2.5.1 (Pointer Gestures) requires a
+// single-tap/click alternative that doesn't need that path, and 2.1.1
+// (Keyboard) requires the whole thing work without a pointer at all.
+// Keyboard (Enter/Space on a focused label, handled directly in the keydown
+// listener below) still answers in one step — the two-step "select, then
+// place" was tried first, user-tested, and found less intuitive than
+// expected for keyboard use. A real click (mouse or touch), though, now
+// needs a second click on the same label to confirm (selectQuizLabel()) —
+// added 2026-09-17 after a misclick concern (a student's stray tap/cursor
+// slip shouldn't be able to submit an answer outright the way a deliberate
+// Tab-then-Enter can). Tabbing to a label already previews its hint
+// (focus/blur → showHint()/hideHint(), below), so keyboard users aren't
+// missing a "look before you commit" step either way.
+
 function openQuiz() {
   const quizBg = document.getElementById("quiz-bg");
   quizBg.className = "scene-bg dim";
-  setPhotoBg(quizBg, SCENES[state.currentSceneIdx].photo);
-  const targetSp = SPECIES[TARGET_SPECIES];
+  setPhotoBg(quizBg, state.scenes[state.currentSceneIdx].photo);
+  const targetSp = SPECIES[state.targetSpecies];
   document.getElementById("quiz-frog-photo").innerHTML = `
     <img src="${targetSp.photo}" alt="${targetSp.name}">
     ${targetSp.callAudio ? `<button class="sound-btn frog-photo-sound" data-audio="${targetSp.callAudio}" title="Play call">${SOUND_ICON_HTML}</button>` : ""}
@@ -825,7 +1203,30 @@ function openQuiz() {
 
   const row = document.getElementById("label-row");
   row.innerHTML = "";
-  QUIZ_LABEL_IDS.forEach(id => {
+  // Tracks which label a real (mouse/touch) click has selected but not yet
+  // confirmed — local to this attempt, since row.innerHTML is rebuilt fresh
+  // every time the quiz opens/retries. Confirmed either by clicking that
+  // same label again (its own click listener below) or by clicking the
+  // drop field (dropField.onclick below) — both call confirmSelected().
+  let selectedQuizLabel = null;
+  function confirmSelected() {
+    if (!selectedQuizLabel) return;
+    const el = selectedQuizLabel;
+    el.classList.remove("selected");
+    el.setAttribute("aria-pressed", "false");
+    selectedQuizLabel = null;
+    handleGuess(el.dataset.id);
+  }
+  function selectQuizLabel(el) {
+    if (selectedQuizLabel && selectedQuizLabel !== el) {
+      selectedQuizLabel.classList.remove("selected");
+      selectedQuizLabel.setAttribute("aria-pressed", "false");
+    }
+    selectedQuizLabel = el;
+    el.classList.add("selected");
+    el.setAttribute("aria-pressed", "true");
+  }
+  state.quizLabelIds.forEach(id => {
     const sp = SPECIES[id];
     const el = document.createElement("div");
     const isCrossed = state.crossedOut.has(id);
@@ -836,16 +1237,54 @@ function openQuiz() {
     el.addEventListener("dragstart", e => {
       e.dataTransfer.setData("text/plain", id);
       el.classList.add("dragging");
-      // Hidden explicitly here rather than relying on the mouseleave below
-      // — whether starting a native drag also fires a mouseleave on the
-      // source element turns out to be inconsistent across browsers, so
-      // this is the one path guaranteed to run the moment a drag begins.
-      hideHint();
+      // Hidden explicitly (and immediately, not the delayed hideHint()) here
+      // rather than relying on the mouseleave below — whether starting a
+      // native drag also fires a mouseleave on the source element turns out
+      // to be inconsistent across browsers, so this is the one path
+      // guaranteed to run the moment a drag begins.
+      hideHintNow();
+      // A pending click-selection on a *different* label would otherwise be
+      // left visually "selected" while this one gets dragged instead —
+      // clear it so the highlight doesn't linger on the wrong label.
+      if (selectedQuizLabel && selectedQuizLabel !== el) {
+        selectedQuizLabel.classList.remove("selected");
+        selectedQuizLabel.setAttribute("aria-pressed", "false");
+        selectedQuizLabel = null;
+      }
     });
     el.addEventListener("dragend", () => el.classList.remove("dragging"));
     el.addEventListener("mouseenter", () => showHint(sp.hint, el));
     el.addEventListener("mouseleave", hideHint);
+    el.addEventListener("focus", () => showHint(sp.hint, el));
+    el.addEventListener("blur", hideHint);
     if (!isCrossed) el.addEventListener("pointerdown", e => startTouchDrag(e, el, id));
+    if (isCrossed) {
+      // Kept focusable/announced rather than removed from the tab order
+      // entirely — a keyboard user should be able to discover *why* one of
+      // the 4 options doesn't respond, not just find it silently missing.
+      makeKeyboardClickable(el, `${sp.name}, already ruled out`);
+      el.setAttribute("aria-disabled", "true");
+    } else {
+      // Not makeKeyboardClickable() here — that helper re-fires a click via
+      // el.click() on Enter/Space, which would make a keyboard answer
+      // indistinguishable from a real click and pull it into the
+      // select-then-confirm flow below too. Wired directly instead, so
+      // keyboard keeps answering in one step regardless of what the click
+      // listener does.
+      el.tabIndex = 0;
+      el.setAttribute("role", "button");
+      el.setAttribute("aria-pressed", "false");
+      el.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+          e.preventDefault();
+          handleGuess(id);
+        }
+      });
+      el.addEventListener("click", () => {
+        if (el.classList.contains("selected")) { confirmSelected(); return; }
+        selectQuizLabel(el);
+      });
+    }
     row.appendChild(el);
   });
 
@@ -856,9 +1295,33 @@ function openQuiz() {
     const id = e.dataTransfer.getData("text/plain");
     handleGuess(id);
   };
+  // Second way to confirm a click-selected label (alongside clicking that
+  // same label again) — matches what the drop field already invites
+  // ("Drag frog name here"), so a click-to-select user has an obvious
+  // target to click to place it, not just the original label. A no-op if
+  // nothing's selected (e.g. this was just a stray click on the field).
+  dropField.onclick = confirmSelected;
 
   document.getElementById("buzz-overlay").hidden = true;
+  // Reset the stagger reveal *before* the screen becomes visible — see
+  // resetStagger()'s own comment for why this can't happen after
+  // showScreen() without reopening a paint race on a second-or-later open.
+  resetStagger("quiz", ".frog-card", ".quiz-bottom-band");
   showScreen("quiz");
+  // Same "screen hides, focus silently blurs to <body>" fix as
+  // showSuccess()/showFail() — lands on the question heading.
+  document.getElementById("frog-card-title").focus();
+  // Paired with the frog card popping in immediately below, not the
+  // hotspot click itself (onHotspotClick() calls this function right after
+  // that click, so the gap is imperceptible either way).
+  playFeedbackSound(FROG_FOUND_SOUND);
+  // Immediate wave = the frog card (title, photo, drop field — it now
+  // includes the "Which frog is calling?" heading, moved in on 2026-09-02).
+  // Delayed wave = the bottom band's species labels — carries
+  // stagger-motion in the HTML so it pops like the first wave does, unlike
+  // the Field Guide's fade-only second wave, since labels are quiz content,
+  // not just chrome/controls.
+  runStagger("quiz", ".frog-card", ".quiz-bottom-band");
 }
 
 // Cached the first time it's needed. All 4 quiz hint boxes are held to this
@@ -887,7 +1350,7 @@ function getHintBoxMinHeight() {
   probe.style.visibility = "hidden";
   probe.style.minHeight = "";
   band.appendChild(probe);
-  hintBoxMinHeight = Math.max(...QUIZ_LABEL_IDS.map(id => {
+  hintBoxMinHeight = Math.max(...state.quizLabelIds.map(id => {
     probe.innerHTML = hintHtml(SPECIES[id].hint);
     return probe.offsetHeight;
   }));
@@ -896,6 +1359,7 @@ function getHintBoxMinHeight() {
 }
 
 function showHint(hint, labelEl) {
+  clearTimeout(hintHideTimer); // cancel any pending delayed hide from a label just left
   const box = document.getElementById("hint-box");
   box.innerHTML = hintHtml(hint);
   box.style.minHeight = getHintBoxMinHeight() + "px";
@@ -906,12 +1370,32 @@ function showHint(hint, labelEl) {
   box.style.left = (labelRect.left + labelRect.width / 2 - bandRect.left) + "px";
   box.hidden = false;
 }
+// WCAG 1.4.13 (Content on Hover or Focus) — "Hoverable": a mouse user needs
+// to be able to move the pointer off the label and onto the hint box itself
+// (e.g. to read it more closely, or select its text) without it vanishing.
+// A short delay, canceled if the pointer/focus lands on the box or another
+// label before it elapses, gives that window. hideHint() is what
+// mouseleave/blur call; hideHintNow() (below) is for call sites that need
+// an immediate, non-cancelable hide (e.g. right as a drag starts).
+let hintHideTimer = null;
 function hideHint() {
+  clearTimeout(hintHideTimer);
+  hintHideTimer = setTimeout(hideHintNow, 200);
+}
+function hideHintNow() {
+  clearTimeout(hintHideTimer);
   document.getElementById("hint-box").hidden = true;
 }
+document.getElementById("hint-box").addEventListener("mouseenter", () => clearTimeout(hintHideTimer));
+document.getElementById("hint-box").addEventListener("mouseleave", hideHint);
+// "Dismissible": Escape closes the hint immediately regardless of where
+// hover/focus currently is.
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && !document.getElementById("hint-box").hidden) hideHintNow();
+});
 
 function handleGuess(id) {
-  if (id === TARGET_SPECIES) {
+  if (id === state.targetSpecies) {
     onCorrectGuess();
   } else {
     onWrongGuess(id);
@@ -921,11 +1405,23 @@ function handleGuess(id) {
 const CORRECT_GUESS_SOUND = "../assets/overlays/feedback-sounds/correct answer.mp3";
 const INCORRECT_GUESS_SOUND = "../assets/overlays/feedback-sounds/Incorrect Answer.mp3";
 const WALKING_SOUND = "../assets/overlays/feedback-sounds/walking.mp3";
+const FROG_ESCAPE_SOUND = "../assets/overlays/feedback-sounds/frog_escape.mp3";
+const FROG_FOUND_SOUND = "../assets/overlays/feedback-sounds/frog_found.mp3";
+const OPEN_BOOK_SOUND = "../assets/overlays/feedback-sounds/open_book.mp3";
+const PAGE_TURN_SOUND = "../assets/overlays/feedback-sounds/page_turn.mp3";
 
 // One-shot feedback stings — not looped, plays alongside whatever else is
 // already playing (scene ambient, frog-call preview) rather than pausing it.
-// Shared by quiz guess results and reserve-map navigation clicks, since the
-// two never happen on the same screen at the same time.
+// Shared by every one-shot "event just happened" sound in the app (guess
+// results, reserve-map navigation, the frog found/escaped moments, opening
+// the Field Guide, turning its pages) — none of these are expected to
+// overlap in practice (different screens, or sequenced far enough apart),
+// and where a later one *could* land while an earlier one is still playing,
+// cutting the earlier one off to start the new one is the right call, same
+// as it already was for guess results vs. reserve-map walking.
+// button_hover.mp3 is deliberately NOT on this channel — see hover-audio /
+// HOVER_SOUND_SELECTOR below — a stray mouse hover shouldn't be able to cut
+// one of these more meaningful stings off early.
 function playFeedbackSound(src) {
   const audio = document.getElementById("feedback-audio");
   audio.pause();
@@ -934,23 +1430,80 @@ function playFeedbackSound(src) {
   audio.play().catch(() => {});
 }
 
+// ===================== Interactive-element hover sound =====================
+// button_hover.mp3 — a short blip when a real mouse pointer enters any
+// interactive element in the experience: every nav/CTA/icon button (except
+// the Field Guide's own Close button, which gets a click sound instead —
+// see its handler below), "play call" buttons, the quiz's draggable
+// species labels, unlocked Map Overview pins, scene hotspots, reserve-map
+// scene points, and the quiz drop field. Confirmed with the user
+// 2026-09-17 as the broadest of 3 scope options discussed — deliberately
+// including the map/scene markers even though they already have their own
+// visual hover feedback (scale/opacity/pulse). The Field Guide's page-turn
+// arrows (desktop and mobile) are excluded too, per the same 2026-09-17
+// follow-up — they don't need a hover blip.
+// One delegated listener on `document` (pointerover bubbles; mouseenter/
+// mouseleave don't, which is why those aren't used here) rather than one
+// per element — besides being far less code, this automatically covers
+// every element in HOVER_SOUND_SELECTOR that's created dynamically after
+// page load (species labels, hotspots, map-points), with nothing extra to
+// wire up wherever those get built.
+// pointerType-gated to "mouse" only — hover has no real equivalent on
+// touch/pen, and without this guard a tap would fire both this blip and
+// whatever sound that tap's own action already plays.
+const HOVER_SOUND_SELECTOR = '.icon-btn:not([data-action="close-fieldguide"]), .action-btn, .sound-btn, .species-label, .pin.unlocked, .hotspot, .map-point, #drop-field';
+let hoveredSoundEl = null;
+document.addEventListener("pointerover", e => {
+  if (e.pointerType !== "mouse") return;
+  const target = e.target.closest(HOVER_SOUND_SELECTOR);
+  // The `!== hoveredSoundEl` check stops this from re-firing on every
+  // pointerover bubbled up from a sub-element inside the same match (e.g.
+  // moving from a button's icon to its label text) — only a genuine move
+  // into a *different* matched element plays the sound again.
+  if (!target || target === hoveredSoundEl) return;
+  hoveredSoundEl = target;
+  // #hover-audio's src is fixed in index.html (only ever plays this one
+  // sound), so just reset and replay it.
+  const audio = document.getElementById("hover-audio");
+  audio.pause();
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
+});
+document.addEventListener("pointerout", e => {
+  if (e.pointerType !== "mouse" || !hoveredSoundEl) return;
+  if (e.target.closest(HOVER_SOUND_SELECTOR) !== hoveredSoundEl) return;
+  // relatedTarget is where the pointer actually went — if it's still
+  // somewhere inside the same matched element, this isn't a real exit yet.
+  if (!e.relatedTarget || !hoveredSoundEl.contains(e.relatedTarget)) {
+    hoveredSoundEl = null;
+  }
+});
+
 function onCorrectGuess() {
   playFeedbackSound(CORRECT_GUESS_SOUND);
   const dropField = document.getElementById("drop-field");
   dropField.dataset.state = "filled";
-  dropField.textContent = SPECIES[TARGET_SPECIES].name;
-  state.fieldGuideUnlocked.add(TARGET_SPECIES);
+  dropField.textContent = SPECIES[state.targetSpecies].name;
+  // Correct/incorrect otherwise only ever showed as a visual/audio cue
+  // (drop-field text, buzz overlay, feedback sound) — nothing told a screen
+  // reader what happened. This is a quick confirmation for the moment the
+  // guess lands; showSuccess() (500ms later) gives the fuller detail once
+  // focus actually moves to the new screen.
+  document.getElementById("quiz-live-status").textContent = `Correct! ${SPECIES[state.targetSpecies].name} is calling here.`;
+  state.fieldGuideUnlocked.add(state.targetSpecies);
+  state.completedReserves.add(state.currentReserveId);
   state.discoveredSceneIdx = state.currentSceneIdx;
   updateFoundPins();
   setTimeout(showSuccess, 500);
 }
 
-// Turns a reserve's Map Overview pin label green once its frog has been
-// found. Same single-reserve/single-frog assumption as enterPark() above —
-// revisit alongside that once overlapping habitats are possible.
+// Turns the just-completed reserve's own Map Overview pin label green —
+// data-park scopes this to whichever reserve was actually just finished
+// (state.currentReserveId), not a single hardcoded reserve, so this needs
+// no changes as further reserves are wired in.
 function updateFoundPins() {
-  const pin = document.querySelector('.pin[data-park="yalukit"]');
-  if (pin) pin.classList.toggle("found", state.fieldGuideUnlocked.has(TARGET_SPECIES));
+  const pin = document.querySelector(`.pin[data-park="${state.currentReserveId}"]`);
+  if (pin) pin.classList.toggle("found", state.completedReserves.has(state.currentReserveId));
 }
 
 function onWrongGuess(id) {
@@ -958,6 +1511,7 @@ function onWrongGuess(id) {
   state.crossedOut.add(id);
   const label = document.querySelector(`.species-label[data-id="${id}"]`);
   if (label) label.classList.add("crossed-out"), (label.draggable = false);
+  document.getElementById("quiz-live-status").textContent = `Not quite — ${SPECIES[id].name} has been ruled out.`;
   const buzz = document.getElementById("buzz-overlay");
   buzz.hidden = false;
   setTimeout(() => {
@@ -967,32 +1521,51 @@ function onWrongGuess(id) {
 }
 
 // ===================== Success / Fail =====================
-function showSuccess() {
+// `useTransition` (only passed true from enterPark()'s revisit-an-
+// already-found-reserve path) gives that specific hop the same zoom-fade
+// "diving in" feel Map Overview → Reserve Map already has — deliberately
+// scoped to just that path; the first-time win via the quiz stays an
+// instant reveal, unchanged.
+function showSuccess(useTransition) {
   stopPreviewAudio();
-  const sp = SPECIES[TARGET_SPECIES];
+  const sp = SPECIES[state.targetSpecies];
   const successBg = document.getElementById("success-bg");
   successBg.className = "scene-bg dim";
-  setPhotoBg(successBg, SCENES[state.currentSceneIdx].photo);
+  setPhotoBg(successBg, state.scenes[state.currentSceneIdx].photo);
   document.getElementById("success-photo").innerHTML = `
     <img src="${sp.photo}" alt="${sp.name}">
     ${sp.callAudio ? `<button class="sound-btn frog-photo-sound" data-audio="${sp.callAudio}" title="Play call">${SOUND_ICON_HTML}</button>` : ""}
   `;
   document.getElementById("success-species").textContent = `${sp.name} (${sp.latin})`;
-  document.getElementById("success-text").textContent = `You've found the ${sp.name}!`;
-  showScreen("success");
+  document.getElementById("success-text").textContent = "Woohoo! You have found the";
+  // The screen this came from is now hidden (display:none), which silently
+  // blurs focus to <body> with no cue anything changed — land on the
+  // result text instead (already tabindex="-1" for this reason).
+  const focusResult = () => document.getElementById("success-text").focus();
+  if (useTransition) {
+    transitionShowScreen("success", "zoom-fade", focusResult);
+  } else {
+    showScreen("success");
+    focusResult();
+  }
 }
 
 document.querySelector('[data-action="return-map"]').addEventListener("click", () => {
   stopCallTone();
   stopSceneMedia();
-  showScreen("map");
+  transitionShowScreen("map", "zoom-out", () => document.getElementById("map-title").focus());
 });
 
 function showFail() {
   stopPreviewAudio();
+  // Paired with the "frog has fled" image reveal on this screen — already
+  // well after Incorrect Answer.mp3 (played in onWrongGuess(), 0.86s long)
+  // has finished by the time this runs 1.4s later, so it naturally lands
+  // "after" that sound without needing to explicitly chain the two.
+  playFeedbackSound(FROG_ESCAPE_SOUND);
   const failBg = document.getElementById("fail-bg");
   failBg.className = "scene-bg dim";
-  setPhotoBg(failBg, SCENES[state.currentSceneIdx].photo);
+  setPhotoBg(failBg, state.scenes[state.currentSceneIdx].photo);
   // Deliberately doesn't reveal which species was correct — a wrong guess
   // shouldn't hand the player the answer, since they can keep guessing.
   // Relocate the frog to a different point, preferably a different scene
@@ -1001,17 +1574,19 @@ function showFail() {
   const pool = otherSceneKeys.length ? otherSceneKeys : allHotspotKeys().filter(k => k !== currentKey);
   state.targetHotspotKey = pool[Math.floor(Math.random() * pool.length)];
   showScreen("fail");
+  // Same reasoning as showSuccess()'s focus move.
+  document.getElementById("fail-text").focus();
 }
 
 document.querySelector('[data-action="open-park-map"]').addEventListener("click", () => {
   stopSceneMedia();
   renderScenePoints();
-  transitionShowScreen("park", "fade");
+  transitionShowScreen("park", "fade", () => document.getElementById("park-title").focus());
 });
 
 // ===================== Field Guide =====================
 function openFieldGuide() {
-  state.fgIdx = FIELD_GUIDE_ORDER.indexOf(TARGET_SPECIES);
+  state.fgIdx = FIELD_GUIDE_ORDER.indexOf(state.targetSpecies);
   renderFieldGuide();
   renderFieldGuideMobile();
 
@@ -1023,15 +1598,49 @@ function openFieldGuide() {
   const fgBg = document.getElementById("fg-bg");
   fgBg.className = "scene-bg dim";
   const bgPhoto = state.returnScreen === "success"
-    ? SCENES[state.currentSceneIdx].photo
+    ? state.scenes[state.currentSceneIdx].photo
     : "../assets/scenes/victoria-map-overview.jpg";
   setPhotoBg(fgBg, bgPhoto);
 
+  // Immediate wave = the book (desktop) / the scrollable sheet column + its
+  // empty-state overlay (mobile, a sibling of the scroll column rather than
+  // a descendant, so it carries the class too, in index.html — see
+  // runStagger()). Delayed wave = Close, Print, and whichever page-turn
+  // arrow pair is actually visible at the current breakpoint (the other
+  // pair is harmlessly matched too, already hidden) — fade-only, the
+  // quieter chrome treatment for controls (no stagger-motion in the HTML
+  // for these, unlike the quiz's labels).
+  const fgStaggerImmediate = "#fg-book, #fg-mobile-scroll, #fg-mobile-empty-overlay";
+  const fgStaggerDelayed = "#screen-fieldguide .icon-btn.top-right, #fg-prev, #fg-next, #fg-mobile-up, #fg-mobile-down";
+  // Reset the stagger reveal *before* the screen becomes visible — see
+  // resetStagger()'s own comment for why this can't happen after
+  // showScreen() without reopening a paint race on a second-or-later open.
+  resetStagger("fieldguide", fgStaggerImmediate, fgStaggerDelayed);
   showScreen("fieldguide");
+  // The screen this was opened from just got hidden (display:none), which
+  // silently blurs focus to <body> with no cue anything changed — focus
+  // the (visually hidden) heading instead so a screen reader announces
+  // "Field Guide" right away.
+  document.getElementById("fg-heading").focus();
+  // Paired with the book/sheet-column popping in immediately below —
+  // plays regardless of which layout (desktop book vs. mobile sheets) is
+  // actually shown, since both pop in from the same runStagger() call.
+  playFeedbackSound(OPEN_BOOK_SOUND);
+  runStagger("fieldguide", fgStaggerImmediate, fgStaggerDelayed);
 }
 document.querySelector('[data-action="close-fieldguide"]').addEventListener("click", () => {
+  // Reuses open_book.mp3 rather than a distinct "close" sound — confirmed
+  // as the intended choice, not a placeholder — instead of the hover blip
+  // this button would otherwise get (excluded from HOVER_SOUND_SELECTOR).
+  playFeedbackSound(OPEN_BOOK_SOUND);
   stopPreviewAudio();
-  showScreen(state.returnScreen || "map");
+  const returnScreen = state.returnScreen || "map";
+  showScreen(returnScreen);
+  // Same reasoning as the focus move on open, in reverse — land on
+  // whichever heading/text is the natural orientation point for wherever
+  // we're returning to, rather than losing focus to <body>.
+  const anchor = document.getElementById(returnScreen === "success" ? "success-text" : "map-title");
+  if (anchor) anchor.focus();
 });
 
 // One-shot audio preview system, shared by every "play this frog's call"
@@ -1043,10 +1652,26 @@ document.querySelector('[data-action="close-fieldguide"]').addEventListener("cli
 const SOUND_ICON_HTML = '<img src="../assets/buttons/Btn_Sound.png" alt="Play call">';
 const SOUND_STOP_ICON = "⏹";
 
+// Field Guide buttons carry a data-species-name attribute (set in
+// fgFactsHtml() only — not the quiz/success buttons) so this shared handler
+// can give just that one button a species-specific name ("Play Southern
+// Bell Frog call") while the quiz/success buttons keep the generic "Play
+// call" — same shared audio/toggle logic either way, just a different name.
+function soundIconHtml(label) {
+  return `<img src="../assets/buttons/Btn_Sound.png" alt="${label}">`;
+}
+
 function resetSoundButtons() {
   document.querySelectorAll(".sound-btn.playing").forEach(b => {
     b.classList.remove("playing");
-    b.innerHTML = SOUND_ICON_HTML;
+    const name = b.dataset.speciesName;
+    if (name) {
+      b.innerHTML = soundIconHtml(`Play ${name} call`);
+      b.setAttribute("aria-label", `Play ${name} call`);
+    } else {
+      b.innerHTML = SOUND_ICON_HTML;
+      b.setAttribute("aria-label", "Play call");
+    }
   });
 }
 
@@ -1078,43 +1703,110 @@ document.addEventListener("click", (e) => {
   audio.play().catch(() => {});
   btn.classList.add("playing");
   btn.textContent = SOUND_STOP_ICON;
+  // Set explicitly (aria-label wins over text-content in accessible-name
+  // computation) so a screen reader announces "Stop call" (or, for the
+  // Field Guide's button, "Stop [Species] call"), not the "⏹" glyph left
+  // behind once the play icon's <img alt="..."> is gone.
+  const name = btn.dataset.speciesName;
+  btn.setAttribute("aria-label", name ? `Stop ${name} call` : "Stop call");
 });
 document.getElementById("preview-audio").addEventListener("ended", resetSoundButtons);
 document.querySelector('[data-action="print-fieldguide"]').addEventListener("click", () => {
   // Print isn't just the on-screen 2-frog spread — build every species (in
-  // its current locked/unlocked state) as its own full page, one per sheet.
+  // its current locked/unlocked state) plus the References entry, one page
+  // per sheet. visibleFieldGuidePages() leaves References out of the
+  // printed set too if nothing's been found yet, matching what's actually
+  // reachable on screen at print time.
   const printPages = document.getElementById("fg-print-pages");
-  printPages.innerHTML = FIELD_GUIDE_ORDER
-    .map(id => `<div class="fg-print-page">${fgPageHtml(id)}</div>`)
+  printPages.innerHTML = visibleFieldGuidePages()
+    .map(id => `<div class="fg-print-page">${id === "references" ? fgReferencesPageHtml() : fgPageHtml(id)}</div>`)
     .join("");
   window.print();
 });
 window.addEventListener("afterprint", () => {
   document.getElementById("fg-print-pages").innerHTML = "";
 });
-document.getElementById("fg-prev").addEventListener("click", () => {
-  const total = FIELD_GUIDE_ORDER.length;
-  state.fgIdx = (state.fgIdx - 1 + total) % total;
-  renderFieldGuide();
-});
-document.getElementById("fg-next").addEventListener("click", () => {
-  const total = FIELD_GUIDE_ORDER.length;
-  state.fgIdx = (state.fgIdx + 1) % total;
-  renderFieldGuide();
-});
+// Simple opacity dip to simulate a page turn on the desktop book (fg-prev/
+// fg-next only — the mobile paper-sheet view scrolls rather than swapping
+// page content, so there's nothing to fade there). Fades both pages out,
+// swaps the content (renderFieldGuide()) while invisible, then lets the
+// same CSS transition fade them back in when .fg-page-turning is removed.
+const FG_PAGE_TURN_FADE_MS = 150;
+// Ignores a click that lands while a turn is already mid-fade-out, rather
+// than letting a second call queue its own setTimeout — without this, a
+// second click inside the first click's 150ms window would render its page
+// while the *first* click's fade-in was still only partway through,
+// making that swap visible instead of hidden. Cleared once the content
+// swap happens, not after the fade-in visually finishes, so a fast but not
+// overlapping run of clicks (each after the previous one's swap) still
+// feels responsive rather than rate-limited.
+let fgPageTurning = false;
+function turnFieldGuidePage(dir) {
+  if (fgPageTurning) return;
+  fgPageTurning = true;
+  playFeedbackSound(PAGE_TURN_SOUND);
+  const left = document.getElementById("fg-page-left");
+  const right = document.getElementById("fg-page-right");
+  left.classList.add("fg-page-turning");
+  right.classList.add("fg-page-turning");
+  setTimeout(() => {
+    const total = visibleFieldGuidePages().length;
+    state.fgIdx = (state.fgIdx + dir + total) % total;
+    renderFieldGuide();
+    announceFieldGuidePage();
+    left.classList.remove("fg-page-turning");
+    right.classList.remove("fg-page-turning");
+    fgPageTurning = false;
+  }, FG_PAGE_TURN_FADE_MS);
+}
+document.getElementById("fg-prev").addEventListener("click", () => turnFieldGuidePage(-1));
+document.getElementById("fg-next").addEventListener("click", () => turnFieldGuidePage(1));
 
 // Each species now gets its own two-page spread on screen — facts (photo,
 // calling period, conservation status) on the left, the descriptive text
 // (species description, habitat) on the right — instead of the previous
 // one-page-per-species layout, so a long description no longer needs to
-// scroll. Print is unaffected: it still uses fgPageHtml() below to build one
-// full page per species, matching the original on-screen layout.
+// scroll. The References entry (FIELD_GUIDE_PAGES' final stop) follows the
+// same facts/story split — citations on the left, asset/audio credits on
+// the right. Print is unaffected: it still uses fgPageHtml()/
+// fgReferencesPageHtml() to build one full page per entry, matching the
+// original on-screen layout.
+//
+// Book page numbers are plain sequential physical-page numbers (1–14 for
+// the 7 species, 15–16 for References once it's reachable at all — see
+// visibleFieldGuidePages()) rather than "X of Y" — one spread is 2 pages,
+// left = odd, right = even — unlike the mobile/print page numbers
+// (fgPageHtml()/fgReferencesPageHtml()), which read "X of 7" until a
+// species is found and "X of 8" after, since each of those genuinely
+// renders as a single page per entry.
 function renderFieldGuide() {
   stopPreviewAudio();
-  const id = FIELD_GUIDE_ORDER[state.fgIdx];
-  document.getElementById("fg-page-left").innerHTML = fgFactsHtml(id);
-  document.getElementById("fg-page-right").innerHTML = fgStoryHtml(id);
+  const id = visibleFieldGuidePages()[state.fgIdx];
+  if (id === "references") {
+    document.getElementById("fg-page-left").innerHTML = fgReferencesFactsHtml();
+    document.getElementById("fg-page-right").innerHTML = fgReferencesStoryHtml();
+  } else {
+    document.getElementById("fg-page-left").innerHTML = fgFactsHtml(id);
+    document.getElementById("fg-page-right").innerHTML = fgStoryHtml(id);
+  }
   document.getElementById("fg-empty-overlay").hidden = state.fieldGuideUnlocked.size > 0;
+  document.getElementById("fg-page-num-left").textContent = state.fgIdx * 2 + 1;
+  document.getElementById("fg-page-num-right").textContent = state.fgIdx * 2 + 2;
+}
+
+// Turning a page (fg-prev/fg-next) swaps the visible content silently —
+// nothing else signals a screen reader that anything changed. A short,
+// separate aria-live announcement (not making the page content itself
+// live) so each turn reads one concise line rather than the whole entry.
+// Only called from the prev/next handlers below, not from the initial
+// openFieldGuide() render — that already gets a clear announcement via
+// focus moving to #fg-heading, so this would just double up on it.
+function announceFieldGuidePage() {
+  const pages = visibleFieldGuidePages();
+  const id = pages[state.fgIdx];
+  const name = id === "references" ? "References" : (state.fieldGuideUnlocked.has(id) ? SPECIES[id].name : "Not yet discovered");
+  document.getElementById("fg-live-status").textContent =
+    `${name}, page ${state.fgIdx + 1} of ${pages.length}`;
 }
 
 // Calling-period likelihood scale: 0 none (grey/default), 1 possible
@@ -1166,10 +1858,10 @@ function fgFactsHtml(id) {
     `;
   }
   return `
-    <div class="fg-photo"><img src="${sp.photo}" alt="${sp.name}"></div>
+    <div class="fg-photo"><img src="${sp.photoFull}" alt="${sp.name}"></div>
     <div class="fg-name-row">
       <h2 class="fg-name">${sp.name}</h2>
-      ${sp.callAudio ? `<button class="sound-btn fg-sound-btn" data-audio="${sp.callAudio}" title="Play call">${SOUND_ICON_HTML}</button>` : ""}
+      ${sp.callAudio ? `<button class="sound-btn fg-sound-btn" data-audio="${sp.callAudio}" data-species-name="${sp.name}" title="Play ${sp.name} call">${soundIconHtml(`Play ${sp.name} call`)}</button>` : ""}
     </div>
     <p class="fg-latin">${sp.latin}</p>
     <div class="fg-field">
@@ -1220,6 +1912,71 @@ function fgStoryHtml(id) {
   `;
 }
 
+// ===================== Field Guide: References =====================
+// A fixed, non-species entry appended after the last species (see
+// FIELD_GUIDE_PAGES above). Originally always shown regardless of discovery
+// progress; changed 2026-09-18 so it's skipped from the navigable set
+// entirely (visibleFieldGuidePages()) until at least one species has been
+// found, at the user's request — the empty-state overlay's shrink to a
+// small card (earlier the same day) meant a player could flip to it and
+// peek at real citations before finding anything, which wasn't intended
+// once the overlay stopped fully blocking the page behind it.
+function referenceListHtml(items, withNames) {
+  return `<ul class="fg-ref-list">${items.map(r => `
+    <li>${withNames && r.id ? `<strong>${SPECIES[r.id].name}:</strong> ` : ""}${r.citation} <a href="${r.url}" target="_blank" rel="noopener">${r.url}</a></li>
+  `).join("")}</ul>`;
+}
+// Left page (book) / first half (mobile+print, via fgReferencesPageHtml):
+// the species profile citations, one per FrogID page.
+function fgReferencesFactsHtml() {
+  return `
+    <h2 class="fg-name">References</h2>
+    <div class="fg-field">
+      <div class="fg-field-label">Species Profiles</div>
+      ${referenceListHtml(FIELD_GUIDE_REFERENCES.species, true)}
+    </div>
+  `;
+}
+// Right page (book) / second half (mobile+print): credits for the tools
+// used to generate the prototype's other assets, not species content.
+function fgReferencesStoryHtml() {
+  return `
+    <div class="fg-field">
+      <div class="fg-field-label">Asset Generation</div>
+      ${referenceListHtml(FIELD_GUIDE_REFERENCES.assetGeneration, false)}
+    </div>
+    <div class="fg-field">
+      <div class="fg-field-label">Additional Audio Source</div>
+      ${referenceListHtml(FIELD_GUIDE_REFERENCES.audioSources, false)}
+    </div>
+  `;
+}
+// Mobile sheet / print page: both halves combined onto one page, since
+// those views render one page per entry rather than a facts/story spread.
+function fgReferencesPageHtml() {
+  // Only ever rendered once References is actually unlocked/visible, so
+  // visibleFieldGuidePages() here always equals the full FIELD_GUIDE_PAGES
+  // — using the helper anyway for consistency with fgPageHtml() below.
+  const pages = visibleFieldGuidePages();
+  const pageNum = `<div class="fg-page-num">${pages.indexOf("references") + 1} of ${pages.length}</div>`;
+  return `
+    <h2 class="fg-name">References</h2>
+    <div class="fg-field">
+      <div class="fg-field-label">Species Profiles</div>
+      ${referenceListHtml(FIELD_GUIDE_REFERENCES.species, true)}
+    </div>
+    <div class="fg-field">
+      <div class="fg-field-label">Asset Generation</div>
+      ${referenceListHtml(FIELD_GUIDE_REFERENCES.assetGeneration, false)}
+    </div>
+    <div class="fg-field">
+      <div class="fg-field-label">Additional Audio Source</div>
+      ${referenceListHtml(FIELD_GUIDE_REFERENCES.audioSources, false)}
+    </div>
+    ${pageNum}
+  `;
+}
+
 // Print-only: still builds one full page per species (facts + story
 // together), unchanged in layout/order from before the on-screen split —
 // only the underlying data shape (two conservation ratings, multi-paragraph
@@ -1228,6 +1985,13 @@ function fgPageHtml(id) {
   if (!id) return "";
   const sp = SPECIES[id];
   const unlocked = state.fieldGuideUnlocked.has(id);
+  // Shared by both the mobile paper-sheet view and the print PDF, since
+  // both render through this same function. Bottom corner, per species'
+  // position in FIELD_GUIDE_ORDER (not tied to locked/unlocked state) —
+  // the *total* does depend on discovery progress though, via
+  // visibleFieldGuidePages() (excludes References until something's found).
+  const pages = visibleFieldGuidePages();
+  const pageNum = `<div class="fg-page-num">${pages.indexOf(id) + 1} of ${pages.length}</div>`;
   if (!unlocked) {
     return `
       <div class="fg-locked-photo">?</div>
@@ -1251,10 +2015,11 @@ function fgPageHtml(id) {
         <div class="fg-field-label">Habitat</div>
         <p style="opacity:.5">???</p>
       </div>
+      ${pageNum}
     `;
   }
   return `
-    <div class="fg-photo"><img src="${sp.photo}" alt="${sp.name}"></div>
+    <div class="fg-photo"><img src="${sp.photoFull}" alt="${sp.name}"></div>
     <h2 class="fg-name">${sp.name}</h2>
     <p class="fg-latin">${sp.latin}</p>
     <div class="fg-field">
@@ -1273,6 +2038,7 @@ function fgPageHtml(id) {
       <div class="fg-field-label">Habitat</div>
       <p>${sp.habitat}</p>
     </div>
+    ${pageNum}
   `;
 }
 
@@ -1285,8 +2051,8 @@ function fgPageHtml(id) {
 // separate live-update path is needed.
 function renderFieldGuideMobile() {
   const container = document.getElementById("fg-mobile-scroll");
-  container.innerHTML = FIELD_GUIDE_ORDER
-    .map(id => `<div class="fg-sheet">${fgPageHtml(id)}</div>`)
+  container.innerHTML = visibleFieldGuidePages()
+    .map(id => `<div class="fg-sheet">${id === "references" ? fgReferencesPageHtml() : fgPageHtml(id)}</div>`)
     .join("");
   document.getElementById("fg-mobile-empty-overlay").hidden = state.fieldGuideUnlocked.size > 0;
   container.scrollTop = 0;
@@ -1309,8 +2075,8 @@ function scrollFieldGuideMobile(dir) {
   }
   container.scrollTo({ top: target.offsetTop, behavior: "smooth" });
 }
-document.getElementById("fg-mobile-up").addEventListener("click", () => scrollFieldGuideMobile(-1));
-document.getElementById("fg-mobile-down").addEventListener("click", () => scrollFieldGuideMobile(1));
+document.getElementById("fg-mobile-up").addEventListener("click", () => { playFeedbackSound(PAGE_TURN_SOUND); scrollFieldGuideMobile(-1); });
+document.getElementById("fg-mobile-down").addEventListener("click", () => { playFeedbackSound(PAGE_TURN_SOUND); scrollFieldGuideMobile(1); });
 
 // ===================== Frog call (looping search audio) =====================
 // Prefers the target species' real call recording (SPECIES[..].callAudio)
@@ -1319,7 +2085,8 @@ document.getElementById("fg-mobile-down").addEventListener("click", () => scroll
 // design, other parks/species can be added before their audio is ready).
 function startCallTone() {
   stopCallTone();
-  const sp = SPECIES[TARGET_SPECIES];
+  if (state.audioMuted) return;
+  const sp = SPECIES[state.targetSpecies];
   if (sp.callAudio) {
     const audio = document.getElementById("frog-call-audio");
     audio.src = sp.callAudio;
@@ -1335,6 +2102,37 @@ function stopCallTone() {
   audio.pause();
   stopSynthTone();
 }
+
+// WCAG 1.4.2 (Audio Control): both the ambient background track and the
+// frog-call search tone auto-play and can run well past 3 seconds with no
+// other way to stop them, so a single mute button covers both together as
+// "this scene's sound" rather than adding two separate controls. State is a
+// simple session-wide preference — it isn't reset per-scene, so muting
+// doesn't need to be repeated on every new scene.
+function toggleSceneMute() {
+  state.audioMuted = !state.audioMuted;
+  const label = state.audioMuted ? "Unmute scene sound" : "Mute scene sound";
+  const icon = document.getElementById("scene-mute-icon");
+  icon.src = state.audioMuted ? "../assets/buttons/Btn_SoundOff.png" : "../assets/buttons/Btn_Sound.png";
+  icon.alt = label;
+  const btn = document.getElementById("scene-mute-btn");
+  btn.title = label;
+  btn.setAttribute("aria-label", label);
+
+  const ambientAudio = document.getElementById("scene-ambient-audio");
+  const callAudio = document.getElementById("frog-call-audio");
+  if (state.audioMuted) {
+    ambientAudio.pause();
+    callAudio.pause();
+    stopSynthTone();
+  } else {
+    const scene = state.scenes[state.currentSceneIdx];
+    if (scene.ambientAudio) ambientAudio.play().catch(() => {});
+    const soundingHere = scene.hotspots.some(h => `${state.currentSceneIdx}:${h.id}` === state.targetHotspotKey);
+    if (soundingHere) startCallTone();
+  }
+}
+document.getElementById("scene-mute-btn").addEventListener("click", toggleSceneMute);
 
 function startSynthTone() {
   const ctx = state.audioCtx || (state.audioCtx = new (window.AudioContext || window.webkitAudioContext)());

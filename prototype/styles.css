@@ -12,6 +12,21 @@
 
 * { box-sizing: border-box; }
 
+/* Visually hides content while keeping it available to screen readers —
+   standard "sr-only" pattern (clip, not display:none/visibility:hidden,
+   since either of those would also remove it from the accessibility tree,
+   defeating the point). Used for headings/live-regions that exist purely
+   for AT orientation and announcements, not sighted users. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html, body {
   margin: 0;
   height: 100%;
@@ -58,6 +73,54 @@ html, body {
 @keyframes screen-zoomfade-in { from { opacity: 0; transform: scale(0.94); } }
 @keyframes screen-zoomout-out { to { opacity: 0; transform: scale(0.94); } }
 @keyframes screen-zoomout-in { from { opacity: 0; transform: scale(1.06); } }
+
+/* ===================== Staggered reveal (quiz / Field Guide open) ===================== */
+/* Two-tier reveal used when the quiz or the Field Guide opens — driven by
+   runStagger() in script.js, which adds/removes .stagger-in. Base opacity
+   (and, for .stagger-motion elements, transform) live directly on these
+   classes so the un-revealed state is in place from the very first frame,
+   before any JS runs.
+   Timing is one axis (.stagger-immediate vs. .stagger-delayed, the two
+   waves), motion is a separate axis (.stagger-motion: translateY "pop" +
+   fade; its absence: plain fade, no motion) — the two don't always pair the
+   same way. The quiz's second wave (species labels) still "pops" like its
+   first wave does; the Field Guide's second wave (Close/Print/page-turn
+   buttons) deliberately doesn't — a quieter treatment for controls vs.
+   content. Both timing classes are pointer-events:none until revealed, for
+   mouse/touch specifically, so an early click can't land on a not-yet-
+   visible control (see runStagger()'s comment for why) — screen readers/
+   keyboard are unaffected either way, since this only ever changes opacity/
+   transform/pointer-events, never visibility or the DOM itself. */
+.stagger-immediate,
+.stagger-delayed {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 380ms ease-out;
+}
+.stagger-immediate.stagger-motion,
+.stagger-delayed.stagger-motion {
+  transform: translateY(28px);
+  transition: opacity 420ms ease-out, transform 420ms ease-out;
+}
+.stagger-immediate.stagger-in,
+.stagger-delayed.stagger-in {
+  opacity: 1;
+  pointer-events: auto;
+}
+.stagger-immediate.stagger-motion.stagger-in,
+.stagger-delayed.stagger-motion.stagger-in {
+  transform: translateY(0);
+}
+/* .book already carries its own centering transform (translate(-50%,-50%)),
+   which a plain translateY on .stagger-motion would otherwise overwrite
+   outright rather than combine with — so it gets its own pop-in transform
+   values that fold the offset into that same translate(). */
+.book.stagger-motion {
+  transform: translate(-50%, calc(-50% + 28px));
+}
+.book.stagger-motion.stagger-in {
+  transform: translate(-50%, -50%);
+}
 
 /* ===================== Placeholder art blocks ===================== */
 .scene-bg {
@@ -256,14 +319,19 @@ html, body {
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
-.icon-btn:hover { background: #fdeceb; }
+/* Neutral grey (#e6e5e2), matching .sound-btn's ("play frog call") hover —
+   was the brand-red-family pink #fdeceb, changed 2026-09-17 for consistency
+   across every button's hover, .species-label and .intro-start-btn excepted
+   (the former's hover carries other meaning; the latter is a deliberately
+   different filled-red style, kept as its own darken-on-hover). */
+.icon-btn:hover { background: #e6e5e2; }
 .icon-btn img,
 .action-btn img,
 .page-arrow img {
   border-radius: 50%;
   object-fit: cover;
 }
-.icon-btn img { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; }
+.icon-btn img { width: 22px; height: 22px; vertical-align: middle; margin-right: 6px; }
 /* Field Guide's own Close/Print buttons, 30% bigger than the original 44px. */
 .icon-btn.top-right {
   position: absolute;
@@ -280,7 +348,30 @@ html, body {
   width: 31px; height: 31px;
   margin-right: 0;
 }
-.action-btn img { width: 18px; height: 18px; vertical-align: middle; margin-right: 6px; }
+/* #scene-mute-btn is nested inside .top-bar (index.html) specifically so it
+   can stack under the title chips on mobile. Below 768px it drops out of
+   .icon-btn.top-right's absolute positioning to become a normal flex item
+   (an ID selector beats the two-class .icon-btn.top-right rule regardless
+   of source order) — .top-bar's own flex-column + gap then place it below
+   the titles automatically, however tall that stack renders. At 769px+, it
+   switches to position:fixed (not absolute) so it escapes .top-bar's own
+   box entirely and re-anchors to the actual viewport corner — every .screen
+   already fills the viewport exactly with no internal scroll, so this reads
+   identically to the old plain position:absolute it had before being
+   nested. */
+@media (max-width: 768px) {
+  #scene-mute-btn {
+    position: static;
+  }
+}
+@media (min-width: 769px) {
+  #scene-mute-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+  }
+}
+.action-btn img { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; }
 
 /* ===================== Map pins ===================== */
 .pin {
@@ -292,6 +383,17 @@ html, body {
   pointer-events: auto;
 }
 .pin.unlocked { cursor: pointer; }
+/* .pin/.map-point/.hotspot are plain divs made keyboard-operable in JS
+   (makeKeyboardClickable()) rather than real <button>s, so they don't
+   automatically get a browser focus ring — this gives them an explicit,
+   clearly visible one against busy photo/map backgrounds. Locked pins are
+   never given tabindex, so this never shows on them. */
+.pin:focus-visible, .map-point:focus-visible, .hotspot:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(163,54,54,0.6);
+  border-radius: 4px;
+}
 .pin-dot { width: 33px; height: auto; display: block; margin: 0 auto; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
 .pin.unlocked .pin-dot { animation: bob 1.6s ease-in-out infinite; }
 @keyframes bob { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-6px);} }
@@ -312,9 +414,17 @@ html, body {
    translateY(-50%) those two variants rely on for vertical centering — see
    the composed hover rule alongside that transform further down. */
 .pin:not(.label-right):not(.label-left):hover .pin-label { transform: scale(1.1); }
-.pin.locked .pin-label { background: #6b6b63; opacity: 0.85; }
+/* opacity 0.85 measured under 4.5:1 against a plausible light patch of the
+   map photo bleeding through; 0.95 keeps white text safely above 4.5:1
+   without changing how "locked" reads visually. */
+.pin.locked .pin-label { background: #6b6b63; opacity: 0.95; }
 .pin.locked .pin-dot { opacity: 0.6; filter: grayscale(0.6); }
-.pin.found .pin-label { background: var(--success-green); color: var(--success-green-dark); }
+/* Darker green + white text (2026-09-18) — the previous light --success-green
+   background with --success-green-dark text blended into the map photo.
+   Swapped which of the pair is background vs. text instead of inventing a
+   new color: white on --success-green-dark measures ~7.8:1, comfortably
+   clear of WCAG AA (4.5:1) for this pill's 12px text. */
+.pin.found .pin-label { background: var(--success-green-dark); color: white; }
 .lock { margin-left: 4px; }
 
 /* Pulls the label out of normal flow and beside the icon instead of stacked
@@ -370,9 +480,19 @@ html, body {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.15s;
-  pointer-events: none;
+  /* No pointer-events:none here (WCAG 1.4.13, "Hoverable") — this is a
+     descendant of .map-point, so moving the mouse from the dot onto the
+     popup card itself needs to keep counting as hovering .map-point (it
+     already would, being a descendant) rather than the popup blocking its
+     own hit-testing and dropping straight through to whatever's behind it.
+     visibility:hidden above already keeps it out of hit-testing while
+     actually hidden, so this isn't needed for that case either. Doesn't
+     interfere with the reserve map's drag-pan controller, which already
+     excludes any pointerdown originating from within .map-point via
+     closest(".map-point"), regardless of pointer-events. */
 }
-.map-point:hover .scene-card {
+.map-point:hover .scene-card,
+.map-point:focus .scene-card {
   opacity: 1;
   visibility: visible;
 }
@@ -418,9 +538,12 @@ html, body {
 }
 /* Reserve map's sounding scene-point marker uses the original red
    pulse-ring (below) — this white variant is scoped to scene hotspots only,
-   kept as a separate keyframe rather than recoloring the shared one. */
+   kept as a separate keyframe rather than recoloring the shared one.
+   Starting opacity raised 0.7 → 1 (2026-09-16) — still fades to 0 as it
+   expands outward (that's what keeps it reading as a pulse rather than a
+   ring flashing on/off), just more vivid at the moment each pulse begins. */
 @keyframes pulse-ring-white {
-  0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+  0% { box-shadow: 0 0 0 0 rgba(255,255,255,1); }
   70% { box-shadow: 0 0 0 18px rgba(255,255,255,0); }
   100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
 }
@@ -452,6 +575,23 @@ html, body {
   border-radius: 20px;
   font-size: 13px;
   z-index: 5;
+}
+/* Below this width there isn't room for the centered phrase alongside
+   .scene-map-btn (fixed bottom-left) without the two overlapping — same
+   768px "small screen" breakpoint used elsewhere in the app. Right-aligning
+   alone wasn't enough on narrow phones, though: with no width constraint
+   the pill just shrinks to fit its single-line text and still reaches far
+   enough left (from its right:20px anchor) to overlap .scene-map-btn
+   anyway. Capping the width forces it to wrap onto ~2 lines instead,
+   trading width for height. */
+@media (max-width: 768px) {
+  .call-indicator {
+    left: auto;
+    right: 20px;
+    transform: none;
+    max-width: 200px;
+    text-align: center;
+  }
 }
 .toast {
   position: absolute;
@@ -541,30 +681,36 @@ html, body {
   font-size: 15px;
 }
 .sound-btn.frog-photo-sound img { width: 20px; height: 20px; }
-/* Success screen's button only (quiz keeps bottom-right + the brand red
-   outline/hover, unchanged) — centered along the photo's bottom edge
-   instead of right-aligned, with a neutral grey outline (the same #8c8c86
-   already used for the drop-field border and label hover) and a matching
-   light-grey hover tint instead of the base .sound-btn's pink. */
+/* Success screen's button only — centered along the photo's bottom edge
+   instead of right-aligned. Its grey outline/hover used to be scoped here
+   specifically; both are now the shared .sound-btn default (below), so
+   only the positioning remains a success-screen-specific override. */
 #success-photo .sound-btn {
   left: 50%;
   right: auto;
   transform: translateX(-50%);
-  border-color: #8c8c86;
 }
-#success-photo .sound-btn:hover { background: #e6e5e2; }
 
 .drop-field {
   border: 3px dashed #8c8c86;
   border-radius: 10px;
   padding: 12px;
   font-size: 14px;
-  color: #8c8c86;
+  /* #8c8c86 (matches the border) only gave 2.87:1 against the cream
+     background — well under WCAG AA's 4.5:1 for normal text. #6b6b63
+     (already used elsewhere as the app's "locked/neutral" grey) gives
+     4.56:1 here, so it's reused rather than inventing a third grey. */
+  color: #6b6b63;
   min-height: 40px;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.15s;
 }
-.drop-field[data-state="over"] { background: #ffe9e9; }
+/* Shown while dragging a label over the drop zone, or while one is
+   click/keyboard-selected (updateDropFieldForSelection(), script.js) — grey
+   rather than a red/pink tint, matching the drop-field's own neutral grey
+   border/text (#6b6b63) instead of the app's red accent. Same #e6e5e2
+   already used for the success screen's sound-button hover. */
+.drop-field[data-state="over"] { background: #e6e5e2; }
 .drop-field[data-state="filled"] {
   border-style: solid;
   background: #eef3e4;
@@ -591,7 +737,7 @@ html, body {
   flex-wrap: wrap;
 }
 .species-label {
-  background: var(--cream);
+  background: white;
   border-radius: 26px;
   padding: 13px 22px;
   font-size: 14px;
@@ -613,6 +759,39 @@ html, body {
   opacity: 0.4;
   cursor: not-allowed;
   pointer-events: none;
+}
+/* A real (mouse/touch) click selects a label without answering yet — a
+   second click on the same one confirms (script.js, openQuiz()'s click
+   listener) — added 2026-09-17 so a stray tap/cursor slip can't submit an
+   answer outright. Reuses the hover yellow so a selected label still reads
+   as "lit up" once the cursor moves off it, plus a red ring so it doesn't
+   get lost next to a merely-hovered neighbor. Keyboard Enter/Space bypasses
+   this entirely and answers in one step (wired directly in script.js, not
+   through this class) — misclicks aren't really a Tab-then-Enter risk. */
+.species-label.selected {
+  background: #f2c14e;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.35), 0 0 0 3px var(--brand-red);
+}
+/* .species-label is a plain div made keyboard-operable in script.js, not a
+   real <button>, so it doesn't get a browser focus ring automatically —
+   same outline treatment already used for the map pins/hotspots/scene-
+   points. (#drop-field still doesn't need a matching rule — it's clickable
+   again since 2026-09-17 (confirms a click-selected label, alongside a
+   native/touch drop), but only via onclick, not tabIndex/role, so it's
+   still out of the tab order and never needs a focus ring.) */
+.species-label:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(163,54,54,0.6);
+}
+/* Reachable if a selected label is then also Tab-focused (e.g. focus was
+   already there via mouse-then-Tab, or a hybrid input device) — without
+   this, :focus-visible's box-shadow would silently win over .selected's at
+   equal specificity and hide the selection ring, the same collision fixed
+   here for a different combination on 2026-09-15. Only overrides
+   box-shadow; the yellow background and white outline both still apply. */
+.species-label.selected:focus-visible {
+  box-shadow: 0 0 0 6px rgba(163,54,54,0.6), 0 0 0 3px var(--brand-red) inset;
 }
 /* Follows the finger during a touch-drag (see startTouchDrag() in
    script.js) — the touch equivalent of the OS-rendered drag image a mouse
@@ -763,7 +942,10 @@ html, body {
   font-size: 14px;
   cursor: pointer;
 }
-.action-btn:hover { background: #fdeceb; }
+/* Same neutral-grey swap as .icon-btn:hover above (2026-09-17) — this
+   button's own solid-fill variant, .intro-start-btn, is excepted (see its
+   own rule) and keeps its darken-on-hover instead. */
+.action-btn:hover { background: #e6e5e2; }
 
 /* ===================== Field Guide ===================== */
 .book {
@@ -787,23 +969,54 @@ html, body {
   padding: 16px 3% 0;
   scrollbar-width: thin;
   scrollbar-color: rgba(63,82,51,0.5) transparent;
+  /* Simple opacity dip for the page-turn effect (fg-prev/fg-next, see
+     turnFieldGuidePage() in script.js) — fades out, content swaps while
+     invisible, fades back in. Compositor-only, same lightweight technique
+     already used for screen transitions/the stagger reveal elsewhere in
+     this file; no prefers-reduced-motion override needed since a plain
+     opacity fade is already what that preference falls back to everywhere
+     else in this app. */
+  transition: opacity 150ms ease;
 }
+.book-page.fg-page-turning { opacity: 0; }
 .book-page::-webkit-scrollbar { width: 6px; }
 .book-page::-webkit-scrollbar-track { background: transparent; }
 .book-page::-webkit-scrollbar-thumb { background: rgba(63,82,51,0.5); border-radius: 3px; }
 .book-page.left { left: 6%; width: 42%; }
 .book-page.right { right: 6%; width: 42%; }
+/* Visual stand-in for the page-turn sound effect that's still to come
+   (frog-hints-and-descriptions follow-up) — placed as siblings of
+   .book-page rather than inside it, since .book-page scrolls internally
+   and a page number shouldn't scroll away with the content. Same text on
+   both corners: one spread is one species, not two separate pages. */
+.fg-page-num {
+  position: absolute;
+  bottom: 3%;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--ink);
+  opacity: 0.6;
+}
+/* width matches .book-page's own (6%/42%) so the text centers within each
+   page, not the whole book. */
+.fg-page-num-left { left: 6%; width: 42%; text-align: center; }
+.fg-page-num-right { right: 6%; width: 42%; text-align: center; }
 .fg-name-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
 .fg-name-row .fg-name { margin: 0; }
 .fg-name { font-size: 22px; margin: 0 0 2px; }
 /* Shared "play this frog's call" button style — used on the Field Guide
    facts page (inline next to the name) and overlaid on a frog photo box
    (the quiz and success screens, see .frog-photo-sound). 10% bigger than
-   its original 28px. */
+   its original 28px. Neutral grey outline/hover (the same #8c8c86/#e6e5e2
+   already used for the drop-field border and elsewhere) rather than the
+   brand red — originally scoped to the success screen's button only, now
+   the shared default so every "play call" button matches. The ⏹ stop-state
+   glyph's color (var(--brand-red-dark)) is untouched — only the outline
+   and hover were asked about. */
 .sound-btn {
   background: white;
   color: var(--brand-red-dark);
-  border: 2px solid var(--brand-red);
+  border: 2px solid #8c8c86;
   border-radius: 50%;
   width: 31px; height: 31px;
   font-size: 14px;
@@ -813,12 +1026,24 @@ html, body {
   padding: 0;
   flex-shrink: 0;
 }
-.sound-btn:hover { background: #fdeceb; }
+.sound-btn:hover { background: #e6e5e2; }
 .sound-btn img { width: 18px; height: 18px; }
 .fg-latin { font-style: italic; opacity: 0.7; margin: 0 0 18px; font-size: 13px; }
-/* 50% bigger than the original 110px. */
+/* Sized to the species photo's own "full image" aspect ratio (1820×1024,
+   the new wide JPGs — see SPECIES[..].photoFull, 2026-09-18) rather than a
+   fixed height, so the box's shape matches the image exactly (no
+   letterboxing) and scales with the column's actual width instead of a
+   guessed pixel height — same aspect-ratio-driven sizing pattern already
+   used for .book/.fg-sheet elsewhere in this file. Was a fixed 165px tall
+   (50% bigger than the original 110px) back when this held the square
+   (1024×1024) quiz/success crop; the quiz and success screens still use
+   that square crop (SPECIES[..].photo, unchanged), only the Field Guide
+   switched to the wide one. .fg-locked-photo (the "???" placeholder) gets
+   the same shape so the box's footprint doesn't jump between locked and
+   unlocked states. */
 .fg-photo {
-  height: 165px;
+  width: 100%;
+  aspect-ratio: 1820 / 1024;
   background: white;
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
@@ -827,7 +1052,8 @@ html, body {
 }
 .fg-photo img { width: 100%; height: 100%; object-fit: contain; padding: 6px; box-sizing: border-box; }
 .fg-locked-photo {
-  height: 165px;
+  width: 100%;
+  aspect-ratio: 1820 / 1024;
   background: #ddd8c5 url('../assets/buttons/Frog-Silhouette.png') center/contain no-repeat;
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
@@ -837,6 +1063,11 @@ html, body {
 }
 .fg-field { margin-bottom: 20px; }
 .fg-field-label { font-weight: 700; font-size: 11px; text-transform: uppercase; opacity: 0.65; margin-bottom: 4px; }
+/* Field Guide's References entry (fgReferencesFactsHtml() etc., script.js) */
+.fg-ref-list { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.5; }
+.fg-ref-list li { margin-bottom: 10px; }
+.fg-ref-list a { color: var(--brand-red-dark); word-break: break-all; }
+.fg-ref-list strong { color: var(--ink); }
 .calling-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 .calling-grid div {
   background: #e4ddc4; border-radius: 4px; text-align: center;
@@ -901,22 +1132,45 @@ html, body {
 .page-arrow.left { left: -50px; }
 .page-arrow.right { right: -50px; }
 
-/* Covers the book (pages + arrows) while nothing's been discovered yet —
-   toggled in renderFieldGuide() off state.fieldGuideUnlocked's size, so it
-   clears the moment the first species is found. */
+/* A small message card, centered over the book (desktop) / sheet column
+   (mobile), while nothing's been discovered yet — toggled in
+   renderFieldGuide() off state.fieldGuideUnlocked's size, so it clears the
+   moment the first species is found. Shrunk twice now: first from a full
+   inset:0 (edge-to-edge) to inset:15% on 2026-09-18, then — still too big,
+   per the user — to this shrink-to-fit card the same day. No explicit
+   width: an absolutely-positioned block with none set sizes to its own
+   content by default, so the card hugs the single line of text instead of
+   claiming a fraction of the book's area; max-width is just a safety net
+   for narrow viewports. See #fg-heading (index.html) for how a screen
+   reader is told about this message via aria-describedby, filtered
+   automatically by this rule's own [hidden]/display:none state — nothing
+   extra needed here for that. */
 .fg-empty-overlay {
   position: absolute;
-  inset: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 1;
+  max-width: 80%;
   background: rgba(255,255,255,0.85);
   border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  padding: 18px 26px;
   text-align: center;
-  padding: 10% 14%;
 }
 .fg-empty-overlay[hidden] { display: none; }
+/* #fg-mobile-empty-overlay carries stagger-motion (mobile only — the
+   desktop #fg-empty-overlay is a descendant of #fg-book and fades with it
+   for free, needing no stagger classes of its own); a plain translateY from
+   that class would otherwise overwrite this element's own centering
+   transform above outright rather than combine with it — same conflict,
+   same fix, as .book.stagger-motion elsewhere in this file. */
+.fg-empty-overlay.stagger-motion {
+  transform: translate(-50%, calc(-50% + 28px));
+}
+.fg-empty-overlay.stagger-motion.stagger-in {
+  transform: translate(-50%, -50%);
+}
 .fg-empty-overlay p {
   margin: 0;
   font-size: 18px;
@@ -988,6 +1242,19 @@ html, body {
 }
 .fg-sheet .fg-field p,
 .fg-sheet .calling-period-text { font-size: 15px; line-height: 1.5; }
+/* One page per species here (unlike the book's facts/story split) — see
+   .fg-page-num in the book-page section for the shared base style/reasoning. */
+.fg-sheet .fg-page-num {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 20px;
+  text-align: center;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--ink);
+  opacity: 0.6;
+}
 .fg-mobile-arrows {
   position: fixed;
   right: 20px;
@@ -1036,7 +1303,7 @@ html, body {
   width: 100%;
   box-shadow: 0 6px 16px rgba(0,0,0,0.4);
 }
-.intro-title { margin: 0 0 14px; font-size: 22px; font-weight: 700; color: var(--ink); }
+.intro-title { margin: 0 0 14px; font-size: 22px; font-weight: 700; color: var(--ink); text-align: center; text-transform: uppercase; }
 .intro-card p {
   margin: 0 0 22px;
   color: var(--ink);
@@ -1094,7 +1361,13 @@ html, body {
     position: static;
     background: white;
   }
-  #fg-bg, .page-arrow, .icon-btn.top-right, .book { display: none; }
+  /* .fg-mobile was missed when the small-screen paper-sheet view was built
+     — without this, a print/PDF engine that evaluates the page width
+     against the max-width:768px breakpoint renders both the mobile sheets
+     and the actual print pages at once, overlapping (the rounded,
+     shadowed .fg-sheet cards bleeding through the plain .fg-print-page
+     content — reported as a broken/overlapping first PDF page). */
+  #fg-bg, .page-arrow, .icon-btn.top-right, .book, .fg-mobile { display: none; }
   .print-only { display: block; }
   .fg-print-page {
     position: relative;
@@ -1111,15 +1384,78 @@ html, body {
   }
   .fg-print-page .fg-name { font-size: 36px; }
   .fg-print-page .fg-latin { font-size: 18px; margin-bottom: 24px; }
+  /* max-width instead of a fixed height — the base rule's aspect-ratio
+     (1820/1024, matching the wide photoFull image) now computes height
+     from width automatically, so forcing a height here would fight it and
+     could crop/distort. ~500px lands close to the previous fixed 280px
+     tall footprint at this ratio, just no longer cropped to get there. */
   .fg-print-page .fg-photo,
   .fg-print-page .fg-locked-photo {
-    height: 280px;
+    max-width: 500px;
     margin-bottom: 24px;
   }
-  .fg-print-page .fg-field { margin-bottom: 18px; }
+  /* Keeps each field's label attached to its content across a page break —
+     without this, a PDF export could leave e.g. "DESCRIPTION" as the very
+     last line on one page with its paragraph(s) starting fresh on the
+     next. break-inside:avoid on the whole field keeps short fields
+     (Conservation Status, Calling Period) fully together; break-after:avoid
+     on the name/label specifically guarantees at minimum that a heading is
+     never left dangling alone even if a long field (Description, the
+     References species list) still has to split across pages. orphans/
+     widows stop a paragraph itself from leaving just 1–2 lines stranded
+     on either side of a break. */
+  .fg-print-page .fg-field { margin-bottom: 18px; break-inside: avoid; page-break-inside: avoid; }
+  .fg-print-page .fg-name,
+  .fg-print-page .fg-field-label {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
   .fg-print-page .fg-field-label { font-size: 14px; }
   .fg-print-page .calling-grid div { font-size: 13px; padding: 8px 0; }
   .fg-print-page .status-pill { font-size: 14px; padding: 6px 14px; }
   .fg-print-page .status-caption { font-size: 14px; min-width: 150px; }
-  .fg-print-page .fg-field p { font-size: 15px; line-height: 1.5; }
+  .fg-print-page .fg-field p { font-size: 15px; line-height: 1.5; orphans: 3; widows: 3; }
+  /* References page: keeps one citation+URL together rather than splitting
+     a single list item across a page break. */
+  .fg-print-page .fg-ref-list li { break-inside: avoid; page-break-inside: avoid; }
+  .fg-print-page .fg-page-num {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 30px;
+    text-align: center;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--ink);
+    opacity: 0.6;
+  }
+}
+
+/* ===================== Reduced motion ===================== */
+/* The 4 continuously-looping decorative animations (pin bob, the two
+   pulsing "sounding"/hint rings) run indefinitely with no in-app pause
+   control, so they're disabled outright for anyone with the OS-level
+   "reduce motion" preference set — WCAG 2.2.2 (Pause, Stop, Hide). Screen
+   transitions are brief (≤380ms) one-shot fades, not ongoing motion, but
+   their zoom/scale component is swapped for a plain opacity fade anyway
+   since scaling content is a common vestibular trigger. */
+@media (prefers-reduced-motion: reduce) {
+  .pin.unlocked .pin-dot,
+  .map-point.sounding .map-point-dot,
+  .hotspot.sounding,
+  .scene-map-btn.pulse-hint {
+    animation: none;
+  }
+  .screen-exit-zoom-fade { animation: screen-fade-out 320ms ease forwards; }
+  .screen-enter-zoom-fade { animation: screen-fade-in 320ms ease-out backwards; }
+  .screen-exit-zoom-out { animation: screen-fade-out 320ms ease forwards; }
+  .screen-enter-zoom-out { animation: screen-fade-in 320ms ease-out backwards; }
+  /* Belt-and-suspenders alongside runStagger()'s own JS-side check (which
+     skips the animation AND the 1s delay entirely for this preference) —
+     if these classes ever end up applied without going through JS, they
+     still can't visibly animate. */
+  .stagger-immediate,
+  .stagger-delayed {
+    transition: none;
+  }
 }
