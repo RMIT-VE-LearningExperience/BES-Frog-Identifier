@@ -65,6 +65,9 @@ const SPECIES = {
     id: "spotted-marsh", name: "Spotted Marsh Frog", latin: "Limnodynastes tasmaniensis",
     photo: "../assets/frogs/03-Spotted-Marsh-Frog-square.jpg",
     photoFull: "../assets/frogs/03-Spotted-Marsh-Frog.jpg",
+    // Newport Lakes Reserve's target species — added when wiring in that
+    // reserve. Path convention matches the other reserves' callAudio fields.
+    callAudio: "../assets/scenes/newport-lakes-reserve/newport-frog-sound/fr-spotted-marsh-frog-Jodi Rowley.mp4",
     hint: [
       "Grey-brown or olive-green back with darker patches and often a pale stripe down the middle",
       "Cream stripe running from below the eye to the upper arm",
@@ -121,6 +124,9 @@ const SPECIES = {
     id: "baw-baw", name: "Baw Baw Frog", latin: "Philoria frosti",
     photo: "../assets/frogs/06-Baw-Baw-Frog-square.jpg",
     photoFull: "../assets/frogs/06-Baw-Baw-Frog.jpg",
+    // Baw Baw National Park's target species — added when wiring in that
+    // reserve. Path convention matches the other reserves' callAudio fields.
+    callAudio: "../assets/scenes/baw-baw-national-park/baw-baw-frog-sound/fr-bawbaw-frog-Deon Gilbert.mp4",
     hint: [
       "Dark grey, dark brown, or pink-brown back",
       "Cream or pale-yellow belly with brown speckling",
@@ -401,6 +407,108 @@ const RESERVES = {
         pannable: true,
         mapX: "74.53%", mapY: "61.01%",
         hotspots: [{ id: "ww1", x: "33.71%", y: "49.92%" }, { id: "ww2", x: "82.45%", y: "83.21%" }] }
+    ]
+  },
+  // Wired in following the Jawbone/Trin pattern. Target species (Spotted
+  // Marsh Frog) inferred from the one new frog-call recording supplied
+  // (newport-frog-sound/). Quiz distractors: rolled once at random (same
+  // process as Trin Warren) over the 5 non-target species excluding Baw Baw
+  // Frog — first roll included Baw Baw, but the user asked to reroll rather
+  // than have it show up as a distractor in two reserves, so it was
+  // excluded from the pool for the reroll rather than just discarding that
+  // one result and re-including it. Reserve name matches the Map Overview
+  // pin's existing label exactly (no Jawbone-style naming ambiguity here).
+  // Scene names/map alt text written after looking at the actual scene
+  // stills/map. mapX/mapY/hotspot positions detected programmatically
+  // (Pillow/scipy) from documents/Newport_Lakes_Hotspots.png.
+  // IMPORTANT: same doc/filename mismatch as every reserve's hotspots doc so
+  // far — this doc's 2nd scene panel is actually 03-newport-lake-inlet and
+  // its 3rd panel is actually 02-newport-rocky-lakeside-slope. Verified by
+  // directly comparing the doc's cropped panel images against the real
+  // asset stills pixel-for-pixel before assigning any hotspot position. The
+  // scenes array below is ordered to match the doc's actual panel order
+  // (quarry lake, lake inlet, rocky lakeside slope) for readability, same
+  // as every other reserve's array above.
+  newport: {
+    id: "newport",
+    name: "Newport Lakes Reserve",
+    mapImage: "../assets/scenes/newport-lakes-reserve/Newport Lakes Reserve Map.jpg",
+    mapAlt: "Illustrated aerial map of Newport Lakes Reserve, showing a densely wooded loop track around a small central pond and two larger connected quarry lakes to the east. A residential street grid borders the reserve on both the west and east sides.",
+    quizLabelIds: ["spotted-marsh","striped-marsh","spotted-tree","bell"],
+    targetSpecies: "spotted-marsh",
+    scenes: [
+      { id: "quarry-lake", name: "The quarry lake",
+        photo: "../assets/scenes/newport-lakes-reserve/01-newport-quarry-lake-still.jpg",
+        video: "../assets/scenes/newport-lakes-reserve/01-newport-quarry-lake.mp4",
+        ambientAudio: "../assets/scenes/newport-lakes-reserve/newport-bg-sound/01-newport-quarry-lake.mp3",
+        pannable: true,
+        mapX: "77.98%", mapY: "20.19%",
+        hotspots: [{ id: "ql1", x: "28.09%", y: "74.89%" }, { id: "ql2", x: "80.58%", y: "71.56%" }] },
+      { id: "lake-inlet", name: "The lake inlet",
+        photo: "../assets/scenes/newport-lakes-reserve/03-newport-lake-inlet-still.jpg",
+        video: "../assets/scenes/newport-lakes-reserve/03-newport-lake-inlet.mp4",
+        ambientAudio: "../assets/scenes/newport-lakes-reserve/newport-bg-sound/03-newport-lake-inlet.mp3",
+        pannable: true,
+        mapX: "51.57%", mapY: "46.72%",
+        hotspots: [{ id: "li1", x: "13.09%", y: "42.42%" }, { id: "li2", x: "80.58%", y: "72.39%" }] },
+      { id: "rocky-lakeside-slope", name: "The rocky lakeside slope",
+        photo: "../assets/scenes/newport-lakes-reserve/02-newport-rocky-lakeside-slope-still.jpg",
+        video: "../assets/scenes/newport-lakes-reserve/02-newport-rocky-lakeside-slope.mp4",
+        ambientAudio: "../assets/scenes/newport-lakes-reserve/newport-bg-sound/02-newport-rocky-lakeside-slope.mp3",
+        pannable: true,
+        mapX: "60.75%", mapY: "73.24%",
+        hotspots: [{ id: "rl1", x: "26.22%", y: "49.92%" }, { id: "rl2", x: "69.33%", y: "69.89%" }] }
+    ]
+  },
+  // Wired in following the Jawbone/Trin/Newport pattern. Target species
+  // (Baw Baw Frog) inferred from the one new frog-call recording supplied
+  // (baw-baw-frog-sound/) — as flagged when Jawbone was wired in, this was
+  // the one target predictable ahead of time from supplied assets, since
+  // the park and the frog share a name. Quiz distractors: rolled once at
+  // random over the 6 non-target species, checked programmatically against
+  // all 5 other reserves' sets (no duplicates), user confirmed the roll
+  // as-is rather than requesting a reroll. Reserve name matches the Map
+  // Overview pin's existing label exactly — no naming ambiguity.
+  // Scene names/map alt text written after looking at the actual scene
+  // stills/map. mapX/mapY/hotspot positions detected programmatically
+  // (Pillow/scipy) from documents/BawBaw_Hotspots.png.
+  // IMPORTANT: same doc/filename mismatch as Jawbone's and Newport's docs
+  // specifically (1st panel matches its filename, 2nd and 3rd are swapped)
+  // — this doc's 2nd scene panel is actually 03-BawBaw-Snow-Gum-Woodland and
+  // its 3rd panel is actually 02-BawBaw-Moorland-Pools-and-Snow-Gums.
+  // Verified by directly comparing the doc's cropped panel images against
+  // the real asset stills pixel-for-pixel before assigning any hotspot
+  // position — 6th reserve hotspots doc in a row with this issue (only
+  // Trin Warren's doc had a different, non-2nd/3rd-swap scramble).
+  bawbaw: {
+    id: "bawbaw",
+    name: "Baw Baw National Park",
+    mapImage: "../assets/scenes/baw-baw-national-park/Baw Baw National Park Map.jpg",
+    mapAlt: "Illustrated aerial map of Baw Baw National Park, showing forested mountain ridges and valleys crossed by hiking trails, with a long narrow reservoir running north-south through a steeper, more rugged range on the eastern side.",
+    quizLabelIds: ["baw-baw","banjo","spotted-marsh","bell"],
+    targetSpecies: "baw-baw",
+    scenes: [
+      { id: "alpine-creek", name: "The alpine creek among snow gums",
+        photo: "../assets/scenes/baw-baw-national-park/01-BawBaw-Alpine-Creek-Among-Snow-Gums-still.jpg",
+        video: "../assets/scenes/baw-baw-national-park/01-BawBaw-Alpine-Creek-Among-Snow-Gums.mp4",
+        ambientAudio: "../assets/scenes/baw-baw-national-park/baw-baw-bg-sound/01-BawBaw-Alpine-Creek-Among-Snow-Gums.mp3",
+        pannable: true,
+        mapX: "38.93%", mapY: "34.49%",
+        hotspots: [{ id: "ac1", x: "22.46%", y: "61.57%" }, { id: "ac2", x: "76.83%", y: "49.91%" }] },
+      { id: "snow-gum-woodland", name: "The snow gum woodland",
+        photo: "../assets/scenes/baw-baw-national-park/03-BawBaw-Snow-Gum-Woodland-still.jpg",
+        video: "../assets/scenes/baw-baw-national-park/03-BawBaw-Snow-Gum-Woodland.mp4",
+        ambientAudio: "../assets/scenes/baw-baw-national-park/baw-baw-bg-sound/03-BawBaw-Snow-Gum-Woodland.mp3",
+        pannable: true,
+        mapX: "65.35%", mapY: "46.72%",
+        hotspots: [{ id: "sg1", x: "31.84%", y: "65.73%" }, { id: "sg2", x: "88.08%", y: "69.06%" }] },
+      { id: "moorland-pools", name: "The moorland pools",
+        photo: "../assets/scenes/baw-baw-national-park/02-BawBaw-Moorland-Pools-and-Snow-Gums-still.jpg",
+        video: "../assets/scenes/baw-baw-national-park/02-BawBaw-Moorland-Pools-and-Snow-Gums.mp4",
+        ambientAudio: "../assets/scenes/baw-baw-national-park/baw-baw-bg-sound/02-BawBaw-Moorland-Pools-and-Snow-Gums.mp3",
+        pannable: true,
+        mapX: "23.99%", mapY: "67.11%",
+        hotspots: [{ id: "mp1", x: "24.34%", y: "59.90%" }, { id: "mp2", x: "69.33%", y: "76.56%" }] }
     ]
   }
 };
