@@ -169,17 +169,22 @@ const FIELD_GUIDE_ORDER = ["banjo","striped-marsh","spotted-marsh","brown-tree",
 const FIELD_GUIDE_PAGES = [...FIELD_GUIDE_ORDER, "references"];
 
 // The set of pages actually reachable right now — References is skipped
-// entirely (not just shown locked) until at least one species has been
-// found, confirmed with the user 2026-09-18. Same threshold
-// (state.fieldGuideUnlocked.size > 0) the empty-state overlay already uses
-// to decide whether to show at all, so the two conditions can't drift out
-// of sync. Used everywhere FIELD_GUIDE_PAGES previously drove what's
-// actually navigable/printable/rendered (the desktop Next/Prev cycle, the
-// mobile sheet stack, print, and every page-number label) — species
-// indices are stable either way, since References only ever sits at the
-// end of the full array.
+// entirely (not just shown locked). Originally gated on "at least one
+// species found" (2026-09-18); tightened 2026-09-21 to "every species
+// found" per the user's explicit choice — References stays unreachable
+// until all 7 species in FIELD_GUIDE_ORDER are discovered, which in
+// practice means it can't unlock at all until Enoch Falls (the only source
+// of the Spotted Tree Frog) is wired in as a 7th reserve. This threshold
+// deliberately no longer matches the empty-state overlay's own condition
+// (state.fieldGuideUnlocked.size > 0, unchanged — that overlay is about
+// whether the guide has *anything* populated yet, a separate concern from
+// whether References specifically should be reachable). Used everywhere
+// FIELD_GUIDE_PAGES previously drove what's actually navigable/printable/
+// rendered (the desktop Next/Prev cycle, the mobile sheet stack, print,
+// and every page-number label) — species indices are stable either way,
+// since References only ever sits at the end of the full array.
 function visibleFieldGuidePages() {
-  return state.fieldGuideUnlocked.size > 0 ? FIELD_GUIDE_PAGES : FIELD_GUIDE_ORDER;
+  return state.fieldGuideUnlocked.size === FIELD_GUIDE_ORDER.length ? FIELD_GUIDE_PAGES : FIELD_GUIDE_ORDER;
 }
 
 // Sourced from documents/FrogID-References.docx, supplied by the user.
@@ -824,8 +829,8 @@ document.querySelectorAll("[data-goto]").forEach(btn => {
       state.returnScreen = activeScreen ? activeScreen.id.replace("screen-", "") : "map";
       openFieldGuide();
     }
-    else if (target === "park") { stopCallTone(); stopSceneMedia(); transitionShowScreen("park", "fade", () => document.getElementById("park-title").focus()); }
-    else if (target === "map") { stopCallTone(); stopSceneMedia(); transitionShowScreen("map", "zoom-out", () => document.getElementById("map-title").focus()); }
+    else if (target === "park") { playFeedbackSound(OPEN_RESERVE_MAP_SOUND); stopCallTone(); stopSceneMedia(); transitionShowScreen("park", "fade", () => document.getElementById("park-title").focus()); }
+    else if (target === "map") { playFeedbackSound(MAP_OVERVIEW_RETURN_SOUND); stopCallTone(); stopSceneMedia(); transitionShowScreen("map", "zoom-out", () => document.getElementById("map-title").focus()); }
   });
 });
 
@@ -835,7 +840,14 @@ document.querySelectorAll("[data-goto]").forEach(btn => {
 // pins reach this listener) rather than hardcoding a single reserve, so
 // this loop needs no changes when a further reserve is unlocked later.
 document.querySelectorAll(".pin.unlocked").forEach(pin => {
-  pin.addEventListener("click", () => enterPark(pin.dataset.park));
+  pin.addEventListener("click", () => {
+    // Plays on every pin click, including the "revisit an already-completed
+    // reserve" shortcut inside enterPark() that skips straight to Success —
+    // confirmed with the user this should still play, since it marks "you
+    // selected a reserve" rather than "you're now looking at its map".
+    playFeedbackSound(MAP_OVERVIEW_OPEN_SOUND);
+    enterPark(pin.dataset.park);
+  });
   // Locked pins are deliberately left non-interactive/unfocusable — they
   // don't do anything on click, so making them keyboard-focusable would
   // just be a dead stop for no reason.
@@ -1658,6 +1670,22 @@ const FROG_ESCAPE_SOUND = "../assets/overlays/feedback-sounds/frog_escape.mp3";
 const FROG_FOUND_SOUND = "../assets/overlays/feedback-sounds/frog_found.mp3";
 const OPEN_BOOK_SOUND = "../assets/overlays/feedback-sounds/open_book.mp3";
 const PAGE_TURN_SOUND = "../assets/overlays/feedback-sounds/page_turn.mp3";
+// Added 2026-09-21. OPEN_RESERVE_MAP_SOUND covers every "open the reserve
+// map" action regardless of which screen it's triggered from (the scene's
+// own "Reserve Map" button, and the Fail screen's "Open the Reserve's Map"
+// button — confirmed with the user both should share this sound since it's
+// the same destination/action either way). MAP_OVERVIEW_OPEN_SOUND plays on
+// every Map Overview pin click, including the "revisit an already-completed
+// reserve" shortcut that skips straight to Success without ever showing the
+// reserve map — confirmed with the user this should still play, since it
+// marks "you selected a reserve" rather than "you're now looking at a
+// reserve map". MAP_OVERVIEW_RETURN_SOUND covers every "back to the Map
+// Overview" action (the reserve screen's "Main Map" button and the success
+// screen's "Return to Main Map" button — also confirmed to share the sound
+// despite the different label).
+const OPEN_RESERVE_MAP_SOUND = "../assets/overlays/feedback-sounds/open_reserve_map.mp3";
+const MAP_OVERVIEW_OPEN_SOUND = "../assets/overlays/feedback-sounds/map_o_open.mp3";
+const MAP_OVERVIEW_RETURN_SOUND = "../assets/overlays/feedback-sounds/map_o_return.mp3";
 
 // One-shot feedback stings — not looped, plays alongside whatever else is
 // already playing (scene ambient, frog-call preview) rather than pausing it.
@@ -1684,11 +1712,13 @@ function playFeedbackSound(src) {
 // interactive element in the experience: every nav/CTA/icon button (except
 // the Field Guide's own Close button, which gets a click sound instead —
 // see its handler below), "play call" buttons, the quiz's draggable
-// species labels, unlocked Map Overview pins, scene hotspots, reserve-map
-// scene points, and the quiz drop field. Confirmed with the user
-// 2026-09-17 as the broadest of 3 scope options discussed — deliberately
-// including the map/scene markers even though they already have their own
-// visual hover feedback (scale/opacity/pulse). The Field Guide's page-turn
+// species labels, unlocked Map Overview pins, reserve-map scene points, and
+// the quiz drop field. Confirmed with the user 2026-09-17 as the broadest
+// of 3 scope options discussed, deliberately including the map/scene
+// markers even though they already have their own visual hover feedback
+// (scale/opacity/pulse) — then narrowed 2026-09-21 to drop scene hotspots
+// (the in-scene eye icons) specifically, per user feedback that they didn't
+// want a hover blip while searching a scene. The Field Guide's page-turn
 // arrows (desktop and mobile) are excluded too, per the same 2026-09-17
 // follow-up — they don't need a hover blip.
 // One delegated listener on `document` (pointerover bubbles; mouseenter/
@@ -1700,7 +1730,7 @@ function playFeedbackSound(src) {
 // pointerType-gated to "mouse" only — hover has no real equivalent on
 // touch/pen, and without this guard a tap would fire both this blip and
 // whatever sound that tap's own action already plays.
-const HOVER_SOUND_SELECTOR = '.icon-btn:not([data-action="close-fieldguide"]), .action-btn, .sound-btn, .species-label, .pin.unlocked, .hotspot, .map-point, #drop-field';
+const HOVER_SOUND_SELECTOR = '.icon-btn:not([data-action="close-fieldguide"]), .action-btn, .sound-btn, .species-label, .pin.unlocked, .map-point, #drop-field';
 let hoveredSoundEl = null;
 document.addEventListener("pointerover", e => {
   if (e.pointerType !== "mouse") return;
@@ -1800,8 +1830,18 @@ function showSuccess(useTransition) {
 }
 
 document.querySelector('[data-action="return-map"]').addEventListener("click", () => {
+  // Shares MAP_OVERVIEW_RETURN_SOUND with the reserve screen's "Main Map"
+  // button (data-goto="map" above) — confirmed with the user despite the
+  // different label, since both land back on the Map Overview.
+  playFeedbackSound(MAP_OVERVIEW_RETURN_SOUND);
   stopCallTone();
   stopSceneMedia();
+  // Missing here was the actual bug: showSuccess()/showFail() both already
+  // stop a mid-preview sound-button playback on entry, but this was the one
+  // screen-leaving action that never stopped one on exit — a preview
+  // started on the success screen's frog photo kept playing right through
+  // the zoom-out into the Map Overview and beyond.
+  stopPreviewAudio();
   transitionShowScreen("map", "zoom-out", () => document.getElementById("map-title").focus());
 });
 
@@ -1828,6 +1868,10 @@ function showFail() {
 }
 
 document.querySelector('[data-action="open-park-map"]').addEventListener("click", () => {
+  // Shares OPEN_RESERVE_MAP_SOUND with the scene's "Reserve Map" button
+  // (data-goto="park" above) — confirmed with the user, since both open the
+  // same reserve map despite the different label/screen.
+  playFeedbackSound(OPEN_RESERVE_MAP_SOUND);
   stopSceneMedia();
   renderScenePoints();
   transitionShowScreen("park", "fade", () => document.getElementById("park-title").focus());

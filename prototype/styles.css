@@ -686,23 +686,18 @@ html, body {
    screen's result card both use this (fail doesn't: it deliberately never
    reveals the correct species, see showFail()). Sized 20% bigger than the
    base .sound-btn overall (two successive 10% bumps: 28px → 31px → 34px). */
+/* Centered along the photo's bottom edge — originally success-screen-only,
+   extended to the quiz's identical button 2026-09-21 so both screens match
+   rather than the quiz sitting bottom-right while success is centered. */
 .frog-photo-sound {
   position: absolute;
-  bottom: 10px; right: 10px;
+  bottom: 10px; left: 50%;
+  transform: translateX(-50%);
   z-index: 2;
   width: 34px; height: 34px;
   font-size: 15px;
 }
 .sound-btn.frog-photo-sound img { width: 20px; height: 20px; }
-/* Success screen's button only — centered along the photo's bottom edge
-   instead of right-aligned. Its grey outline/hover used to be scoped here
-   specifically; both are now the shared .sound-btn default (below), so
-   only the positioning remains a success-screen-specific override. */
-#success-photo .sound-btn {
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-}
 
 .drop-field {
   border: 3px dashed #8c8c86;
