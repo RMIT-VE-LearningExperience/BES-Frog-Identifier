@@ -45,7 +45,7 @@
           <div class="pin unlocked label-left" style="left:18.95%; top:61.93%;" data-park="newport"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Newport Lakes Reserve</div></div>
           <div class="pin unlocked label-right" style="left:28.71%; top:58.27%;" data-park="rosanna"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">The Rosanna Golf Club</div></div>
           <div class="pin unlocked label-left" style="left:22.20%; top:56.17%;" data-park="trin"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Trin Warren Tam-Boore Bellbird Waterhole</div></div>
-          <div class="pin locked" style="left:82.37%; top:29.38%;"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Enoch Falls <span class="lock">🔒</span></div></div>
+          <div class="pin unlocked" style="left:82.37%; top:29.38%;" data-park="enoch"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Enoch Falls</div></div>
           <div class="pin unlocked" style="left:90%; top:66.98%;" data-park="bawbaw"><img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt=""><div class="pin-label">Baw Baw National Park</div></div>
         </div>
       </div>
@@ -63,6 +63,10 @@
       <button class="icon-btn" data-action="show-instructions" title="Instructions"><img src="../assets/buttons/Icon_Instruction.png" alt="">Instructions</button>
       <button class="icon-btn" data-goto="fieldguide" title="Field Guide"><img src="../assets/buttons/Icon_Journal.png" alt="">Field Guide</button>
     </div>
+    <!-- Standalone top-right, like the Field Guide's Close/Print — this
+         screen's own top-bar sits top-left, so there's no nesting/mobile-
+         stacking need like the scene's mute button has. -->
+    <button class="icon-btn top-right mute-btn" id="map-mute-btn" title="Mute sound" aria-label="Mute sound"><img class="mute-icon" src="../assets/buttons/Btn_Sound.png" alt="Mute sound"></button>
   </section>
 
   <!-- ===================== PARK MAP ===================== -->
@@ -78,6 +82,7 @@
       <h1 class="title-chip" id="park-title" tabindex="-1">Yalukit Willam Nature Reserve</h1>
       <button class="icon-btn" data-goto="map" title="Main Map"><img src="../assets/buttons/Icon_Overview.png" alt="">Main Map</button>
     </div>
+    <button class="icon-btn top-right mute-btn" id="park-mute-btn" title="Mute sound" aria-label="Mute sound"><img class="mute-icon" src="../assets/buttons/Btn_Sound.png" alt="Mute sound"></button>
   </section>
 
   <!-- ===================== SCENE ===================== -->
@@ -103,7 +108,7 @@
            via position:fixed (styles.css), which ignores this nesting
            entirely, so nothing about its established desktop position
            changes. -->
-      <button class="icon-btn top-right" id="scene-mute-btn" title="Mute scene sound" aria-label="Mute scene sound"><img id="scene-mute-icon" src="../assets/buttons/Btn_Sound.png" alt="Mute scene sound"></button>
+      <button class="icon-btn top-right mute-btn" id="scene-mute-btn" title="Mute sound" aria-label="Mute sound"><img class="mute-icon" id="scene-mute-icon" src="../assets/buttons/Btn_Sound.png" alt="Mute sound"></button>
     </div>
     <button class="icon-btn scene-map-btn" id="scene-map-btn" data-goto="park" title="Reserve Map"><img src="../assets/buttons/Icon_Map.png" alt="">Reserve Map</button>
 
@@ -249,8 +254,28 @@
     <div class="intro-card">
       <h2 class="intro-title" id="intro-title">Instructions</h2>
       <p id="intro-desc">You are exploring different wetland habitats around Victoria. Select a location to explore. Navigate around the wetland with the map. Explore each scene to search for frog calls. Use the call, visuals, clues, and your knowledge to identify each species.</p>
-      <p class="intro-listen"><img src="../assets/buttons/Icon_Ear.png" alt="" class="intro-ear-icon">Listen carefully. Some calls may need to be played more than once.</p>
+      <p class="intro-listen"><img src="../assets/buttons/Icon_Ear.png" alt="" class="intro-icon">Listen carefully. Some calls may need to be played more than once.</p>
       <button class="action-btn intro-start-btn" id="intro-start-btn">Start</button>
+    </div>
+  </div>
+
+  <!-- ===================== ENDGAME CARD ===================== -->
+  <!-- Same dialog pattern as the intro overlay above (reuses its classes
+       directly, not a duplicate set of styles) — role="dialog"/aria-modal,
+       #app-content inerted while open. Shown automatically the first time
+       the player returns to the Map Overview having found every reserve's
+       frog (maybeShowEndgameCard(), script.js), and can be reopened anytime
+       after that via the Map Overview's Instructions button, which shows
+       this instead of the regular intro card once the game is complete
+       (see the show-instructions click handler). aria-describedby lists
+       both text nodes so a screen reader reads the download line too, not
+       just the first paragraph. -->
+  <div class="intro-overlay" id="endgame-overlay" role="dialog" aria-modal="true" aria-labelledby="endgame-title" aria-describedby="endgame-desc endgame-download" hidden>
+    <div class="intro-card">
+      <h2 class="intro-title" id="endgame-title">Congratulations!</h2>
+      <p id="endgame-desc">You have identified all the frogs for each location. They are all recorded in your trusty field guide.</p>
+      <p class="intro-listen" id="endgame-download"><img src="../assets/buttons/Icon_Download.png" alt="" class="intro-icon">Download a copy of the guide book for reference.</p>
+      <button class="action-btn" id="endgame-view-btn"><img src="../assets/buttons/Icon_Journal.png" alt="">Open Field Guide</button>
     </div>
   </div>
 

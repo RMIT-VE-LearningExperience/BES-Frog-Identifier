@@ -1,8 +1,2 @@
 documents/
 .DS_Store
-
-# Assets for reserves not yet wired into the prototype (script.js only
-# references Yalukit Willam Nature Reserve so far). Kept locally, excluded
-# here to keep the repo lean — add back (remove the relevant line) once a
-# reserve is actually wired in.
-assets/scenes/enoch-falls/

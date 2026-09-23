@@ -475,9 +475,25 @@ html, body {
   background: white;
   border: 3px solid var(--brand-red);
   box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  transition: transform 0.15s;
+}
+/* Shrinks on hover/focus — pulse-ring (below) only animates box-shadow, not
+   transform, so this doesn't conflict with a simultaneously-"sounding"
+   point's pulsing ring. */
+.map-point:hover .map-point-dot,
+.map-point:focus-visible .map-point-dot {
+  transform: scale(0.8);
 }
 .map-point.sounding .map-point-dot {
   animation: pulse-ring 1.4s ease-out infinite;
+}
+/* The scene the player last entered this reserve visit — a "you are here"
+   marker on the reserve map, set in renderScenePoints() (script.js) off
+   state.currentSceneIdx. Solid red fill (border was already red) rather
+   than a new color, so it still reads as "the same kind of marker, just
+   filled in" instead of introducing an unrelated third color to the map. */
+.map-point.current .map-point-dot {
+  background: var(--brand-red);
 }
 .scene-card {
   position: absolute;
@@ -575,6 +591,13 @@ html, body {
    checked (see updateSceneMapPulse() in script.js) — reuses the same red
    pulse-ring animation already used for "sounding" markers elsewhere. */
 .scene-map-btn.pulse-hint {
+  animation: pulse-ring 1.4s ease-out infinite;
+}
+/* Hints toward Print once the endgame "found everything" card has sent the
+   player to the Field Guide (see openFieldGuide() in script.js) — same
+   pulse-ring animation, same reused red, just applied to a different
+   button. */
+.print-btn.pulse-hint {
   animation: pulse-ring 1.4s ease-out infinite;
 }
 
@@ -745,6 +768,7 @@ html, body {
   flex-wrap: wrap;
 }
 .species-label {
+  position: relative;
   background: white;
   border-radius: 26px;
   padding: 13px 22px;
@@ -754,13 +778,23 @@ html, body {
   box-shadow: 0 3px 8px rgba(0,0,0,0.35);
   user-select: none;
   min-width: 165px;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.15s;
   /* Stops the browser treating a finger-drag as a page scroll, so the
      touch-drag handler in startTouchDrag() (script.js) gets the gesture
      instead. Native mouse drag is unaffected. */
   touch-action: none;
 }
-.species-label:hover { background: #f2c14e; }
+/* Deliberately not subtle, per the user's request — noticeably bigger than
+   the 1.1 scale used for the Map Overview's pin-label hover elsewhere in
+   this app. transform doesn't affect layout flow, so neighbors don't get
+   pushed around, just slightly overlapped at the edges; z-index lifts the
+   hovered label above them so the overlap always reads as "this one's on
+   top" regardless of DOM order. */
+.species-label:hover {
+  background: #f2c14e;
+  transform: scale(1.25);
+  z-index: 2;
+}
 .species-label .latin { font-style: italic; opacity: 0.75; font-size: 12px; display: block; }
 .species-label.crossed-out {
   text-decoration: line-through;
@@ -1323,7 +1357,7 @@ html, body {
   align-items: center;
   gap: 12px;
 }
-.intro-ear-icon {
+.intro-icon {
   width: 60px;
   height: 60px;
   aspect-ratio: 1 / 1;
@@ -1348,6 +1382,15 @@ html, body {
 .intro-start-btn:hover {
   background: var(--brand-red-dark);
   border-color: var(--brand-red-dark);
+}
+/* Endgame card's "Open Field Guide" reuses the app's standard .action-btn
+   (white/red-stroke pill, same as "Check the Field Guide" elsewhere) rather
+   than the solid-red .intro-start-btn — stretched to the card's full width
+   since it's the card's only button. */
+.intro-card .action-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 /* Built fresh (one `.fg-print-page` per species) right before printing —
@@ -1382,7 +1425,7 @@ html, body {
     box-sizing: border-box;
     width: 100%;
     min-height: 900px;
-    padding: 60px 80px;
+    padding: 60px 40px;
     page-break-after: always;
     break-after: page;
   }
@@ -1451,7 +1494,8 @@ html, body {
   .pin.unlocked .pin-dot,
   .map-point.sounding .map-point-dot,
   .hotspot.sounding,
-  .scene-map-btn.pulse-hint {
+  .scene-map-btn.pulse-hint,
+  .print-btn.pulse-hint {
     animation: none;
   }
   .screen-exit-zoom-fade { animation: screen-fade-out 320ms ease forwards; }

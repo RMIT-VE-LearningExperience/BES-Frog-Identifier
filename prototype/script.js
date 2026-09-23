@@ -144,6 +144,8 @@ const SPECIES = {
     id: "spotted-tree", name: "Spotted Tree Frog", latin: "Dryopsophus spenceri",
     photo: "../assets/frogs/07-Spotted-Tree-Frog-square.jpg",
     photoFull: "../assets/frogs/07-Spotted-Tree-Frog.jpg",
+    // Enoch Falls' target species — added when wiring in that reserve.
+    callAudio: "../assets/scenes/enoch-falls/enoch-frog-sound/fr-spotted-tree-frog-Nathan Litjens.mp4",
     hint: [
       "Brown or green back, sometimes mottled, with a gold or brown stripe running from the snout past the arm",
       "Yellow or orange groin and backs of the thighs",
@@ -281,14 +283,20 @@ const RESERVES = {
         video: "../assets/scenes/rosanna-golf-course/03-rosanna-small-pond-fed-by-the-river.mp4",
         ambientAudio: "../assets/scenes/rosanna-golf-course/rosanna-bg-sound/03-Au-rosanna-small-pond-fed-by-the-river.mp3",
         pannable: true,
-        mapX: "64.2%", mapY: "54.9%",
+        // mapX/mapY swapped with "plenty-river" 2026-09-22, per the user's
+        // request — the reserve map's dot positions themselves are
+        // unchanged; this just swaps which scene each of the two existing
+        // dots opens. Scene-local hotspot x/y are untouched (still this
+        // scene's own search points).
+        mapX: "40.1%", mapY: "85.5%",
         hotspots: [{ id: "pd1", x: "15.0%", y: "52.5%" }, { id: "pd2", x: "82.5%", y: "55.8%" }] },
       { id: "plenty-river", name: "The Plenty River",
         photo: "../assets/scenes/rosanna-golf-course/02-rosanna-Plenty-River-still.jpg",
         video: "../assets/scenes/rosanna-golf-course/02-rosanna-Plenty-River.mp4",
         ambientAudio: "../assets/scenes/rosanna-golf-course/rosanna-bg-sound/02-Au-rosanna-Plenty-River.mp3",
         pannable: true,
-        mapX: "40.1%", mapY: "85.5%",
+        // mapX/mapY swapped with "pond" — see comment above.
+        mapX: "64.2%", mapY: "54.9%",
         hotspots: [{ id: "pr1", x: "63.8%", y: "53.3%" }, { id: "pr2", x: "26.3%", y: "73.3%" }] }
     ]
   },
@@ -340,21 +348,30 @@ const RESERVES = {
         video: "../assets/scenes/jawbone-nature-conservation-reserve/01-Jawbone-Estuary-Boardwalk-Marsh.mp4",
         ambientAudio: "../assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/01-Jawbone-Estuary-Boardwalk-Marsh.mp3",
         pannable: true,
-        mapX: "25.15%", mapY: "36.51%",
+        // mapX/mapY rotated 3-way with "saltmarsh-lagoon"/"wetland-lake"
+        // 2026-09-22, per the user's request — the reserve map's 3 dot
+        // positions are unchanged; this only rotates which scene each
+        // existing dot opens (this one now sits where saltmarsh-lagoon's
+        // dot used to be). Scene-local hotspot x/y untouched.
+        mapX: "65.34%", mapY: "42.63%",
         hotspots: [{ id: "bw1", x: "33.71%", y: "68.23%" }, { id: "bw2", x: "76.83%", y: "54.92%" }] },
       { id: "saltmarsh-lagoon", name: "The saltmarsh lagoon",
         photo: "../assets/scenes/jawbone-nature-conservation-reserve/03-Jawbone-Saltmarsh-Lagoon-still.jpg",
         video: "../assets/scenes/jawbone-nature-conservation-reserve/03-Jawbone-Saltmarsh-Lagoon.mp4",
         ambientAudio: "../assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/03-Jawbone-Saltmarsh-Lagoon.mp3",
         pannable: true,
-        mapX: "65.34%", mapY: "42.63%",
+        // Rotated — now sits where wetland-lake's dot used to be. See
+        // comment above.
+        mapX: "44.67%", mapY: "63.42%",
         hotspots: [{ id: "lg1", x: "18.71%", y: "65.73%" }, { id: "lg2", x: "71.21%", y: "75.72%" }] },
       { id: "wetland-lake", name: "The wetland lake",
         photo: "../assets/scenes/jawbone-nature-conservation-reserve/02-Jawbone-Wetland-Lake-still.jpg",
         video: "../assets/scenes/jawbone-nature-conservation-reserve/02-Jawbone-Wetland-Lake.mp4",
         ambientAudio: "../assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/02-Jawbone-Wetland-Lake.mp3",
         pannable: true,
-        mapX: "44.67%", mapY: "63.42%",
+        // Rotated — now sits where boardwalk-marsh's (estuary) dot used to
+        // be. See comment above.
+        mapX: "25.15%", mapY: "36.51%",
         hotspots: [{ id: "wl1", x: "20.59%", y: "73.23%" }, { id: "wl2", x: "84.33%", y: "46.58%" }] }
     ]
   },
@@ -396,7 +413,10 @@ const RESERVES = {
         video: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/01-Trin-narrow-wetland-channel.mp4",
         ambientAudio: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-bg-sound/01-Trin-narrow-wetland-channel.mp3",
         pannable: true,
-        mapX: "58.44%", mapY: "38.55%",
+        // mapX/mapY swapped with "wetland-waterhole" 2026-09-22, per the
+        // user's request — dot positions unchanged, only which scene each
+        // opens.
+        mapX: "74.53%", mapY: "61.01%",
         hotspots: [{ id: "wc1", x: "37.46%", y: "54.91%" }, { id: "wc2", x: "80.58%", y: "74.89%" }] },
       { id: "billabong-edge", name: "The billabong edge",
         photo: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/03-Trin-billabong-edge-still.jpg",
@@ -410,7 +430,8 @@ const RESERVES = {
         video: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/02-Trin-Wetland-Waterhole.mp4",
         ambientAudio: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-bg-sound/02-Trin-Wetland-Waterhole.mp3",
         pannable: true,
-        mapX: "74.53%", mapY: "61.01%",
+        // mapX/mapY swapped with "wetland-channel" — see comment above.
+        mapX: "58.44%", mapY: "38.55%",
         hotspots: [{ id: "ww1", x: "33.71%", y: "49.92%" }, { id: "ww2", x: "82.45%", y: "83.21%" }] }
     ]
   },
@@ -447,14 +468,17 @@ const RESERVES = {
         video: "../assets/scenes/newport-lakes-reserve/01-newport-quarry-lake.mp4",
         ambientAudio: "../assets/scenes/newport-lakes-reserve/newport-bg-sound/01-newport-quarry-lake.mp3",
         pannable: true,
-        mapX: "77.98%", mapY: "20.19%",
+        // mapX/mapY swapped with "lake-inlet" 2026-09-22, per the user's
+        // request — dot positions unchanged, only which scene each opens.
+        mapX: "51.57%", mapY: "46.72%",
         hotspots: [{ id: "ql1", x: "28.09%", y: "74.89%" }, { id: "ql2", x: "80.58%", y: "71.56%" }] },
       { id: "lake-inlet", name: "The lake inlet",
         photo: "../assets/scenes/newport-lakes-reserve/03-newport-lake-inlet-still.jpg",
         video: "../assets/scenes/newport-lakes-reserve/03-newport-lake-inlet.mp4",
         ambientAudio: "../assets/scenes/newport-lakes-reserve/newport-bg-sound/03-newport-lake-inlet.mp3",
         pannable: true,
-        mapX: "51.57%", mapY: "46.72%",
+        // mapX/mapY swapped with "quarry-lake" — see comment above.
+        mapX: "77.98%", mapY: "20.19%",
         hotspots: [{ id: "li1", x: "13.09%", y: "42.42%" }, { id: "li2", x: "80.58%", y: "72.39%" }] },
       { id: "rocky-lakeside-slope", name: "The rocky lakeside slope",
         photo: "../assets/scenes/newport-lakes-reserve/02-newport-rocky-lakeside-slope-still.jpg",
@@ -515,6 +539,69 @@ const RESERVES = {
         mapX: "23.99%", mapY: "67.11%",
         hotspots: [{ id: "mp1", x: "24.34%", y: "59.90%" }, { id: "mp2", x: "69.33%", y: "76.56%" }] }
     ]
+  },
+  // Wired in following the same pattern as the last 5 reserves, with one
+  // deliberate difference: only `photo` stills were supplied, no
+  // `video`/`ambientAudio` yet (confirmed with the user — used as
+  // placeholders on purpose, animated scenes + ambient audio to follow
+  // later). openScene() already handles a scene with no `video` gracefully
+  // (falls back to the static <img>, per its existing `if (scene.video)`
+  // branch), and no `ambientAudio` just means silence rather than an error
+  // — so no code changes were needed to support this, only the data itself
+  // temporarily omits those two fields. Add `video`/`ambientAudio` to each
+  // scene below once supplied, same path convention as every other reserve.
+  //
+  // Target species (Spotted Tree Frog) confirmed by the supplied
+  // `enoch-frog-sound/` recording — the only species not yet claimed by
+  // another reserve, as predicted when Baw Baw was wired in. Quiz
+  // distractors rolled once at random over the 6 non-target species,
+  // checked programmatically against all 6 other reserves (no
+  // duplicates), user confirmed the roll as-is. This is the 7th and final
+  // reserve, so every one of the 7 species is now some reserve's target.
+  // Scene names/map alt text written after looking at the actual stills
+  // and reserve map. mapX/mapY/hotspot positions detected programmatically
+  // (Pillow/scipy) from documents/Enoch_Hotspots.png — the one reference
+  // doc that didn't exist yet when this reserve was first raised; supplied
+  // by the user mid-conversation once asked.
+  // IMPORTANT: same doc/filename mismatch as Jawbone's/Newport's/Baw Baw's
+  // docs — this doc's 2nd scene panel is actually 03-Enoch-Fern-Gully-Pool
+  // and its 3rd panel is actually 02-Enoch-Forest-Creek. Verified by
+  // directly comparing the doc's cropped panel images against the real
+  // asset stills pixel-for-pixel before assigning any hotspot — 7th
+  // reserve hotspots doc, 6th with this exact issue.
+  enoch: {
+    id: "enoch",
+    name: "Enoch Falls",
+    mapImage: "../assets/scenes/enoch-falls/Enoch Falls Reserve Map.jpg",
+    mapAlt: "Illustrated aerial map of Enoch Falls, showing dense forest crossed by winding creeks and walking trails, with a small cluster of huts near a creek bend in the northwest and a waterfall along a southern branch of the creek.",
+    quizLabelIds: ["spotted-tree","bell","brown-tree","striped-marsh"],
+    targetSpecies: "spotted-tree",
+    scenes: [
+      { id: "forest-waterfall", name: "The forest waterfall",
+        photo: "../assets/scenes/enoch-falls/01-Enoch-Forest-Waterfall-still.jpg",
+        video: "../assets/scenes/enoch-falls/01-Enoch-Forest-Waterfall.mp4",
+        ambientAudio: "../assets/scenes/enoch-falls/enoch-bg-sound/01-Au-Enoch-Forest-Waterfall.mp3",
+        pannable: true,
+        mapX: "18.24%", mapY: "22.22%",
+        hotspots: [{ id: "wf1", x: "33.71%", y: "44.92%" }, { id: "wf2", x: "80.58%", y: "74.89%" }] },
+      { id: "fern-gully-pool", name: "The fern gully pool",
+        photo: "../assets/scenes/enoch-falls/03-Enoch-Fern-Gully-Pool-still.jpg",
+        video: "../assets/scenes/enoch-falls/03-Enoch-Fern-Gully-Pool.mp4",
+        ambientAudio: "../assets/scenes/enoch-falls/enoch-bg-sound/03-Au-Enoch-Fern-Gully-Pool.mp3",
+        pannable: true,
+        // mapX/mapY swapped with "forest-creek" 2026-09-22, per the user's
+        // request — dot positions unchanged, only which scene each opens.
+        mapX: "27.43%", mapY: "75.29%",
+        hotspots: [{ id: "fg1", x: "16.84%", y: "75.72%" }, { id: "fg2", x: "73.08%", y: "52.42%" }] },
+      { id: "forest-creek", name: "The forest creek",
+        photo: "../assets/scenes/enoch-falls/02-Enoch-Forest-Creek-still.jpg",
+        video: "../assets/scenes/enoch-falls/02-Enoch-Forest-Creek.mp4",
+        ambientAudio: "../assets/scenes/enoch-falls/enoch-bg-sound/02-Au-Enoch-Forest-Creek.mp3",
+        pannable: true,
+        // mapX/mapY swapped with "fern-gully-pool" — see comment above.
+        mapX: "61.90%", mapY: "49.91%",
+        hotspots: [{ id: "fc1", x: "31.84%", y: "73.22%" }, { id: "fc2", x: "61.84%", y: "63.24%" }] }
+    ]
   }
 };
 
@@ -547,16 +634,22 @@ function monthRangesText(calling, level) {
   return ranges.map(([a, b]) => a === b ? MONTHS_FULL[a] : `${MONTHS_FULL[a]}–${MONTHS_FULL[b]}`).join(", ");
 }
 
-// Print-only text summary of the calling period, replacing the color-coded
-// grid there (the on-screen facts page keeps the grid + legend). Falls back
-// to the "yes" months when a species has no peak at all (e.g. Spotted Tree
-// Frog), so the line is never empty.
-function peakPeriodText(sp) {
+// Text summary of the calling period for the mobile paper-sheet view and
+// the print PDF (the desktop book's facts page keeps the color-coded grid +
+// legend instead — see fgFactsHtml()). Returns a {label, months} pair
+// instead of one combined string so the label can be styled like every
+// other field's small-caps heading while the months read at normal size,
+// both on the same line (merged from a separate heading + paragraph per the
+// user's request, to reclaim vertical space on the printed page). Falls
+// back to the "yes" months when a species has no true peak at all (e.g.
+// Spotted Tree Frog) — "Peak" is dropped from the label in that case rather
+// than claiming a peak that doesn't exist.
+function callingPeriodParts(sp) {
   const peak = monthRangesText(sp.calling, 3);
-  if (peak) return `Peak calling period: ${peak}`;
+  if (peak) return { label: "Peak Calling Period", months: peak };
   const yes = monthRangesText(sp.calling, 2);
-  if (yes) return `No peak period; calls possible: ${yes}`;
-  return "No peak calling period";
+  if (yes) return { label: "Calling Period", months: yes };
+  return { label: "Calling Period", months: "Unknown" };
 }
 
 // ===================== State =====================
@@ -571,6 +664,9 @@ const state = {
   targetSpecies: RESERVES.yalukit.targetSpecies,
   quizLabelIds: RESERVES.yalukit.quizLabelIds,
   completedReserves: new Set(), // reserve ids whose frog has been found — see enterPark()/onCorrectGuess()
+  endgameShown: false, // true once the "found everything" card has been shown this session — see maybeShowEndgameCard()
+  printPulseActive: false, // true from the endgame card's "Open Field Guide" click until Print is actually clicked once — see openFieldGuide()/print-fieldguide handler
+  printClickedOnce: false, // one-way latch so a later endgame-card reopen (via Instructions) can't re-arm the pulse after Print was already used once
   currentSceneIdx: 0,
   targetHotspotKey: null, // "sceneIdx:hotspotId"
   crossedOut: new Set(),
@@ -580,7 +676,7 @@ const state = {
   fgIdx: 0,
   audioCtx: null,
   callNodes: null,
-  audioMuted: false // scene ambient + frog-call audio only — see toggleSceneMute()
+  audioMuted: false // scene ambient + frog-call audio only — see toggleAudioMute()
 };
 
 // Makes a plain, click-driven <div> (map pins, reserve-map scene points,
@@ -781,45 +877,108 @@ function runStagger(screenId, immediateSelector, delayedSelector) {
 // with role="dialog"/aria-modal on the overlay (index.html) and moving
 // focus onto the Start button, this makes it behave like an actual modal
 // for every input method, not just mouse/touch.
-function showIntro() {
-  document.getElementById("intro-overlay").hidden = false;
+// Shared open/close for every full-screen single-button modal in this app
+// (the intro dialog, and the endgame "found everything" card below) —
+// pulled out into one place 2026-09-22 when the endgame card needed the
+// exact same inert/focus/dismiss behavior the intro dialog already had.
+function openModalOverlay(overlayId, focusEl) {
+  document.getElementById(overlayId).hidden = false;
   document.getElementById("app-content").inert = true;
-  document.getElementById("intro-start-btn").focus();
+  focusEl.focus();
 }
-showIntro();
-document.getElementById("intro-start-btn").addEventListener("click", () => {
-  document.getElementById("intro-overlay").hidden = true;
+function closeModalOverlay(overlayId, focusAfterEl) {
+  document.getElementById(overlayId).hidden = true;
   document.getElementById("app-content").inert = false;
-  document.getElementById("map-title").focus();
-});
-
-// Map Overview's "Instructions" button — re-opens the same intro dialog
-// shown on load, so a player can re-read it later. Only ever reachable from
-// the Map Overview screen, so the dismiss handler above's focus target
-// (#map-title) stays correct without needing return-screen tracking.
-document.querySelector('[data-action="show-instructions"]').addEventListener("click", showIntro);
-
+  if (focusAfterEl) focusAfterEl.focus();
+}
 // `inert` on #app-content keeps Tab from reaching the background, but does
 // nothing to stop Tab from leaving the dialog forward past its last
 // focusable element (or Shift+Tab backward past its first) into the
 // browser's own UI — there's nothing else in the document for focus to land
-// on. Wrap it back around so Tab/Shift+Tab always stay inside the dialog.
-document.getElementById("intro-overlay").addEventListener("keydown", e => {
-  if (e.key !== "Tab") return;
-  const focusable = [...document.getElementById("intro-overlay")
-    .querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
-    .filter(el => el.offsetParent !== null);
-  if (!focusable.length) return;
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-  if (e.shiftKey && document.activeElement === first) {
-    e.preventDefault();
-    last.focus();
-  } else if (!e.shiftKey && document.activeElement === last) {
-    e.preventDefault();
-    first.focus();
-  }
+// on otherwise. Wraps it back around so Tab/Shift+Tab always stay inside
+// whichever modal is currently open.
+function trapTabWithinOverlay(overlayId) {
+  document.getElementById(overlayId).addEventListener("keydown", e => {
+    if (e.key !== "Tab") return;
+    const focusable = [...document.getElementById(overlayId)
+      .querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+      .filter(el => el.offsetParent !== null);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+}
+
+function showIntro() {
+  openModalOverlay("intro-overlay", document.getElementById("intro-start-btn"));
+}
+showIntro();
+document.getElementById("intro-start-btn").addEventListener("click", () => {
+  closeModalOverlay("intro-overlay", document.getElementById("map-title"));
 });
+
+// Map Overview's "Instructions" button — re-opens the same intro dialog
+// shown on load, so a player can re-read it later. Once every reserve's
+// frog has been found, it shows the endgame card instead (confirmed with
+// the user) — that's the more useful "what do I do now" answer for a
+// player who's finished. Only ever reachable from the Map Overview screen,
+// so the dismiss handlers' focus target (#map-title) stays correct without
+// needing return-screen tracking.
+document.querySelector('[data-action="show-instructions"]').addEventListener("click", () => {
+  if (state.completedReserves.size >= Object.keys(RESERVES).length) showEndgameCard();
+  else showIntro();
+});
+trapTabWithinOverlay("intro-overlay");
+
+// ===================== Endgame card =====================
+// Both "arrive at the Map Overview" call sites (the reserve screen's "Main
+// Map" button and the success screen's "Return to Main Map") focus the
+// title and then check whether the endgame card should appear — pulled
+// into one function since a function declaration hoists regardless of
+// where in the file it's called from.
+function onArriveAtMapOverview() {
+  document.getElementById("map-title").focus();
+  maybeShowEndgameCard();
+}
+function showEndgameCard() {
+  openModalOverlay("endgame-overlay", document.getElementById("endgame-view-btn"));
+}
+// Shown once, the first time the player arrives back at the Map Overview
+// having found every reserve's frog — a celebratory one-off, not a repeat
+// nag on every later visit to the map (confirmed with the user). Checked
+// from onArriveAtMapOverview() above rather than from onCorrectGuess()
+// itself, since the request was specifically "when returning to the map
+// overview", not "the moment the last frog is found" (which happens on the
+// Success screen, a different moment). The manual reopen via the
+// Instructions button (above) calls showEndgameCard() directly instead,
+// since that one's meant to show every time it's clicked, not just once.
+function maybeShowEndgameCard() {
+  if (state.endgameShown) return;
+  if (state.completedReserves.size < Object.keys(RESERVES).length) return;
+  state.endgameShown = true;
+  showEndgameCard();
+}
+document.getElementById("endgame-view-btn").addEventListener("click", () => {
+  closeModalOverlay("endgame-overlay", null); // openFieldGuide() below manages its own focus (#fg-heading)
+  // Drives the print button's pulse-hint (styles.css) toward "download a
+  // copy" — confirmed with the user this should persist across every
+  // Field Guide open (not just this one) until Print is actually clicked
+  // once, not just this specific viewing. Now that the endgame card can be
+  // reopened via Instructions (see its click handler above), this must not
+  // re-arm the pulse on a later reopen after Print has already been used
+  // once — printClickedOnce is a one-way latch for exactly that.
+  if (!state.printClickedOnce) state.printPulseActive = true;
+  state.returnScreen = "map";
+  openFieldGuide("references");
+});
+trapTabWithinOverlay("endgame-overlay");
 
 document.querySelectorAll("[data-goto]").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -829,8 +988,21 @@ document.querySelectorAll("[data-goto]").forEach(btn => {
       state.returnScreen = activeScreen ? activeScreen.id.replace("screen-", "") : "map";
       openFieldGuide();
     }
-    else if (target === "park") { playFeedbackSound(OPEN_RESERVE_MAP_SOUND); stopCallTone(); stopSceneMedia(); transitionShowScreen("park", "fade", () => document.getElementById("park-title").focus()); }
-    else if (target === "map") { playFeedbackSound(MAP_OVERVIEW_RETURN_SOUND); stopCallTone(); stopSceneMedia(); transitionShowScreen("map", "zoom-out", () => document.getElementById("map-title").focus()); }
+    else if (target === "park") {
+      playFeedbackSound(OPEN_RESERVE_MAP_SOUND);
+      stopCallTone();
+      stopSceneMedia();
+      // Re-render so the "current scene" red marker (added alongside
+      // state.currentSceneIdx tracking) reflects the scene just left —
+      // previously safe to skip here since nothing else about the points
+      // changes on a plain return trip, but now it's the only "Reserve Map"
+      // path from a scene that wasn't already re-rendering them (the Fail
+      // screen's equivalent button already does, since it also relocates
+      // the target).
+      renderScenePoints();
+      transitionShowScreen("park", "fade", () => document.getElementById("park-title").focus());
+    }
+    else if (target === "map") { playFeedbackSound(MAP_OVERVIEW_RETURN_SOUND); stopCallTone(); stopSceneMedia(); transitionShowScreen("map", "zoom-out", onArriveAtMapOverview); }
   });
 });
 
@@ -900,6 +1072,15 @@ function enterPark(reserveId) {
   }
   state.crossedOut.clear();
   state.checkedHotspots.clear();
+  // -1 is a deliberate "no scene entered yet this visit" sentinel, distinct
+  // from any real scene index — renderScenePoints() below checks against it
+  // to decide the "current scene" red marker (styles.css), so a reserve
+  // that hasn't been explored yet this visit doesn't show a false "current
+  // location" on scene 0. Safe against state.scenes[state.currentSceneIdx]
+  // reads elsewhere: every one of those only runs after openScene() has set
+  // a real index (or, on the revisit branch above, after this one already
+  // set its own valid index) — never while -1 is still in effect.
+  state.currentSceneIdx = -1;
   randomizeTarget(null);
   renderScenePoints();
   transitionShowScreen("park", "zoom-fade", () => document.getElementById("park-title").focus());
@@ -910,8 +1091,15 @@ function renderScenePoints() {
   wrap.innerHTML = "";
   state.scenes.forEach((scene, idx) => {
     const hasSound = scene.hotspots.some(h => `${idx}:${h.id}` === state.targetHotspotKey);
+    // "current" = the scene the player last entered this reserve visit — a
+    // "you are here" marker. state.currentSceneIdx is reset to -1 at the
+    // top of every fresh enterPark() (not the revisit-completed branch),
+    // so this is false until a scene has actually been entered, rather
+    // than showing a false "current location" on a reserve that hasn't
+    // been explored yet this visit.
+    const isCurrent = idx === state.currentSceneIdx;
     const point = document.createElement("div");
-    point.className = "map-point" + (hasSound ? " sounding" : "");
+    point.className = "map-point" + (hasSound ? " sounding" : "") + (isCurrent ? " current" : "");
     point.style.left = scene.mapX;
     point.style.top = scene.mapY;
     point.innerHTML = `
@@ -1447,6 +1635,26 @@ function startTouchDrag(e, labelEl, id) {
 // (focus/blur → showHint()/hideHint(), below), so keyboard users aren't
 // missing a "look before you commit" step either way.
 
+// Fisher-Yates — used to randomize the quiz's on-screen label order every
+// time it opens (2026-09-22). Every reserve's quizLabelIds happens to be
+// authored with the correct species first (a byproduct of how each
+// reserve's distractors were picked and confirmed), and nothing shuffled
+// the render order, so the correct answer was landing in the leftmost
+// position almost every time — a learnable position pattern that defeats
+// the point of an identification quiz. Returns a new array rather than
+// shuffling in place, since state.quizLabelIds is also read elsewhere
+// (e.g. the hint-box height measurement, where order doesn't matter, but
+// an unexpected in-place mutation of shared state still would be a
+// surprise there).
+function shuffleArray(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
 function openQuiz() {
   const quizBg = document.getElementById("quiz-bg");
   quizBg.className = "scene-bg dim";
@@ -1487,7 +1695,7 @@ function openQuiz() {
     el.classList.add("selected");
     el.setAttribute("aria-pressed", "true");
   }
-  state.quizLabelIds.forEach(id => {
+  shuffleArray(state.quizLabelIds).forEach(id => {
     const sp = SPECIES[id];
     const el = document.createElement("div");
     const isCrossed = state.crossedOut.has(id);
@@ -1842,7 +2050,7 @@ document.querySelector('[data-action="return-map"]').addEventListener("click", (
   // started on the success screen's frog photo kept playing right through
   // the zoom-out into the Map Overview and beyond.
   stopPreviewAudio();
-  transitionShowScreen("map", "zoom-out", () => document.getElementById("map-title").focus());
+  transitionShowScreen("map", "zoom-out", onArriveAtMapOverview);
 });
 
 function showFail() {
@@ -1878,10 +2086,21 @@ document.querySelector('[data-action="open-park-map"]').addEventListener("click"
 });
 
 // ===================== Field Guide =====================
-function openFieldGuide() {
-  state.fgIdx = FIELD_GUIDE_ORDER.indexOf(state.targetSpecies);
+// openToPage optionally overrides the usual "land on the current target
+// species" default — used by the endgame card to jump straight to
+// References instead (FIELD_GUIDE_PAGES, not FIELD_GUIDE_ORDER, since only
+// the former includes "references"; every species id's index is identical
+// in both lists, so the default case is unaffected).
+function openFieldGuide(openToPage) {
+  state.fgIdx = FIELD_GUIDE_PAGES.indexOf(openToPage || state.targetSpecies);
   renderFieldGuide();
   renderFieldGuideMobile();
+
+  // Draws attention to "download a copy" once the endgame card has sent
+  // the player here — persists across every Field Guide open (not reset
+  // per-open) until Print is actually clicked once, see the
+  // print-fieldguide click handler below.
+  document.querySelector('[data-action="print-fieldguide"]').classList.toggle("pulse-hint", state.printPulseActive);
 
   // Field guide overlays onto whichever screen it was opened from, dimmed —
   // same pattern as the quiz screen's backdrop.
@@ -2005,6 +2224,14 @@ document.addEventListener("click", (e) => {
 });
 document.getElementById("preview-audio").addEventListener("ended", resetSoundButtons);
 document.querySelector('[data-action="print-fieldguide"]').addEventListener("click", () => {
+  // Stops the endgame card's pulse-hint for good once Print is actually
+  // clicked once — confirmed with the user this shouldn't come back even
+  // on a later Field Guide open, including one reached via reopening the
+  // endgame card itself (see printClickedOnce in the endgame-view-btn
+  // handler above).
+  state.printPulseActive = false;
+  state.printClickedOnce = true;
+  document.querySelector('[data-action="print-fieldguide"]').classList.remove("pulse-hint");
   // Print isn't just the on-screen 2-frog spread — build every species (in
   // its current locked/unlocked state) plus the References entry, one page
   // per sheet. visibleFieldGuidePages() leaves References out of the
@@ -2285,14 +2512,14 @@ function fgPageHtml(id) {
   // visibleFieldGuidePages() (excludes References until something's found).
   const pages = visibleFieldGuidePages();
   const pageNum = `<div class="fg-page-num">${pages.indexOf(id) + 1} of ${pages.length}</div>`;
+  const calling = unlocked ? callingPeriodParts(sp) : null;
   if (!unlocked) {
     return `
       <div class="fg-locked-photo">?</div>
       <h2 class="fg-name">???</h2>
       <p class="fg-latin">&nbsp;</p>
       <div class="fg-field">
-        <div class="fg-field-label">Calling Period</div>
-        <p class="calling-period-text">???</p>
+        <p class="calling-period-text"><span class="fg-field-label">Calling Period:</span> ???</p>
       </div>
       <div class="fg-field">
         <div class="fg-field-label">Conservation Status</div>
@@ -2316,8 +2543,7 @@ function fgPageHtml(id) {
     <h2 class="fg-name">${sp.name}</h2>
     <p class="fg-latin">${sp.latin}</p>
     <div class="fg-field">
-      <div class="fg-field-label">Calling Period</div>
-      <p class="calling-period-text">${peakPeriodText(sp)}</p>
+      <p class="calling-period-text"><span class="fg-field-label">${calling.label}:</span> ${calling.months}</p>
     </div>
     <div class="fg-field">
       <div class="fg-field-label">Conservation Status</div>
@@ -2402,15 +2628,24 @@ function stopCallTone() {
 // "this scene's sound" rather than adding two separate controls. State is a
 // simple session-wide preference — it isn't reset per-scene, so muting
 // doesn't need to be repeated on every new scene.
-function toggleSceneMute() {
+// Originally the scene screen's own control only; extended 2026-09-22 to a
+// shared `.mute-btn` class present on the Map Overview and Reserve Map
+// screens too, so a player can mute proactively before ever entering a
+// scene rather than only from inside one. All instances share the one
+// `state.audioMuted` flag and are kept in sync — toggling from any screen
+// updates every button's icon/label together via querySelectorAll, not
+// just the one that was clicked.
+function toggleAudioMute() {
   state.audioMuted = !state.audioMuted;
-  const label = state.audioMuted ? "Unmute scene sound" : "Mute scene sound";
-  const icon = document.getElementById("scene-mute-icon");
-  icon.src = state.audioMuted ? "../assets/buttons/Btn_SoundOff.png" : "../assets/buttons/Btn_Sound.png";
-  icon.alt = label;
-  const btn = document.getElementById("scene-mute-btn");
-  btn.title = label;
-  btn.setAttribute("aria-label", label);
+  const label = state.audioMuted ? "Unmute sound" : "Mute sound";
+  const iconSrc = state.audioMuted ? "../assets/buttons/Btn_SoundOff.png" : "../assets/buttons/Btn_Sound.png";
+  document.querySelectorAll(".mute-btn").forEach(btn => {
+    btn.title = label;
+    btn.setAttribute("aria-label", label);
+    const icon = btn.querySelector(".mute-icon");
+    icon.src = iconSrc;
+    icon.alt = label;
+  });
 
   const ambientAudio = document.getElementById("scene-ambient-audio");
   const callAudio = document.getElementById("frog-call-audio");
@@ -2419,13 +2654,21 @@ function toggleSceneMute() {
     callAudio.pause();
     stopSynthTone();
   } else {
-    const scene = state.scenes[state.currentSceneIdx];
-    if (scene.ambientAudio) ambientAudio.play().catch(() => {});
-    const soundingHere = scene.hotspots.some(h => `${state.currentSceneIdx}:${h.id}` === state.targetHotspotKey);
-    if (soundingHere) startCallTone();
+    // Resuming ambient/call audio only makes sense if a scene is actually
+    // on screen right now — toggling from the Map Overview or Reserve Map
+    // (where nothing scene-specific is playing) has nothing to resume, and
+    // state.scenes/state.currentSceneIdx may not even point at a valid
+    // scene yet (e.g. before any reserve has been entered this session).
+    const onSceneScreen = document.getElementById("screen-scene").classList.contains("active");
+    if (onSceneScreen) {
+      const scene = state.scenes[state.currentSceneIdx];
+      if (scene.ambientAudio) ambientAudio.play().catch(() => {});
+      const soundingHere = scene.hotspots.some(h => `${state.currentSceneIdx}:${h.id}` === state.targetHotspotKey);
+      if (soundingHere) startCallTone();
+    }
   }
 }
-document.getElementById("scene-mute-btn").addEventListener("click", toggleSceneMute);
+document.querySelectorAll(".mute-btn").forEach(btn => btn.addEventListener("click", toggleAudioMute));
 
 function startSynthTone() {
   const ctx = state.audioCtx || (state.audioCtx = new (window.AudioContext || window.webkitAudioContext)());
