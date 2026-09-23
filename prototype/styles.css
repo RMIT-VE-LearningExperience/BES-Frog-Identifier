@@ -883,6 +883,187 @@ html, body {
 }
 @keyframes buzz-flash { 50% { opacity: 0.1; } }
 
+/* ===================== Quiz — small-screen full layout =====================
+   Below 769px (the same "small screen" breakpoint used elsewhere, e.g. the
+   Field Guide's paper-sheet view) the desktop quiz's two floating,
+   absolutely-positioned panels — .quiz-panel hovering near the top and
+   .quiz-bottom-band pinned to the very bottom, sized to reflow within a
+   fixed overlay shape — stop working: a flex-wrap row of 4 pills with no
+   height cap can grow to eat most of the screen once longer names (e.g.
+   "Southern Bell Frog / Litoria raniformis") force extra wrapping. Replaced
+   here with one real in-flow flex column (title → photo/drop-field →
+   label grid → hint panel) that actually reserves space for each piece
+   instead of letting them float over each other, sized to fit one screen
+   with no scrolling on common phone heights (confirmed at 375×667 and up).
+   Reuses every existing element/class — no new markup or render path,
+   unlike the Field Guide's dedicated .fg-mobile — since the only structural
+   difference from desktop is *layout*, not content. */
+@media (max-width: 768px) {
+  #screen-quiz.active { display: flex; flex-direction: column; }
+  .quiz-panel {
+    position: static;
+    transform: none;
+    display: flex;
+    justify-content: center;
+    flex: 0 0 auto;
+    color: inherit;
+  }
+  /* .frog-card and .quiz-bottom-band stay separate elements (unchanged
+     markup, unchanged 2-wave stagger-reveal targeting — see openQuiz()) but
+     read as one continuous full-screen surface: same paper-texture
+     background, no shadow or rounded corners on either, and zero gap
+     between them (plain flex-column stacking, no margin) so there's no
+     visible seam where one ends and the other begins. */
+  .frog-card {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 16px;
+    background: var(--cream) url('../assets/overlays/Paper-Texture.jpg') center/cover;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  /* ~1/3 of the screen's height per the user's explicit sizing request for
+     the #1 priority item — width auto-derives to match via the base rule's
+     aspect-ratio:1/1 (still in effect, only height/margin are overridden
+     here), capped so it can never outgrow the card's own width on an
+     unusually short-but-wide viewport. */
+  .frog-card .frog-photo {
+    height: 33vh;
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto 12px;
+  }
+  .quiz-bottom-band {
+    position: static;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    padding: 12px 16px 16px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  /* Label grid and hint panel both grow to fill 100% of whatever's left
+     after the title/photo/drop-field above — no leftover blank space at
+     the bottom the way a content-sized hint box left before. flex-basis:0
+     means the 2:1 split is by weight alone, not influenced by either one's
+     natural content size — matching the user's priority order (labels
+     above hints) by giving the label grid double the hint panel's share. */
+  .label-row {
+    flex: 2 1 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Explicit equal rows, not implicit auto-sized ones — without this,
+       each row's height came from its own tallest cell independently (a
+       2-line latin name in row 1 vs. two 1-line names in row 2 made the
+       rows, and so all 4 pills, visibly different heights). Forcing both
+       rows to exactly half the grid's total height means every pill is
+       always the same size regardless of what its own text needs. */
+    grid-template-rows: 1fr 1fr;
+    align-content: stretch;
+    gap: 10px;
+  }
+  /* Side by side per the user's request, not a free-flowing wrap — a fixed
+     2x2 grid can't balloon the way the desktop's flex-wrap row could.
+     display:flex + centering (rather than the desktop block layout) is
+     what actually uses a stretched grid row's extra height sensibly — the
+     two lines of text center within the taller pill instead of just
+     leaving empty space below them. Top/bottom padding cut down from the
+     desktop 13px — with 4 pills now forced to a uniform, often-taller
+     height (see .label-row above), the desktop's vertical padding just
+     added unnecessary bulk on top of already-centered content. */
+  .species-label {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    /* Fluid, not fixed — scales with viewport width (clamped to a
+       sensible min/max) so longer names are less likely to wrap to a 2nd
+       line on a narrow phone in the first place, which is the other half
+       of keeping the 4 pills visually consistent alongside the equal-row
+       fix above. */
+    font-size: clamp(12px, 3.6vw, 15px);
+  }
+  .species-label .latin { font-size: clamp(10px, 3vw, 12px); }
+  /* No hover-enlarge on touch — it can't mean anything without a real
+     pointer, and iOS can leave a just-tapped element visually "stuck" in
+     its :hover state until something else is tapped. */
+  .species-label:hover { transform: none; }
+  /* The floating tooltip (centered above whichever label triggered it)
+     becomes a plain full-width panel below the labels instead, invisible
+     until a label's actually been tapped (see the [hidden] rule below).
+     Updated on tap-select now, not just hover/focus (selectQuizLabel(),
+     script.js), since touch never fires either of those on a plain div.
+     left/min-height are set inline by showHint() for the desktop popup's
+     positioning — !important overrides them back out here. Always occupies
+     its 1-of-3 share of .quiz-bottom-band (see .label-row above), tapped
+     or not — see the [hidden] rule's own comment for why that has to be
+     true even while it's invisible. */
+  .hint-box {
+    position: static;
+    left: auto !important;
+    transform: none;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 0 !important;
+    margin-top: 10px;
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    /* flex-start, not center — centering content taller than its box (a
+       real case on shorter devices like iPhone SE, where the hint panel's
+       1-of-3 share can be smaller than "Hints" + 3-4 bullets) pushes the
+       *top* of the content above the scrollable area, clipping the
+       "Hints" heading with no way to scroll back up to it. Top-aligned
+       means any overflow happens at the bottom instead, which the
+       overflow-y below can always reach. */
+    justify-content: flex-start;
+    /* Safety net, not the intended everyday state — sized to comfortably
+       fit at common phone heights, but an unusually long hint on a very
+       short device scrolls internally here rather than overflowing past
+       the edge of the screen. */
+    overflow-y: auto;
+  }
+  /* visibility, not display:none — the first version used display:none,
+     which correctly hid the box but also let it drop out of .quiz-bottom-
+     band's flex layout entirely, so .label-row (flex: 2 1 0, no sibling
+     left to share with) jumped to fill 100% of the space instead of its
+     usual 2/3. That resize happened at the exact moment a label was first
+     tapped — the same tap that's supposed to select it — which shifted
+     every label's on-screen position right as the existing "tap the same
+     label again to confirm" gesture needed it to stay put. Caught this by
+     testing the real two-tap flow, not just checking the hint appeared:
+     it intermittently failed to reach the Success screen, and a bounding-
+     box check showed the target label's height (and so its center point)
+     changing between the two taps. visibility:hidden keeps the box fully
+     participating in the flex layout (same reserved 1-of-3 share, always)
+     while rendering nothing and blocking interaction — invisible until
+     tapped, exactly like display:none, just without the reflow. */
+  .hint-box[hidden] { visibility: hidden; }
+  /* Pop-in reveal removed for the quiz screen on mobile only — desktop's
+     quiz keeps it, and the Field Guide's own pop-in (shared CSS classes,
+     .stagger-immediate/.stagger-delayed) is untouched everywhere, since
+     this is scoped to #screen-quiz specifically. Forces full visibility
+     immediately regardless of whichever wave runStagger() (script.js) has
+     added/not yet added .stagger-in to — no JS change needed, since the
+     JS only ever toggles a class this overrides the effect of. */
+  #screen-quiz .stagger-immediate,
+  #screen-quiz .stagger-delayed {
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    transition: none !important;
+  }
+}
+
 /* ===================== Success / Fail ===================== */
 /* Vertically centered — was pinned to top:60px (matching the quiz's
    .frog-card) back when a bottom banner ate into the screen's lower space
@@ -909,6 +1090,21 @@ html, body {
   text-align: center;
   z-index: 4;
   box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+/* Fail card fades in on its own (the screen itself still switches
+   instantly, showFail() uses showScreen() not transitionShowScreen()) —
+   scoped to .fail-card specifically, not .result-card generally, so the
+   success card (which already has its own optional zoom-fade *screen*
+   transition on the revisit path) is unaffected. Reuses the existing
+   screen-fade-in keyframe (used elsewhere for screen-enter-fade) rather
+   than defining a near-identical one. backwards fill-mode holds the
+   opacity:0 starting state until the animation actually begins, so there's
+   no one-frame flash at full opacity first. CSS animations restart on
+   their own every time an element goes from display:none back to visible
+   (.screen.active toggling), so this replays on every repeated wrong
+   guess with no JS involved. */
+.fail-card {
+  animation: screen-fade-in 400ms ease-out backwards;
 }
 .species-pill {
   margin-top: 14px;

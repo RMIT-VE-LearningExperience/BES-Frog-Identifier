@@ -1694,6 +1694,12 @@ function openQuiz() {
     selectedQuizLabel = el;
     el.classList.add("selected");
     el.setAttribute("aria-pressed", "true");
+    // Also the touch path to the hint: mouseenter/focus (below) never fire
+    // from a tap on a plain div in iOS Safari, so without this a touch user
+    // could select and confirm a label without the hint ever having been
+    // reachable. Harmless alongside the existing mouseenter trigger — a
+    // mouse user's first click already shows the same hint the same way.
+    showHint(SPECIES[el.dataset.id].hint, el);
   }
   shuffleArray(state.quizLabelIds).forEach(id => {
     const sp = SPECIES[id];
@@ -2162,7 +2168,6 @@ document.querySelector('[data-action="close-fieldguide"]').addEventListener("cli
 // class plus a data-audio URL; only species with a real recording
 // (SPECIES[..].callAudio) get a button rendered at all.
 const SOUND_ICON_HTML = '<img src="../assets/buttons/Btn_Sound.png" alt="Play call">';
-const SOUND_STOP_ICON = "⏹";
 
 // Field Guide buttons carry a data-species-name attribute (set in
 // fgFactsHtml() only — not the quiz/success buttons) so this shared handler
@@ -2171,6 +2176,13 @@ const SOUND_STOP_ICON = "⏹";
 // call" — same shared audio/toggle logic either way, just a different name.
 function soundIconHtml(label) {
   return `<img src="../assets/buttons/Btn_Sound.png" alt="${label}">`;
+}
+// Same pattern as soundIconHtml() above, for the "stop" state — replaces
+// the old plain "⏹" text glyph with the supplied Btn_Stop.png icon, so the
+// button always shows a real icon in both states instead of an icon for
+// play but a text character for stop.
+function stopIconHtml(label) {
+  return `<img src="../assets/buttons/Btn_Stop.png" alt="${label}">`;
 }
 
 function resetSoundButtons() {
@@ -2214,12 +2226,12 @@ document.addEventListener("click", (e) => {
   audio.currentTime = 0;
   audio.play().catch(() => {});
   btn.classList.add("playing");
-  btn.textContent = SOUND_STOP_ICON;
-  // Set explicitly (aria-label wins over text-content in accessible-name
-  // computation) so a screen reader announces "Stop call" (or, for the
-  // Field Guide's button, "Stop [Species] call"), not the "⏹" glyph left
-  // behind once the play icon's <img alt="..."> is gone.
   const name = btn.dataset.speciesName;
+  btn.innerHTML = stopIconHtml(name ? `Stop ${name} call` : "Stop call");
+  // Set explicitly on the button too (aria-label wins over an img's own
+  // alt in accessible-name computation) — belt-and-suspenders alongside
+  // the alt text above, matching the same redundancy resetSoundButtons()
+  // already uses for the "play" state.
   btn.setAttribute("aria-label", name ? `Stop ${name} call` : "Stop call");
 });
 document.getElementById("preview-audio").addEventListener("ended", resetSoundButtons);
