@@ -615,6 +615,31 @@ html, body {
 .scene-map-btn.pulse-hint {
   animation: pulse-ring 1.4s ease-out infinite;
 }
+/* Phones: the scene's Reserve Map button collapses to a round, icon-only
+   button (48px) — the text label would crowd the call-indicator pill on
+   narrow screens. Its accessible name comes from the explicit aria-label in
+   index.html (the label span is display:none here, which also removes it
+   from the accessibility tree). The pulse hint (box-shadow ring) follows the
+   round shape automatically. */
+@media (max-width: 768px) {
+  .scene-map-btn {
+    width: 48px; height: 48px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scene-map-btn img { width: 26px; height: 26px; margin-right: 0; }
+  .scene-map-btn .scene-map-label { display: none; }
+  /* Mute buttons (all three screens) 48px on phones to match it — down
+     from the 57px base size. */
+  .icon-btn.top-right.mute-btn { width: 48px; height: 48px; }
+  .icon-btn.top-right.mute-btn img { width: 26px; height: 26px; }
+  /* Raised above the call-indicator pill, which wraps to 2 lines on narrow
+     phones and reaches ~70px up from the bottom. (Simple fixed raise, per
+     the user's choice — it can occasionally sit over a low hotspot on
+     phones shorter than ~830px.) */
+  #scene-drag-hint { bottom: 84px; }
+}
 /* Hints toward Print once the endgame "found everything" card has sent the
    player to the Field Guide (see openFieldGuide() in script.js) — same
    pulse-ring animation, same reused red, just applied to a different
