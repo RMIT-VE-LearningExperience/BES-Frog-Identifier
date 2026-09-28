@@ -1348,6 +1348,33 @@ html, body {
     padding: 8px 16px 24px;
   }
 }
+/* "Scroll for more" cue for the internally-scrolling result cards above
+   (success stack / fail card on phones and short landscape screens), where
+   the button can sit below the fold with nothing hinting it's there. Same
+   pill as the other on-screen hints; script.js (watchScrollCue) toggles
+   .show only while there's more content below the current scroll position.
+   Static on purpose (no bounce), so there's nothing to add to the
+   reduced-motion list. */
+.scroll-cue {
+  position: absolute;
+  bottom: 14px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.scroll-cue.show { opacity: 1; }
+.scroll-cue-arrow {
+  display: inline-block;
+  width: 6px; height: 6px;
+  margin: 0 0 2px 6px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  vertical-align: middle;
+}
 @media (max-height: 500px) {
   .result-card .frog-photo.big,
   .result-card .fail-mark {

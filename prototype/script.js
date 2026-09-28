@@ -2131,6 +2131,31 @@ document.querySelector('[data-action="return-map"]').addEventListener("click", (
   transitionShowScreen("map", "zoom-out", onArriveAtMapOverview);
 });
 
+// ===================== Result screens: "Scroll for more" cue =====================
+// The success stack and the fail card scroll internally on phones and short
+// landscape screens (see .result-stack / .fail-card in styles.css), which can
+// leave a button below the fold with no hint it's there. The cue pill in each
+// screen shows only while its scroller has more content below the current
+// position. Recomputed on scroll, on any size change of the scroller or its
+// children (this also fires when the screen goes display:none → visible, and
+// when showSuccess() fills in the species text), and on window resize.
+function watchScrollCue(scroller, cue) {
+  function update() {
+    const more = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight > 4;
+    cue.classList.toggle("show", more && scroller.clientHeight > 0);
+  }
+  scroller.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update);
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(update);
+    ro.observe(scroller);
+    Array.from(scroller.children).forEach(c => ro.observe(c));
+  }
+  update();
+}
+watchScrollCue(document.querySelector("#screen-success .result-stack"), document.querySelector("#screen-success .scroll-cue"));
+watchScrollCue(document.querySelector("#screen-fail .fail-card"), document.querySelector("#screen-fail .scroll-cue"));
+
 function showFail() {
   stopPreviewAudio();
   // Paired with the "frog has fled" image reveal on this screen — already
