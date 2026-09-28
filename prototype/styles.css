@@ -237,7 +237,30 @@ html, body {
 .drag-hint.show { opacity: 1; }
 /* Sits lower than the other two drag-hints (park/scene, still at the base
    bottom: 64px). */
-#map-drag-hint { bottom: 14px; }
+#map-drag-hint { bottom: 54px; }
+
+/* Small pill shared by the on-screen "what to do" hints (Map Overview,
+   Reserve Map, quiz) — same shape as .drag-hint but solid dark grey (#5a5a5a)
+   so the two read as different things, and always visible rather than
+   fading. Map Overview / Reserve Map ones sit at the very bottom; on
+   the Map Overview "Drag to explore" is stacked just above it, and on the
+   Reserve Map "Drag to explore" (phones only) is already higher up. */
+.hint-pill {
+  background: #5a5a5a;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  text-align: center;
+}
+.screen-hint {
+  position: absolute;
+  bottom: 14px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  pointer-events: none;
+  white-space: nowrap;
+}
 
 /* Map Overview only: one arrow per pin, shown only while that pin is panned
    out of view — see setupOffscreenIndicators() in script.js, which reads
@@ -628,16 +651,41 @@ html, body {
     text-align: center;
   }
 }
+/* "Nothing here" prompt — positioned by placeToastNear() (script.js) just
+   above (or, near the top of the screen, below) the hotspot that was
+   clicked, with a small tail aiming at it. left/top and --tail-x are set
+   inline in JS. pointer-events:none so it never blocks a click on a
+   hotspot underneath it. */
 .toast {
   position: absolute;
-  bottom: 70px; left: 50%;
-  transform: translateX(-50%);
+  left: 0; top: 0;
+  box-sizing: border-box;
+  max-width: min(300px, calc(100% - 24px));
   background: rgba(0,0,0,0.75);
   color: white;
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
   z-index: 5;
+  pointer-events: none;
+}
+.toast::after {
+  content: "";
+  position: absolute;
+  left: var(--tail-x, 50%);
+  bottom: -6px;
+  transform: translateX(-50%);
+  border-style: solid;
+  border-width: 7px 7px 0;
+  border-color: rgba(0,0,0,0.75) transparent transparent;
+}
+.toast.below::after {
+  bottom: auto;
+  top: -6px;
+  border-width: 0 7px 7px;
+  border-color: transparent transparent rgba(0,0,0,0.75);
 }
 
 /* ===================== Quiz ===================== */
@@ -733,18 +781,44 @@ html, body {
   color: #6b6b63;
   min-height: 40px;
   display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
 }
-/* Shown while dragging a label over the drop zone, or while one is
-   click/keyboard-selected (updateDropFieldForSelection(), script.js) — grey
-   rather than a red/pink tint, matching the drop-field's own neutral grey
-   border/text (#6b6b63) instead of the app's red accent. Same #e6e5e2
-   already used for the success screen's sound-button hover. */
+/* Shown while dragging a label over the drop zone — grey rather than a
+   red/pink tint, matching the drop-field's own neutral grey border/text
+   (#6b6b63). Same #e6e5e2 already used for the success screen's
+   sound-button hover. */
 .drop-field[data-state="over"] { background: #e6e5e2; }
+/* Red border for the whole time a label is being dragged or is
+   click/tap-selected (not only once it's over the box) — toggled by the
+   MutationObserver on #label-row in script.js. Border only; the grey "over"
+   fill above still applies on top when the label is actually over the box.
+   Not applied once filled (correct answer shown). */
+.drop-field.armed:not([data-state="filled"]) { border-color: var(--brand-red); }
 .drop-field[data-state="filled"] {
   border-style: solid;
   background: #eef3e4;
   color: var(--ink);
+}
+
+.hint-area { display: contents; }
+.quiz-hint-mobile { display: none; }
+/* Desktop quiz hint: centered just above the bottom band (same spot the
+   hint tooltip pops up, so it fades out while that's showing). */
+.quiz-hint-desktop {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.hint-box:not([hidden]) + .quiz-hint-desktop { opacity: 0; }
+/* On short desktop windows (under ~660px tall) the frog card already runs
+   right down to the band, leaving no gap for the pill — it would sit on top
+   of the drop box — so it's dropped there rather than overlap. */
+@media (min-width: 769px) and (max-height: 660px) {
+  .quiz-hint-desktop { display: none; }
 }
 
 .quiz-bottom-band {
@@ -1013,8 +1087,7 @@ html, body {
     width: 100%;
     box-sizing: border-box;
     min-height: 0 !important;
-    margin-top: 10px;
-    flex: 1 1 0;
+    height: 100%;
     display: flex;
     flex-direction: column;
     /* flex-start, not center — centering content taller than its box (a
@@ -1047,6 +1120,33 @@ html, body {
      while rendering nothing and blocking interaction — invisible until
      tapped, exactly like display:none, just without the reflow. */
   .hint-box[hidden] { visibility: hidden; }
+  /* Phones: the hint pill sits just below the labels, worded for touch
+     (no hover, and no room above the band in the stacked layout). It shares
+     one grid cell with the hint panel — the panel's own reserved 1-of-3
+     share (moved from .hint-box onto .hint-area) — so it's visible until a
+     label is tapped, then the panel replaces it with nothing moving.
+     Never display:none'd in a way that changes the slot's size: the
+     .hint-box[hidden] rule below keeps the panel in layout regardless. */
+  .hint-area {
+    display: grid;
+    /* 28px basis, not 0: the hint panel's own 14px top/bottom padding used
+       to count toward its flex base size (border-box), which is what gave
+       it a bit more than a strict 1-of-3 share — this keeps that split now
+       that the padding lives on the panel *inside* this wrapper. */
+    flex: 1 1 28px;
+    min-height: 0;
+    margin-top: 10px;
+  }
+  .hint-area > * { grid-area: 1 / 1; }
+  .quiz-hint-desktop { display: none; }
+  .quiz-hint-mobile {
+    display: block;
+    align-self: start;
+    justify-self: center;
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+  .hint-box:not([hidden]) ~ .quiz-hint-mobile { display: none; }
   /* Pop-in reveal removed for the quiz screen on mobile only — desktop's
      quiz keeps it, and the Field Guide's own pop-in (shared CSS classes,
      .stagger-immediate/.stagger-delayed) is untouched everywhere, since

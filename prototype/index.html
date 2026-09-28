@@ -50,6 +50,7 @@
         </div>
       </div>
       <div class="drag-hint" id="map-drag-hint">Drag to explore</div>
+      <div class="hint-pill screen-hint" id="map-screen-hint">Select a location to start</div>
     </div>
     <!-- Small-screen-only: arrows pointing toward pins currently panned out
          of view — populated/positioned by setupOffscreenIndicators() in
@@ -77,6 +78,7 @@
         <div class="map-pins-frame" id="map-points"></div>
       </div>
       <div class="drag-hint" id="park-drag-hint">Drag to explore</div>
+      <div class="hint-pill screen-hint" id="park-screen-hint">Pick a scene to search</div>
     </div>
     <div class="top-bar">
       <h1 class="title-chip" id="park-title" tabindex="-1">Yalukit Willam Nature Reserve</h1>
@@ -115,7 +117,11 @@
     <div class="call-indicator" id="call-indicator" hidden>
       <span class="sound-icon">🔊</span> A frog call is echoing somewhere in this scene…
     </div>
-    <div class="toast" id="scene-toast" hidden></div>
+    <!-- Visual prompt only (aria-hidden) — a live region that toggles between
+         display:none and visible isn't announced reliably, so the message is
+         also sent to the always-present #scene-live-status below. -->
+    <div class="toast" id="scene-toast" aria-hidden="true" hidden></div>
+    <div class="sr-only" id="scene-live-status" role="status" aria-live="polite" aria-atomic="true"></div>
   </section>
 
   <!-- ===================== QUIZ ===================== -->
@@ -144,7 +150,21 @@
          Guide's chrome, which just fades — see runStagger()). -->
     <div class="quiz-bottom-band stagger-delayed stagger-motion">
       <div class="label-row" id="label-row"></div>
-      <div class="hint-box" id="hint-box" hidden></div>
+      <!-- .hint-area is display:contents on desktop (no effect on layout),
+           and on phones a one-cell grid that stacks the hint panel and the
+           "Tap the labels…" pill in the same slot — the pill shows until a
+           label is selected, then the hint panel takes its place, so the
+           layout never shifts between the two (see styles.css). Two pill
+           elements rather than one moved by JS, so only the one that's
+           actually displayed is in the accessibility tree. -->
+      <div class="hint-area">
+        <div class="hint-box" id="hint-box" hidden></div>
+        <!-- Must stay after #hint-box: CSS hides these while the hint is
+             open (sibling selectors). Desktop's fades out since the
+             tooltip pops up in the same spot just above the band. -->
+        <div class="hint-pill quiz-hint-desktop">Click/hover on the labels to view hints</div>
+        <div class="hint-pill quiz-hint-mobile">Tap the labels to view hints</div>
+      </div>
     </div>
     <div class="buzz-overlay" id="buzz-overlay" hidden>✗✗✗</div>
   </section>

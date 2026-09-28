@@ -1194,7 +1194,7 @@ function lockOverlayToImage(imgId, overlayId, screenId, isActive) {
 // The media element itself isn't fixed at construction time — `activate()`
 // takes it — since a scene can swap between an <img> and a <video> using
 // the same controller. `naturalSize()` reads whichever properties apply.
-function createDragPanController({ wrapId, hintId, axis, panLayerId, mirrorId, alwaysVisibleAtStart }) {
+function createDragPanController({ wrapId, hintId, axis, panLayerId, mirrorId, alwaysVisibleAtStart, onDrag }) {
   const wrap = document.getElementById(wrapId);
   const hint = hintId ? document.getElementById(hintId) : null;
   const panLayer = panLayerId ? document.getElementById(panLayerId) : null;
@@ -1291,6 +1291,7 @@ function createDragPanController({ wrapId, hintId, axis, panLayerId, mirrorId, a
     const dx = e.clientX - lastX, dy = e.clientY - lastY;
     lastX = e.clientX; lastY = e.clientY;
     panBy(dx, dy);
+    if (onDrag && (dx || dy)) onDrag();
   }
   function onPointerUp(e) {
     if (!dragging) return;
@@ -1441,7 +1442,7 @@ if (parkPanController) parkPanController.activate(document.getElementById("park-
 
 const scenePanController = createDragPanController({
   wrapId: "scene-bg-wrap", mirrorId: "hotspot-layer",
-  hintId: "scene-drag-hint", axis: "x"
+  hintId: "scene-drag-hint", axis: "x", onDrag: hideSceneToast
 });
 
 // Pauses just the current scene's (hidden, muted) video — used when the quiz
@@ -1509,7 +1510,7 @@ function openScene(idx) {
     el.style.left = h.x;
     el.style.top = h.y;
     el.innerHTML = '<img src="../assets/buttons/Icon_Eye.png" alt="">';
-    el.addEventListener("click", () => onHotspotClick(isTarget, key));
+    el.addEventListener("click", () => onHotspotClick(isTarget, key, el));
     // Matches exactly what a sighted player already perceives (the pulsing
     // "sounding" ring), not revealing anything a mouse/touch player doesn't
     // already have — see .hotspot.sounding in styles.css.
@@ -1519,7 +1520,7 @@ function openScene(idx) {
   if (scene.pannable) scenePanController.layout();
 
   document.getElementById("call-indicator").hidden = !soundingHere;
-  document.getElementById("scene-toast").hidden = true;
+  hideSceneToast();
 
   if (soundingHere) startCallTone(); else stopCallTone();
   updateSceneMapPulse();
@@ -1537,7 +1538,7 @@ function updateSceneMapPulse() {
   document.getElementById("scene-map-btn").classList.toggle("pulse-hint", !soundingHere && allChecked);
 }
 
-function onHotspotClick(isTarget, key) {
+function onHotspotClick(isTarget, key, el) {
   state.checkedHotspots.add(key);
   if (isTarget) {
     stopCallTone();
@@ -1549,12 +1550,56 @@ function onHotspotClick(isTarget, key) {
     return;
   }
   updateSceneMapPulse();
+  const message = "Nothing here — keep searching (try another point, or another scene).";
   const toast = document.getElementById("scene-toast");
-  toast.textContent = "Nothing here — keep searching (try another point, or another scene).";
-  toast.hidden = false;
+  toast.textContent = message;
+  placeToastNear(toast, el);
   clearTimeout(toast._t);
-  toast._t = setTimeout(() => (toast.hidden = true), 2200);
+  toast._t = setTimeout(hideSceneToast, 2200);
+  // Announced through the always-present live region rather than the toast
+  // itself (see index.html). Cleared first, then set on a short delay, so
+  // clicking the same empty spot twice still re-announces.
+  const live = document.getElementById("scene-live-status");
+  live.textContent = "";
+  setTimeout(() => { live.textContent = message; }, 50);
 }
+
+// Shows the toast just above the clicked hotspot (or just below it when
+// there isn't room above — a hotspot near the top of the screen), centered on
+// it but clamped to stay inside the screen, with the tail (::after, see
+// styles.css) kept pointing at the hotspot even when the box itself had to
+// shift sideways to stay on screen. Measured live from getBoundingClientRect
+// rather than the hotspot's x/y percentages, so it stays correct however the
+// scene is currently panned/scaled.
+function placeToastNear(toast, hotspotEl) {
+  const MARGIN = 12;  // min distance from the screen's edges
+  const GAP = 12;     // hotspot edge to toast edge (room for the tail)
+  const screen = document.getElementById("screen-scene").getBoundingClientRect();
+  toast.classList.remove("below");
+  toast.hidden = false;
+  const tw = toast.offsetWidth, th = toast.offsetHeight;
+  const hs = hotspotEl.getBoundingClientRect();
+  const hx = hs.left + hs.width / 2 - screen.left;
+  const left = Math.min(Math.max(hx - tw / 2, MARGIN), Math.max(MARGIN, screen.width - MARGIN - tw));
+  let top = hs.top - screen.top - GAP - th;
+  if (top < MARGIN) {
+    top = hs.bottom - screen.top + GAP;
+    toast.classList.add("below");
+  }
+  toast.style.left = left + "px";
+  toast.style.top = top + "px";
+  toast.style.setProperty("--tail-x", Math.min(Math.max(hx - left, 14), tw - 14) + "px");
+}
+
+function hideSceneToast() {
+  const toast = document.getElementById("scene-toast");
+  clearTimeout(toast._t);
+  toast.hidden = true;
+}
+// The toast is placed once, at click time, so anything that moves the scene
+// out from under it (a window resize, or the background being dragged — see
+// scenePanController's onDrag) would leave it pointing at nothing.
+window.addEventListener("resize", hideSceneToast);
 
 // ===================== Quiz =====================
 // Native HTML5 drag-and-drop (dragstart/dragover/drop, used by the label
@@ -1616,6 +1661,23 @@ function startTouchDrag(e, labelEl, id) {
   labelEl.addEventListener("pointerup", onUp);
   labelEl.addEventListener("pointercancel", onCancel);
 }
+
+// ===================== Quiz: red drop-box border while a label is active =====================
+// The drop field's border goes red for as long as any label is being dragged
+// (native mouse drag, or startTouchDrag()'s finger drag — both put
+// .dragging on the label) or is click/tap-selected (.selected), not just
+// once it's over the field. Watching the label row's classes instead of
+// hooking each of those paths individually means no path can be missed, and
+// the observer also fires on the row being rebuilt (childList), so a fresh
+// quiz attempt always starts un-armed.
+(function watchQuizLabelActivity() {
+  const row = document.getElementById("label-row");
+  const dropField = document.getElementById("drop-field");
+  function sync() {
+    dropField.classList.toggle("armed", !!row.querySelector(".species-label.dragging, .species-label.selected"));
+  }
+  new MutationObserver(sync).observe(row, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] });
+})();
 
 // ===================== Quiz: click/keyboard answer =====================
 // Native drag (mouse) and startTouchDrag() (finger) both require following a
