@@ -28,6 +28,7 @@
        the more meaningful stings above mid-playback. Only ever plays this
        one sound, so its src is fixed here rather than set from JS each
        time (unlike feedback-audio, which switches source per event). -->
+  <audio id="map-ambient-audio" src="../assets/scenes/victoria-map-overview-bgs.mp3" loop preload="auto"></audio>
   <audio id="hover-audio" src="../assets/overlays/feedback-sounds/button_hover.mp3" preload="auto"></audio>
 
   <!-- ===================== MAP OVERVIEW ===================== -->
@@ -35,6 +36,12 @@
     <div class="map-bg-wrap" id="map-bg-wrap">
       <div class="map-pan-layer" id="map-pan-layer">
         <img class="map-photo-img" id="map-photo-img" src="../assets/scenes/victoria-map-overview.jpg" alt="Illustrated watercolor map of Victoria, Australia, centered on Melbourne and Port Phillip Bay. Seven wetland reserve locations are marked: five clustered around Melbourne's bayside and inner suburbs, and two further east in forested hill country." draggable="false">
+        <!-- Animated version of the same map, layered exactly over the still
+             above (same box, same 16:9 framing, so pins line up). The still
+             stays underneath as the instant first paint and fallback — the
+             video's src is only assigned after page load, and it fades in
+             once it's actually playing (see initMapVideo(), script.js). -->
+        <video class="map-video" id="map-video" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
         <div class="map-pins-frame" id="map-pins-frame">
           <div class="pin unlocked label-right" style="left:25.45%; top:73%;" data-park="yalukit">
             <img class="pin-dot" src="../assets/buttons/Icon_Pin.png" alt="">

@@ -674,7 +674,8 @@ const state = {
   fieldGuideUnlocked: new Set(),
   discoveredSceneIdx: null, // scene the target was found in, for the success backdrop on a later revisit
   fgIdx: 0,
-  audioMuted: false // scene ambient + frog-call audio only — see toggleAudioMute()
+  mapAudioUnlocked: false, // set on the intro's Start click — see syncMapMedia()
+  audioMuted: false // scene ambient + frog-call + Map Overview ambient audio — see toggleAudioMute()
 };
 
 // Makes a plain, click-driven <div> (map pins, reserve-map scene points,
@@ -920,6 +921,10 @@ function showIntro() {
 showIntro();
 document.getElementById("intro-start-btn").addEventListener("click", () => {
   closeModalOverlay("intro-overlay", document.getElementById("map-title"));
+  // First real user gesture — browsers won't let audio start before one, so
+  // this is where the Map Overview's ambient track is allowed to begin.
+  state.mapAudioUnlocked = true;
+  syncMapMedia();
 });
 
 // Map Overview's "Instructions" button — re-opens the same intro dialog
@@ -2728,8 +2733,52 @@ function toggleAudioMute() {
       if (soundingHere) startCallTone();
     }
   }
+  syncMapMedia(); // the Map Overview's own ambient track follows the same mute switch
 }
 document.querySelectorAll(".mute-btn").forEach(btn => btn.addEventListener("click", toggleAudioMute));
+
+// ===================== Map Overview: animated background + ambient track =====================
+// The Map Overview's video (muted, looping, layered over the still map) plays
+// whenever that screen is showing; its ambient track plays whenever it's
+// showing *or* the Field Guide is open over it (returnScreen === "map") —
+// mirroring how a scene's ambient audio keeps playing through the quiz/Field
+// Guide overlays — and only once the intro's Start click has unlocked audio,
+// and only while not muted. Driven by a MutationObserver on every screen's
+// class list rather than hooked into each navigation path individually, so
+// no route in or out (pin click, revisit shortcut, Field Guide, endgame
+// card, transitions) can leave it playing when it shouldn't be. During a
+// crossfade both screens are briefly .active, so the map's audio simply runs
+// until the transition finishes.
+function syncMapMedia() {
+  const active = [...document.querySelectorAll(".screen.active")].map(s => s.id);
+  const onMap = active.includes("screen-map");
+  const overMap = active.includes("screen-fieldguide") && state.returnScreen === "map";
+  const video = document.getElementById("map-video");
+  const audio = document.getElementById("map-ambient-audio");
+  if (video.src) { if (onMap) video.play().catch(() => {}); else video.pause(); }
+  if ((onMap || overMap) && state.mapAudioUnlocked && !state.audioMuted) audio.play().catch(() => {});
+  else audio.pause();
+}
+document.querySelectorAll(".screen").forEach(s =>
+  new MutationObserver(syncMapMedia).observe(s, { attributes: true, attributeFilter: ["class"] }));
+
+// The video is ~6MB — as big as one scene's video, but on the very first
+// screen — so its src isn't assigned until the page has finished loading (the
+// still map is what paints first), it's skipped entirely for players with
+// "reduce motion" or Data Saver on (the still is already a complete,
+// working Map Overview), and it fades in (.ready) only once it's really
+// playing so a slow connection never shows a blank or half-loaded frame.
+function initMapVideo() {
+  const video = document.getElementById("map-video");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const saveData = navigator.connection && navigator.connection.saveData;
+  if (reduceMotion || saveData) return;
+  video.addEventListener("playing", () => video.classList.add("ready"), { once: true });
+  video.src = "../assets/scenes/victoria-map-overview-anim.mp4";
+  syncMapMedia(); // starts it if the Map Overview is showing (it is, on first load)
+}
+if (document.readyState === "complete") initMapVideo();
+else window.addEventListener("load", initMapVideo);
 
 // ===================== Init =====================
 showScreen("map");
