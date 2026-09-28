@@ -384,7 +384,7 @@ html, body {
   width: 31px; height: 31px;
   margin-right: 0;
 }
-/* #scene-mute-btn is nested inside .top-bar (index.html) specifically so it
+/* #scene-mute-btn is nested inside .top-bar (bes-frog-id.html) specifically so it
    can stack under the title chips on mobile. Below 768px it drops out of
    .icon-btn.top-right's absolute positioning to become a normal flex item
    (an ID selector beats the two-class .icon-btn.top-right rule regardless
@@ -632,7 +632,7 @@ html, body {
 /* Phones: the scene's Reserve Map button collapses to a round, icon-only
    button (48px) — the text label would crowd the call-indicator pill on
    narrow screens. Its accessible name comes from the explicit aria-label in
-   index.html (the label span is display:none here, which also removes it
+   bes-frog-id.html (the label span is display:none here, which also removes it
    from the accessibility tree). The pulse hint (box-shadow ring) follows the
    round shape automatically. */
 @media (max-width: 768px) {
@@ -1592,7 +1592,7 @@ html, body {
    width: an absolutely-positioned block with none set sizes to its own
    content by default, so the card hugs the single line of text instead of
    claiming a fraction of the book's area; max-width is just a safety net
-   for narrow viewports. See #fg-heading (index.html) for how a screen
+   for narrow viewports. See #fg-heading (bes-frog-id.html) for how a screen
    reader is told about this message via aria-describedby, filtered
    automatically by this rule's own [hidden]/display:none state — nothing
    extra needed here for that. */

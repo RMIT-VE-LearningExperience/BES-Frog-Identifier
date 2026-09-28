@@ -768,7 +768,7 @@ function transitionShowScreen(id, type, onShown) {
 //
 // The un-revealed base state (.stagger-immediate/.stagger-delayed, and
 // .stagger-motion for elements that pop rather than just fade) is baked
-// directly into index.html on each element, not added here at open time —
+// directly into bes-frog-id.html on each element, not added here at open time —
 // a first version added those classes from JS right as the screen opened,
 // which left a real window (particularly around the focus() call each open
 // function also makes) for the browser to commit a visible first frame
@@ -873,7 +873,7 @@ function runStagger(screenId, immediateSelector, delayedSelector) {
 // reader started on the Map Overview and never announced this dialog at
 // all). `inert` on #app-content removes everything behind the dialog from
 // both the tab order and the accessibility tree while it's open — combined
-// with role="dialog"/aria-modal on the overlay (index.html) and moving
+// with role="dialog"/aria-modal on the overlay (bes-frog-id.html) and moving
 // focus onto the Start button, this makes it behave like an actual modal
 // for every input method, not just mouse/touch.
 // Shared open/close for every full-screen single-button modal in this app
@@ -1011,7 +1011,7 @@ document.querySelectorAll("[data-goto]").forEach(btn => {
 
 // ===================== Map Overview =====================
 // Reads which reserve was clicked from the pin's own data-park attribute
-// (set on every reserve pin in index.html, unlocked or not — only unlocked
+// (set on every reserve pin in bes-frog-id.html, unlocked or not — only unlocked
 // pins reach this listener) rather than hardcoding a single reserve, so
 // this loop needs no changes when a further reserve is unlocked later.
 document.querySelectorAll(".pin.unlocked").forEach(pin => {
@@ -1569,7 +1569,7 @@ function onHotspotClick(isTarget, key, el) {
   clearTimeout(toast._t);
   toast._t = setTimeout(hideSceneToast, 2200);
   // Announced through the always-present live region rather than the toast
-  // itself (see index.html). Cleared first, then set on a short delay, so
+  // itself (see bes-frog-id.html). Cleared first, then set on a short delay, so
   // clicking the same empty spot twice still re-announces.
   const live = document.getElementById("scene-live-status");
   live.textContent = "";
@@ -2027,7 +2027,7 @@ document.addEventListener("pointerover", e => {
   // into a *different* matched element plays the sound again.
   if (!target || target === hoveredSoundEl) return;
   hoveredSoundEl = target;
-  // #hover-audio's src is fixed in index.html (only ever plays this one
+  // #hover-audio's src is fixed in bes-frog-id.html (only ever plays this one
   // sound), so just reset and replay it.
   const audio = document.getElementById("hover-audio");
   audio.pause();
@@ -2219,7 +2219,7 @@ function openFieldGuide(openToPage) {
 
   // Immediate wave = the book (desktop) / the scrollable sheet column + its
   // empty-state overlay (mobile, a sibling of the scroll column rather than
-  // a descendant, so it carries the class too, in index.html — see
+  // a descendant, so it carries the class too, in bes-frog-id.html — see
   // runStagger()). Delayed wave = Close, Print, and whichever page-turn
   // arrow pair is actually visible at the current breakpoint (the other
   // pair is harmlessly matched too, already hidden) — fade-only, the
