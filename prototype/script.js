@@ -674,6 +674,8 @@ const state = {
   fieldGuideUnlocked: new Set(),
   discoveredSceneIdx: null, // scene the target was found in, for the success backdrop on a later revisit
   fgIdx: 0,
+  analyticsStartSent: false,    // GA4 game_start / game_complete fire at most once per page load — see trackEvent()
+  analyticsCompleteSent: false,
   mapAudioUnlocked: false, // set on the intro's Start click — see syncMapMedia()
   audioMuted: false // scene ambient + frog-call + Map Overview ambient audio — see toggleAudioMute()
 };
@@ -925,6 +927,12 @@ document.getElementById("intro-start-btn").addEventListener("click", () => {
   // this is where the Map Overview's ambient track is allowed to begin.
   state.mapAudioUnlocked = true;
   syncMapMedia();
+  // The same Start button is reused by the Map Overview's "Instructions"
+  // re-open, so this only counts the first press of a page load.
+  if (!state.analyticsStartSent) {
+    state.analyticsStartSent = true;
+    trackEvent("game_start");
+  }
 });
 
 // Map Overview's "Instructions" button — re-opens the same intro dialog
@@ -2057,6 +2065,13 @@ function onCorrectGuess() {
   document.getElementById("quiz-live-status").textContent = `Correct! ${SPECIES[state.targetSpecies].name} is calling here.`;
   state.fieldGuideUnlocked.add(state.targetSpecies);
   state.completedReserves.add(state.currentReserveId);
+  // "Completion" = the moment the last of the 7 frogs is found (not when the
+  // endgame card later appears on returning to the Map Overview, which a
+  // player could skip by closing the tab first). Once per page load.
+  if (state.completedReserves.size >= Object.keys(RESERVES).length && !state.analyticsCompleteSent) {
+    state.analyticsCompleteSent = true;
+    trackEvent("game_complete");
+  }
   state.discoveredSceneIdx = state.currentSceneIdx;
   updateFoundPins();
   setTimeout(showSuccess, 500);
@@ -2823,6 +2838,43 @@ function initMapVideo() {
 }
 if (document.readyState === "complete") initMapVideo();
 else window.addEventListener("load", initMapVideo);
+
+// ===================== Analytics (Google Analytics 4) =====================
+// Anonymous, aggregate statistics only — visits (GA4 counts these on its own
+// from the page_view it sends on load) plus two events: game_start (first
+// press of the intro's Start button) and game_complete (last of the 7 frogs
+// found). No user IDs, no custom parameters, no course/student information
+// of any kind, and Google Signals / ad personalisation are switched off.
+// The game is embedded in Canvas in an iframe on a different domain, so the
+// GA cookie is a third-party one; SameSite=None;Secure lets it be set at all
+// in that context, but Safari/Firefox block third-party cookies anyway, so
+// "unique users" will over-count — total plays and completions are the
+// figures to trust.
+//
+// Inert until a Measurement ID is filled in below: with it empty nothing is
+// loaded and nothing is sent. Also never runs on localhost/127.0.0.1 or from
+// a file:// page, so local testing doesn't pollute the real numbers.
+const GA_MEASUREMENT_ID = ""; // paste the GA4 Measurement ID here ("G-XXXXXXXXXX") to switch analytics on
+function initAnalytics() {
+  if (!GA_MEASUREMENT_ID) return;
+  if (["localhost", "127.0.0.1", ""].includes(location.hostname)) return;
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { window.dataLayer.push(arguments); };
+  window.gtag("js", new Date());
+  window.gtag("config", GA_MEASUREMENT_ID, {
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false,
+    cookie_flags: "SameSite=None;Secure"
+  });
+  const tag = document.createElement("script");
+  tag.async = true;
+  tag.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(GA_MEASUREMENT_ID);
+  document.head.appendChild(tag);
+}
+function trackEvent(name) {
+  if (window.gtag) window.gtag("event", name);
+}
+initAnalytics();
 
 // ===================== Init =====================
 showScreen("map");
