@@ -1559,6 +1559,47 @@ html, body {
   object-fit: contain;
   flex-shrink: 0;
 }
+/* Instructions card's three icon + sentence rows (pin / map / eye). Icons
+   reuse .intro-icon's 60px desktop size, shrunk to 30px on phones so the
+   card still fits without scrolling. */
+.intro-steps {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+}
+.intro-steps li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.5;
+}
+.intro-steps li:last-child { margin-bottom: 0; }
+/* Icon_Eye.png has no transparency (a square of paper texture), so it's
+   cropped to a circle the same way the in-scene hotspots crop it (.hotspot
+   img), rather than editing the asset. The light shadow stands in for the
+   hotspot's drop shadow, which keeps the off-white circle readable against
+   the card's white. */
+.intro-icon-round { border-radius: 50%; object-fit: cover; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+@media (max-width: 768px) {
+  .intro-steps .intro-icon { width: 30px; height: 30px; }
+  /* Tighter card so the whole thing fits an iPhone SE (375x667) without
+     scrolling. The overlay still scrolls as a fallback on very short
+     screens (e.g. a phone held landscape); `margin: auto` on the card
+     (rather than align-items: center) keeps its top reachable when it's
+     taller than the screen. Also applies to the endgame card, which shares
+     these classes. */
+  .intro-overlay { padding: 12px; overflow-y: auto; align-items: flex-start; }
+  .intro-card { padding: 22px; border-radius: 24px; margin: auto; }
+  .intro-title { margin-bottom: 8px; font-size: 20px; }
+  .intro-card p, .intro-steps li { font-size: 17px; line-height: 1.4; }
+  .intro-card p { margin-bottom: 14px; }
+  .intro-steps { margin-bottom: 14px; }
+  .intro-steps li { gap: 10px; margin-bottom: 8px; }
+  .intro-start-btn { padding: 13px 22px; }
+}
 /* Inverted from the base .action-btn (white bg/red text) to a solid red
    button with white text, so the call-to-action reads as the primary
    action on the card rather than matching the app's usual secondary style. */

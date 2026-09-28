@@ -250,11 +250,16 @@
        (script.js) so keyboard/AT users can't reach the page underneath
        until this is dismissed — mirrors the sighted-user experience, where
        the dimmed backdrop already blocks clicking through to it. -->
-  <div class="intro-overlay" id="intro-overlay" role="dialog" aria-modal="true" aria-labelledby="intro-title" aria-describedby="intro-desc">
+  <div class="intro-overlay" id="intro-overlay" role="dialog" aria-modal="true" aria-labelledby="intro-title" aria-describedby="intro-desc intro-steps intro-closing">
     <div class="intro-card">
       <h2 class="intro-title" id="intro-title">Instructions</h2>
-      <p id="intro-desc">You are exploring different wetland habitats around Victoria. Select a location to explore. Navigate around the wetland with the map. Explore each scene to search for frog calls. Use the call, visuals, clues, and your knowledge to identify each species.</p>
-      <p class="intro-listen"><img src="../assets/buttons/Icon_Ear.png" alt="" class="intro-icon">Listen carefully. Some calls may need to be played more than once.</p>
+      <p id="intro-desc">You are exploring different wetland habitats around Victoria.</p>
+      <ul class="intro-steps" id="intro-steps">
+        <li><img src="../assets/buttons/Icon_Pin.png" alt="" class="intro-icon">Select a location to explore.</li>
+        <li><img src="../assets/buttons/Icon_Map.png" alt="" class="intro-icon">Navigate around the wetland with the map.</li>
+        <li><img src="../assets/buttons/Icon_Eye.png" alt="" class="intro-icon intro-icon-round">Explore each scene to search for frog calls.</li>
+      </ul>
+      <p id="intro-closing">Use the call, visuals, clues, and your knowledge to identify each species. Listen carefully. Some calls may need to be played more than once.</p>
       <button class="action-btn intro-start-btn" id="intro-start-btn">Start</button>
     </div>
   </div>
