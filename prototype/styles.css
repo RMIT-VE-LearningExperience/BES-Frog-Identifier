@@ -1295,6 +1295,54 @@ html, body {
 }
 
 .result-actions { display: flex; gap: 16px; justify-content: center; }
+/* Phones: the success/fail cards are fixed at 374px on desktop (a short
+   read-then-continue moment, not something that should shrink with the
+   window — see the 2026-09-02 log note), which touched or overran the
+   screen edges on narrow phones and ran off the top/bottom in landscape.
+   Narrow screens (≤768px wide): the card fills the width minus a 16px
+   margin (still capped at 374px), and the photo is sized by screen height
+   the same way the quiz's is (width derived from it via aspect-ratio) so the
+   whole card plus its buttons fits on common phone heights. */
+@media (max-width: 768px) {
+  .result-card {
+    width: min(374px, calc(100vw - 32px));
+    padding: 20px;
+  }
+  .result-card .frog-photo.big,
+  .result-card .fail-mark {
+    height: min(calc(100vw - 72px), 36vh);
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto 14px;
+  }
+}
+/* Short screens, whatever the width — a phone held landscape is often wider
+   than 768px (e.g. 844×390), so this is keyed on height, not the width
+   breakpoint above: smaller photo, and the card (or the success card + its
+   button, wrapped in .result-stack) is capped to the screen height and
+   scrolls internally rather than being cut off with no way to reach it.
+   Padding on the stack gives the inner card's box-shadow room, since
+   overflow clips it otherwise. */
+@media (max-width: 768px), (max-height: 500px) {
+  .fail-card {
+    max-height: calc(100% - 24px);
+    overflow-y: auto;
+  }
+  .result-stack {
+    max-height: calc(100% - 24px);
+    overflow-y: auto;
+    padding: 8px 16px 24px;
+  }
+}
+@media (max-height: 500px) {
+  .result-card .frog-photo.big,
+  .result-card .fail-mark {
+    height: 30vh;
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto 14px;
+  }
+}
 .action-btn {
   background: white;
   color: var(--brand-red-dark);
