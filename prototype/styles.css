@@ -581,6 +581,67 @@ html, body {
 
 /* ===================== Scene / hotspots ===================== */
 #hotspot-layer { position: absolute; z-index: 2; pointer-events: none; }
+/* "Travelling to location…" loader — a dark scrim over the scene's own still
+   (--still is set per scene in openScene()), sitting above the hotspots (z 2)
+   but below the top bar, buttons and toast (z 5+) so the player can always
+   leave. While a scene is loading (.scene-loading, toggled from
+   beginSceneLoading() in script.js) its hotspots and the drag hint are hidden
+   so nothing invisible-but-clickable, or pointing at a scene that isn't
+   there yet, shows. Fades in only when shown by the script's delay timer,
+   and out once the video's first frame (or the still) is ready. */
+.scene-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  color: white;
+  background:
+    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+    var(--still, none) center / cover no-repeat,
+    #1c2415;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+}
+.scene-loader.show {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s ease;
+}
+.scene-loader-spinner {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 5px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  animation: scene-loader-spin 0.9s linear infinite;
+}
+.scene-loader-text {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  padding: 0 24px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+@keyframes scene-loader-spin { to { transform: rotate(360deg); } }
+@keyframes scene-loader-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+#screen-scene.scene-loading #hotspot-layer,
+#screen-scene.scene-loading .drag-hint { visibility: hidden; }
+@media (max-width: 768px) {
+  .scene-loader-text { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No rotation — a full white ring that gently fades in and out instead. */
+  .scene-loader-spinner {
+    border-color: white;
+    animation: scene-loader-pulse 1.6s ease-in-out infinite;
+  }
+}
 .hotspot {
   position: absolute;
   width: 54px; height: 54px;

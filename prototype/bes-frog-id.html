@@ -102,6 +102,14 @@
       <video class="scene-photo-img media-hidden" id="scene-video" muted autoplay loop playsinline></video>
       <div class="drag-hint" id="scene-drag-hint">Drag to explore</div>
     </div>
+    <!-- Shown (after a short delay, see beginSceneLoading() in script.js)
+         while a scene's video is still loading: a dim scrim over the scene's
+         still image, so it's never a flat colour block. Purely visual —
+         "Travelling to location" is announced through #scene-live-status. -->
+    <div class="scene-loader" id="scene-loader" aria-hidden="true">
+      <div class="scene-loader-spinner"></div>
+      <div class="scene-loader-text">Travelling to location…</div>
+    </div>
     <div id="hotspot-layer"></div>
     <audio id="scene-ambient-audio" loop preload="auto"></audio>
     <audio id="frog-call-audio" loop preload="auto"></audio>

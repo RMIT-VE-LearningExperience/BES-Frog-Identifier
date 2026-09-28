@@ -1475,7 +1475,81 @@ function stopSceneMedia() {
 }
 
 // ===================== Scene =====================
+// Loading state for a scene's media: the "Travelling to location…" loader
+// (see .scene-loader in styles.css) is shown if it takes longer than
+// LOADER_DELAY_MS, and cleared once the video's first frame is ready (or,
+// for a still-only scene / a player on the still fallback, once the image
+// is). If the video errors or is still not ready after LOADER_GIVE_UP_MS the
+// scene falls back to its still for this visit, so a stalled download can't
+// leave the player stuck behind a spinner. Each openScene() call cancels the
+// previous one's pending work first (cancelSceneLoad), so a fast switch
+// between scenes can't have an old timer/listener clear or fall back the
+// wrong scene.
+const LOADER_DELAY_MS = 300;
+const LOADER_GIVE_UP_MS = 10000;
+let cancelSceneLoad = () => {};
+function beginSceneLoading(scene, useVideo, imgEl, videoEl) {
+  const screenEl = document.getElementById("screen-scene");
+  const loader = document.getElementById("scene-loader");
+  loader.style.setProperty("--still", `url('${scene.photo}')`);
+  screenEl.classList.add("scene-loading");
+
+  let done = false;
+  const timers = [];
+  const cleanup = () => {
+    videoEl.removeEventListener("loadeddata", onReady);
+    videoEl.removeEventListener("error", onFail);
+    imgEl.removeEventListener("load", onReady);
+    imgEl.removeEventListener("error", onReady);
+    timers.forEach(clearTimeout);
+  };
+  function finish() {
+    if (done) return;
+    done = true;
+    cleanup();
+    // A frame later, so the freshly-sized video/image has painted first.
+    requestAnimationFrame(() => {
+      screenEl.classList.remove("scene-loading");
+      loader.classList.remove("show");
+    });
+  }
+  function onReady() { finish(); }
+  function onFail() {
+    if (done) return;
+    // Give up on the video for this visit and show the still instead.
+    videoEl.pause();
+    videoEl.removeAttribute("src");
+    videoEl.load();
+    videoEl.classList.add("media-hidden");
+    imgEl.classList.remove("media-hidden");
+    imgEl.src = scene.photo;
+    if (scene.pannable) scenePanController.activate(imgEl);
+    finish();
+  }
+  cancelSceneLoad = () => { if (!done) { done = true; cleanup(); } };
+
+  timers.push(setTimeout(() => {
+    if (done) return;
+    loader.classList.add("show");
+    const live = document.getElementById("scene-live-status");
+    live.textContent = "";
+    setTimeout(() => { live.textContent = "Travelling to location"; }, 50);
+  }, LOADER_DELAY_MS));
+
+  if (useVideo) {
+    videoEl.addEventListener("loadeddata", onReady);
+    videoEl.addEventListener("error", onFail);
+    timers.push(setTimeout(onFail, LOADER_GIVE_UP_MS));
+  } else if (imgEl.complete && imgEl.naturalWidth > 0) {
+    finish();
+  } else {
+    imgEl.addEventListener("load", onReady);
+    imgEl.addEventListener("error", onReady);
+  }
+}
+
 function openScene(idx) {
+  cancelSceneLoad();
   state.currentSceneIdx = idx;
   const scene = state.scenes[idx];
   document.getElementById("scene-title").textContent = RESERVES[state.currentReserveId].name;
@@ -1517,6 +1591,7 @@ function openScene(idx) {
 
   if (scene.pannable) scenePanController.activate(useVideo ? videoEl : imgEl);
   else scenePanController.deactivate();
+  beginSceneLoading(scene, useVideo, imgEl, videoEl);
 
   const layer = document.getElementById("hotspot-layer");
   layer.innerHTML = "";
