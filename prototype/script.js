@@ -1478,15 +1478,22 @@ function openScene(idx) {
 
   const imgEl = document.getElementById("scene-photo-img");
   const videoEl = document.getElementById("scene-video");
-  imgEl.classList.toggle("media-hidden", !!scene.video);
-  videoEl.classList.toggle("media-hidden", !scene.video);
-  if (scene.video) {
+  // The video is the intended experience; the still is the fallback for a
+  // scene with no video, and for players who've asked for less motion or
+  // less data (prefersStills()) — see its comment.
+  const useVideo = !!scene.video && !prefersStills();
+  imgEl.classList.toggle("media-hidden", useVideo);
+  videoEl.classList.toggle("media-hidden", !useVideo);
+  if (useVideo) {
     videoEl.poster = scene.photo;
     videoEl.src = scene.video;
     videoEl.currentTime = 0;
     videoEl.play().catch(() => {});
   } else {
     videoEl.pause();
+    // Drop any previous scene's video outright so its buffered ~5MB is
+    // released and nothing keeps downloading in the background.
+    if (videoEl.getAttribute("src")) { videoEl.removeAttribute("src"); videoEl.load(); }
     imgEl.src = scene.photo;
   }
   document.getElementById("scene-backdrop").style.backgroundImage = `url('${scene.photo}')`;
@@ -1500,7 +1507,7 @@ function openScene(idx) {
     ambientAudio.pause();
   }
 
-  if (scene.pannable) scenePanController.activate(scene.video ? videoEl : imgEl);
+  if (scene.pannable) scenePanController.activate(useVideo ? videoEl : imgEl);
   else scenePanController.deactivate();
 
   const layer = document.getElementById("hotspot-layer");
@@ -2762,6 +2769,20 @@ function syncMapMedia() {
 document.querySelectorAll(".screen").forEach(s =>
   new MutationObserver(syncMapMedia).observe(s, { attributes: true, attributeFilter: ["class"] }));
 
+// True for players who've asked their OS/browser for less motion
+// (prefers-reduced-motion — WCAG 2.2.2, moving content that can't be paused)
+// or less data (Data Saver, Chromium-only; Safari/Firefox never report it).
+// Video is the intended experience everywhere; when this is true the still
+// image each video already has is used instead, and the video is never
+// downloaded. Read live on each use rather than cached, so a changed setting
+// applies from the next scene/visit. Used by the Map Overview video below
+// and by openScene().
+function prefersStills() {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const saveData = navigator.connection && navigator.connection.saveData;
+  return !!(reduceMotion || saveData);
+}
+
 // The video is ~6MB — as big as one scene's video, but on the very first
 // screen — so its src isn't assigned until the page has finished loading (the
 // still map is what paints first), it's skipped entirely for players with
@@ -2770,9 +2791,7 @@ document.querySelectorAll(".screen").forEach(s =>
 // playing so a slow connection never shows a blank or half-loaded frame.
 function initMapVideo() {
   const video = document.getElementById("map-video");
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const saveData = navigator.connection && navigator.connection.saveData;
-  if (reduceMotion || saveData) return;
+  if (prefersStills()) return;
   video.addEventListener("playing", () => video.classList.add("ready"), { once: true });
   video.src = "../assets/scenes/victoria-map-overview-anim.mp4";
   syncMapMedia(); // starts it if the Map Overview is showing (it is, on first load)
