@@ -2926,10 +2926,10 @@ else window.addEventListener("load", initMapVideo);
 // "unique users" will over-count — total plays and completions are the
 // figures to trust.
 //
-// Inert until a Measurement ID is filled in below: with it empty nothing is
-// loaded and nothing is sent. Also never runs on localhost/127.0.0.1 or from
+// Inert whenever the Measurement ID below is empty: nothing is loaded and
+// nothing is sent. Also never runs on localhost/127.0.0.1 or from
 // a file:// page, so local testing doesn't pollute the real numbers.
-const GA_MEASUREMENT_ID = ""; // paste the GA4 Measurement ID here ("G-XXXXXXXXXX") to switch analytics on
+const GA_MEASUREMENT_ID = "G-XPBS02TBCG"; // GA4 Measurement ID — analytics is on while this is set; set it back to "" to switch it off
 function initAnalytics() {
   if (!GA_MEASUREMENT_ID) return;
   if (["localhost", "127.0.0.1", ""].includes(location.hostname)) return;
