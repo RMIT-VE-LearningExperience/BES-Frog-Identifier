@@ -674,8 +674,6 @@ const state = {
   fieldGuideUnlocked: new Set(),
   discoveredSceneIdx: null, // scene the target was found in, for the success backdrop on a later revisit
   fgIdx: 0,
-  audioCtx: null,
-  callNodes: null,
   audioMuted: false // scene ambient + frog-call audio only — see toggleAudioMute()
 };
 
@@ -2610,28 +2608,18 @@ document.getElementById("fg-mobile-up").addEventListener("click", () => { playFe
 document.getElementById("fg-mobile-down").addEventListener("click", () => { playFeedbackSound(PAGE_TURN_SOUND); scrollFieldGuideMobile(1); });
 
 // ===================== Frog call (looping search audio) =====================
-// Prefers the target species' real call recording (SPECIES[..].callAudio)
-// when one has been supplied; falls back to a synthesized placeholder tone
-// for species that don't have a recording yet (per the GDD's data-driven
-// design, other parks/species can be added before their audio is ready).
+// Plays the target species' real call recording (SPECIES[..].callAudio).
 function startCallTone() {
   stopCallTone();
   if (state.audioMuted) return;
-  const sp = SPECIES[state.targetSpecies];
-  if (sp.callAudio) {
-    const audio = document.getElementById("frog-call-audio");
-    audio.src = sp.callAudio;
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-    return;
-  }
-  startSynthTone();
+  const audio = document.getElementById("frog-call-audio");
+  audio.src = SPECIES[state.targetSpecies].callAudio;
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
 }
 
 function stopCallTone() {
-  const audio = document.getElementById("frog-call-audio");
-  audio.pause();
-  stopSynthTone();
+  document.getElementById("frog-call-audio").pause();
 }
 
 // WCAG 1.4.2 (Audio Control): both the ambient background track and the
@@ -2664,7 +2652,6 @@ function toggleAudioMute() {
   if (state.audioMuted) {
     ambientAudio.pause();
     callAudio.pause();
-    stopSynthTone();
   } else {
     // Resuming ambient/call audio only makes sense if a scene is actually
     // on screen right now — toggling from the Map Overview or Reserve Map
@@ -2681,41 +2668,6 @@ function toggleAudioMute() {
   }
 }
 document.querySelectorAll(".mute-btn").forEach(btn => btn.addEventListener("click", toggleAudioMute));
-
-function startSynthTone() {
-  const ctx = state.audioCtx || (state.audioCtx = new (window.AudioContext || window.webkitAudioContext)());
-  if (ctx.state === "suspended") ctx.resume();
-
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = "sawtooth";
-  osc.frequency.value = 110; // low "crawark"-ish placeholder tone
-  gain.gain.value = 0;
-  osc.connect(gain).connect(ctx.destination);
-  osc.start();
-
-  // Simple repeating croak envelope, ~1.6s period
-  let running = true;
-  function pulse() {
-    if (!running) return;
-    const t = ctx.currentTime;
-    gain.gain.cancelScheduledValues(t);
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(0.15, t + 0.08);
-    gain.gain.linearRampToValueAtTime(0, t + 0.35);
-    setTimeout(() => running && pulse(), 1600);
-  }
-  pulse();
-
-  state.callNodes = { osc, gain, stop: () => { running = false; osc.stop(); } };
-}
-
-function stopSynthTone() {
-  if (state.callNodes) {
-    try { state.callNodes.stop(); } catch (e) {}
-    state.callNodes = null;
-  }
-}
 
 // ===================== Init =====================
 showScreen("map");

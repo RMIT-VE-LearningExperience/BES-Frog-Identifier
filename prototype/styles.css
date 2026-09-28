@@ -236,8 +236,7 @@ html, body {
 }
 .drag-hint.show { opacity: 1; }
 /* Sits lower than the other two drag-hints (park/scene, still at the base
-   bottom: 64px) — this is the spot the now-removed .scope-note ("Other
-   locations are greyed out...") used to occupy on the Map Overview. */
+   bottom: 64px). */
 #map-drag-hint { bottom: 14px; }
 
 /* Map Overview only: one arrow per pin, shown only while that pin is panned
