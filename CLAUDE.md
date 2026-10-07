@@ -3,7 +3,7 @@
 Browser-based 2D point-and-click frog identification game for RMIT students. Players pick a reserve on a Victoria map, find a calling frog in a looping video scene, then identify the species by sound and visual hints. Correct IDs unlock Field Guide entries. Seven reserves and seven species, all wired in.
 
 ## Layout
-- `prototype/bes-frog-id.html`, `script.js`, `styles.css`: the whole game, plain HTML/CSS/JS with no build step. Open the HTML file directly, or serve the folder statically.
+- `bes-frog-id.html` (repo root, so the Pages URL is `/BES-Frog-Identifier/bes-frog-id.html`), `css/styles.css`, `js/script.js`: the whole game, plain HTML/CSS/JS with no build step. Open the HTML file directly, or serve the folder statically. Asset paths in the HTML and `script.js` are relative to the HTML (`assets/...`); paths in the CSS are relative to `css/` (`../assets/...`).
 - `assets/`: images, per-reserve scene videos and ambient audio, buttons, overlays. Already compressed; keep new assets in the same formats (JPEG for photos and maps, PNG only where alpha is needed, MP3/AAC audio, MP4 video).
 - `documents/`: **gitignored and not in this repo** (the repo is public). It holds the source material and is only on the author's machine.
 

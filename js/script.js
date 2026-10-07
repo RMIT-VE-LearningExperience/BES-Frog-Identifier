@@ -19,15 +19,15 @@
 const SPECIES = {
   banjo: {
     id: "banjo", name: "Eastern Banjo Frog", latin: "Limnodynastes dumerilii",
-    photo: "../assets/frogs/04-Banjo-Frog-square.jpg",
+    photo: "assets/frogs/04-Banjo-Frog-square.jpg",
     // Wide "full image" crop (1820×1024, vs. the 1024×1024 square above) —
     // added 2026-09-18 for the Field Guide only; quiz/success keep the
     // square .photo, unchanged.
-    photoFull: "../assets/frogs/04-Banjo-Frog.jpg",
+    photoFull: "assets/frogs/04-Banjo-Frog.jpg",
     // The Jawbone Nature Conservation Reserve's target species — added when
     // wiring in that reserve. Path convention matches SPECIES.bell/.striped-marsh's
     // callAudio (frog-sound folder under that reserve's own scenes/ subfolder).
-    callAudio: "../assets/scenes/jawbone-nature-conservation-reserve/jawbone-frog-sound/fr-banjo-frog-Jodi Rowley.mp4",
+    callAudio: "assets/scenes/jawbone-nature-conservation-reserve/jawbone-frog-sound/fr-banjo-frog-Jodi Rowley.mp4",
     hint: [
       "Brown or grey-brown back with mottling along the sides",
       "Pale or yellow stripe running from below the eye to the shoulder",
@@ -43,12 +43,12 @@ const SPECIES = {
   },
   "striped-marsh": {
     id: "striped-marsh", name: "Striped Marsh Frog", latin: "Limnodynastes peronii",
-    photo: "../assets/frogs/05-Striped-Marsh-Frog-square.jpg",
-    photoFull: "../assets/frogs/05-Striped-Marsh-Frog.jpg",
+    photo: "assets/frogs/05-Striped-Marsh-Frog-square.jpg",
+    photoFull: "assets/frogs/05-Striped-Marsh-Frog.jpg",
     // The Rosanna Golf Club's target species — added 2026-09-18 wiring in
     // that reserve. Path convention matches SPECIES.bell.callAudio below
     // (frog-sound folder under that reserve's own scenes/ subfolder).
-    callAudio: "../assets/scenes/rosanna-golf-course/rosanna-frog-sound/fr-striped-marsh-frog-Dani Kowalski.mp4",
+    callAudio: "assets/scenes/rosanna-golf-course/rosanna-frog-sound/fr-striped-marsh-frog-Dani Kowalski.mp4",
     hint: [
       "Brown back with dark longitudinal stripes, sometimes with a cream or reddish stripe along the middle",
       "White belly and pale stripe running from below the eye to the arm",
@@ -63,11 +63,11 @@ const SPECIES = {
   },
   "spotted-marsh": {
     id: "spotted-marsh", name: "Spotted Marsh Frog", latin: "Limnodynastes tasmaniensis",
-    photo: "../assets/frogs/03-Spotted-Marsh-Frog-square.jpg",
-    photoFull: "../assets/frogs/03-Spotted-Marsh-Frog.jpg",
+    photo: "assets/frogs/03-Spotted-Marsh-Frog-square.jpg",
+    photoFull: "assets/frogs/03-Spotted-Marsh-Frog.jpg",
     // Newport Lakes Reserve's target species — added when wiring in that
     // reserve. Path convention matches the other reserves' callAudio fields.
-    callAudio: "../assets/scenes/newport-lakes-reserve/newport-frog-sound/fr-spotted-marsh-frog-Jodi Rowley.mp4",
+    callAudio: "assets/scenes/newport-lakes-reserve/newport-frog-sound/fr-spotted-marsh-frog-Jodi Rowley.mp4",
     hint: [
       "Grey-brown or olive-green back with darker patches and often a pale stripe down the middle",
       "Cream stripe running from below the eye to the upper arm",
@@ -83,13 +83,13 @@ const SPECIES = {
   },
   "brown-tree": {
     id: "brown-tree", name: "Brown Tree Frog", latin: "Rawlinsonia ewingii",
-    photo: "../assets/frogs/02-Brown-Tree-Frog-square.jpg",
-    photoFull: "../assets/frogs/02-Brown-Tree-Frog.jpg",
+    photo: "assets/frogs/02-Brown-Tree-Frog-square.jpg",
+    photoFull: "assets/frogs/02-Brown-Tree-Frog.jpg",
     // Trin Warren Tam-Boore Bellbird Waterhole's target species — added when
     // wiring in that reserve. Path convention matches the other reserves'
     // callAudio fields (frog-sound folder under that reserve's own scenes/
     // subfolder).
-    callAudio: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-frog-sound/fr-brown-tree-frog-Murray Littlejohn.mp4",
+    callAudio: "assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-frog-sound/fr-brown-tree-frog-Murray Littlejohn.mp4",
     hint: [
       "Cream, brown, copper or sometimes lime-green back",
       "Dark stripe running from the tip of the snout past the arm",
@@ -105,9 +105,9 @@ const SPECIES = {
   },
   bell: {
     id: "bell", name: "Southern Bell Frog", latin: "Litoria raniformis",
-    photo: "../assets/frogs/01-Southern-Bell-Frog-square.jpg",
-    photoFull: "../assets/frogs/01-Southern-Bell-Frog.jpg",
-    callAudio: "../assets/scenes/yalukit-willam-nature-reserve/frog-sound/fr-southern-bell-frog.mp4",
+    photo: "assets/frogs/01-Southern-Bell-Frog-square.jpg",
+    photoFull: "assets/frogs/01-Southern-Bell-Frog.jpg",
+    callAudio: "assets/scenes/yalukit-willam-nature-reserve/frog-sound/fr-southern-bell-frog.mp4",
     hint: [
       "Green back with brown patches and a pale longitudinal stripe along the middle",
       "White belly",
@@ -122,11 +122,11 @@ const SPECIES = {
   },
   "baw-baw": {
     id: "baw-baw", name: "Baw Baw Frog", latin: "Philoria frosti",
-    photo: "../assets/frogs/06-Baw-Baw-Frog-square.jpg",
-    photoFull: "../assets/frogs/06-Baw-Baw-Frog.jpg",
+    photo: "assets/frogs/06-Baw-Baw-Frog-square.jpg",
+    photoFull: "assets/frogs/06-Baw-Baw-Frog.jpg",
     // Baw Baw National Park's target species — added when wiring in that
     // reserve. Path convention matches the other reserves' callAudio fields.
-    callAudio: "../assets/scenes/baw-baw-national-park/baw-baw-frog-sound/fr-bawbaw-frog-Deon Gilbert.mp4",
+    callAudio: "assets/scenes/baw-baw-national-park/baw-baw-frog-sound/fr-bawbaw-frog-Deon Gilbert.mp4",
     hint: [
       "Dark grey, dark brown, or pink-brown back",
       "Cream or pale-yellow belly with brown speckling",
@@ -142,10 +142,10 @@ const SPECIES = {
   },
   "spotted-tree": {
     id: "spotted-tree", name: "Spotted Tree Frog", latin: "Dryopsophus spenceri",
-    photo: "../assets/frogs/07-Spotted-Tree-Frog-square.jpg",
-    photoFull: "../assets/frogs/07-Spotted-Tree-Frog.jpg",
+    photo: "assets/frogs/07-Spotted-Tree-Frog-square.jpg",
+    photoFull: "assets/frogs/07-Spotted-Tree-Frog.jpg",
     // Enoch Falls' target species — added when wiring in that reserve.
-    callAudio: "../assets/scenes/enoch-falls/enoch-frog-sound/fr-spotted-tree-frog-Nathan Litjens.mp4",
+    callAudio: "assets/scenes/enoch-falls/enoch-frog-sound/fr-spotted-tree-frog-Nathan Litjens.mp4",
     hint: [
       "Brown or green back, sometimes mottled, with a gold or brown stripe running from the snout past the arm",
       "Yellow or orange groin and backs of the thighs",
@@ -225,30 +225,30 @@ const RESERVES = {
   yalukit: {
     id: "yalukit",
     name: "Yalukit Willam Nature Reserve",
-    mapImage: "../assets/scenes/yalukit-willam-nature-reserve/Yalukit Willam Nature Reserve Map.jpg",
+    mapImage: "assets/scenes/yalukit-willam-nature-reserve/Yalukit Willam Nature Reserve Map.jpg",
     mapAlt: "Illustrated aerial map of Yalukit Willam Nature Reserve, showing a chain of ponds and wetlands connected by walking paths and bordered by scattered trees. A sports oval sits to the northwest of the reserve, and a residential street grid borders it to the east.",
     // Only these 4 appear as ID-quiz labels for this reserve (bell is correct)
     quizLabelIds: ["striped-marsh","banjo","bell","brown-tree"],
     targetSpecies: "bell",
     scenes: [
       { id: "gum-trees", name: "Elster Creek through the gum trees",
-        photo: "../assets/scenes/yalukit-willam-nature-reserve/03-Elster Creek-Still.jpg",
-        video: "../assets/scenes/yalukit-willam-nature-reserve/03-ElsterCreek.mp4",
-        ambientAudio: "../assets/scenes/yalukit-willam-nature-reserve/bg-sound/03-Au-ElsterCreek.mp3",
+        photo: "assets/scenes/yalukit-willam-nature-reserve/03-Elster Creek-Still.jpg",
+        video: "assets/scenes/yalukit-willam-nature-reserve/03-ElsterCreek.mp4",
+        ambientAudio: "assets/scenes/yalukit-willam-nature-reserve/bg-sound/03-Au-ElsterCreek.mp3",
         pannable: true,
         mapX: "24%", mapY: "58%",
         hotspots: [{ id: "gt1", x: "23%", y: "62%" }, { id: "gt2", x: "67%", y: "82%" }] },
       { id: "ponds", name: "The northern chain of ponds",
-        photo: "../assets/scenes/yalukit-willam-nature-reserve/02-Northern Chain Ponds-Still.jpg",
-        video: "../assets/scenes/yalukit-willam-nature-reserve/02-NorthernChain.mp4",
-        ambientAudio: "../assets/scenes/yalukit-willam-nature-reserve/bg-sound/02-Au-NorthernChains.mp3",
+        photo: "assets/scenes/yalukit-willam-nature-reserve/02-Northern Chain Ponds-Still.jpg",
+        video: "assets/scenes/yalukit-willam-nature-reserve/02-NorthernChain.mp4",
+        ambientAudio: "assets/scenes/yalukit-willam-nature-reserve/bg-sound/02-Au-NorthernChains.mp3",
         pannable: true,
         mapX: "60%", mapY: "28%",
         hotspots: [{ id: "p1", x: "57%", y: "50%" }, { id: "p2", x: "80%", y: "80%" }] },
       { id: "lake", name: "The southern lake",
-        photo: "../assets/scenes/yalukit-willam-nature-reserve/01-Southern Lake-Still.jpg",
-        video: "../assets/scenes/yalukit-willam-nature-reserve/01-SouthernLake.mp4",
-        ambientAudio: "../assets/scenes/yalukit-willam-nature-reserve/bg-sound/01-Au-SouthernLake.mp3",
+        photo: "assets/scenes/yalukit-willam-nature-reserve/01-Southern Lake-Still.jpg",
+        video: "assets/scenes/yalukit-willam-nature-reserve/01-SouthernLake.mp4",
+        ambientAudio: "assets/scenes/yalukit-willam-nature-reserve/bg-sound/01-Au-SouthernLake.mp3",
         pannable: true,
         mapX: "48%", mapY: "68%",
         hotspots: [{ id: "l1", x: "22%", y: "48%" }, { id: "l2", x: "39%", y: "82%" }] }
@@ -266,22 +266,22 @@ const RESERVES = {
   rosanna: {
     id: "rosanna",
     name: "The Rosanna Golf Club",
-    mapImage: "../assets/scenes/rosanna-golf-course/Rosanna Golf Course Reserve Map.jpg",
+    mapImage: "assets/scenes/rosanna-golf-course/Rosanna Golf Course Reserve Map.jpg",
     mapAlt: "Illustrated aerial map of The Rosanna Golf Club, showing golf fairways and sand bunkers across the course, a tree-lined creek (the Plenty River) running diagonally through the middle of the course from the northeast down to the southwest, and a clubhouse with a car park on the eastern edge.",
     quizLabelIds: ["striped-marsh","spotted-marsh","banjo","bell"],
     targetSpecies: "striped-marsh",
     scenes: [
       { id: "riverbend", name: "A quiet bend in the river",
-        photo: "../assets/scenes/rosanna-golf-course/01-rosanna-quiet-riverbend-still.jpg",
-        video: "../assets/scenes/rosanna-golf-course/01-rosanna-quiet-riverbend.mp4",
-        ambientAudio: "../assets/scenes/rosanna-golf-course/rosanna-bg-sound/01-Au-rosanna-quiet-riverbend.mp3",
+        photo: "assets/scenes/rosanna-golf-course/01-rosanna-quiet-riverbend-still.jpg",
+        video: "assets/scenes/rosanna-golf-course/01-rosanna-quiet-riverbend.mp4",
+        ambientAudio: "assets/scenes/rosanna-golf-course/rosanna-bg-sound/01-Au-rosanna-quiet-riverbend.mp3",
         pannable: true,
         mapX: "66.3%", mapY: "20.2%",
         hotspots: [{ id: "rb1", x: "13.1%", y: "78.3%" }, { id: "rb2", x: "69.4%", y: "61.7%" }] },
       { id: "pond", name: "A small pond fed by the river",
-        photo: "../assets/scenes/rosanna-golf-course/03-rosanna-small-pond-fed-by-the-river-still.jpg",
-        video: "../assets/scenes/rosanna-golf-course/03-rosanna-small-pond-fed-by-the-river.mp4",
-        ambientAudio: "../assets/scenes/rosanna-golf-course/rosanna-bg-sound/03-Au-rosanna-small-pond-fed-by-the-river.mp3",
+        photo: "assets/scenes/rosanna-golf-course/03-rosanna-small-pond-fed-by-the-river-still.jpg",
+        video: "assets/scenes/rosanna-golf-course/03-rosanna-small-pond-fed-by-the-river.mp4",
+        ambientAudio: "assets/scenes/rosanna-golf-course/rosanna-bg-sound/03-Au-rosanna-small-pond-fed-by-the-river.mp3",
         pannable: true,
         // mapX/mapY swapped with "plenty-river" 2026-09-22, per the user's
         // request — the reserve map's dot positions themselves are
@@ -291,9 +291,9 @@ const RESERVES = {
         mapX: "40.1%", mapY: "85.5%",
         hotspots: [{ id: "pd1", x: "15.0%", y: "52.5%" }, { id: "pd2", x: "82.5%", y: "55.8%" }] },
       { id: "plenty-river", name: "The Plenty River",
-        photo: "../assets/scenes/rosanna-golf-course/02-rosanna-Plenty-River-still.jpg",
-        video: "../assets/scenes/rosanna-golf-course/02-rosanna-Plenty-River.mp4",
-        ambientAudio: "../assets/scenes/rosanna-golf-course/rosanna-bg-sound/02-Au-rosanna-Plenty-River.mp3",
+        photo: "assets/scenes/rosanna-golf-course/02-rosanna-Plenty-River-still.jpg",
+        video: "assets/scenes/rosanna-golf-course/02-rosanna-Plenty-River.mp4",
+        ambientAudio: "assets/scenes/rosanna-golf-course/rosanna-bg-sound/02-Au-rosanna-Plenty-River.mp3",
         pannable: true,
         // mapX/mapY swapped with "pond" — see comment above.
         mapX: "64.2%", mapY: "54.9%",
@@ -338,15 +338,15 @@ const RESERVES = {
   jawbone: {
     id: "jawbone",
     name: "Jawbone Nature Conservation Reserve",
-    mapImage: "../assets/scenes/jawbone-nature-conservation-reserve/Jawbone Nature Conservation Reserve Map.jpg",
+    mapImage: "assets/scenes/jawbone-nature-conservation-reserve/Jawbone Nature Conservation Reserve Map.jpg",
     mapAlt: "Illustrated aerial map of Jawbone Nature Conservation Reserve, showing a rocky coastline with two inland ponds set among grassy parkland, and a sheltered reef and lagoon at the reserve's southern point. A residential street grid borders the reserve to the north and east, with a small boat harbour near its southeastern corner.",
     quizLabelIds: ["banjo","striped-marsh","baw-baw","bell"],
     targetSpecies: "banjo",
     scenes: [
       { id: "boardwalk-marsh", name: "The estuary boardwalk",
-        photo: "../assets/scenes/jawbone-nature-conservation-reserve/01-Jawbone-Estuary-Boardwalk-Marsh-still.jpg",
-        video: "../assets/scenes/jawbone-nature-conservation-reserve/01-Jawbone-Estuary-Boardwalk-Marsh.mp4",
-        ambientAudio: "../assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/01-Jawbone-Estuary-Boardwalk-Marsh.mp3",
+        photo: "assets/scenes/jawbone-nature-conservation-reserve/01-Jawbone-Estuary-Boardwalk-Marsh-still.jpg",
+        video: "assets/scenes/jawbone-nature-conservation-reserve/01-Jawbone-Estuary-Boardwalk-Marsh.mp4",
+        ambientAudio: "assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/01-Jawbone-Estuary-Boardwalk-Marsh.mp3",
         pannable: true,
         // mapX/mapY rotated 3-way with "saltmarsh-lagoon"/"wetland-lake"
         // 2026-09-22, per the user's request — the reserve map's 3 dot
@@ -356,18 +356,18 @@ const RESERVES = {
         mapX: "65.34%", mapY: "42.63%",
         hotspots: [{ id: "bw1", x: "33.71%", y: "68.23%" }, { id: "bw2", x: "76.83%", y: "54.92%" }] },
       { id: "saltmarsh-lagoon", name: "The saltmarsh lagoon",
-        photo: "../assets/scenes/jawbone-nature-conservation-reserve/03-Jawbone-Saltmarsh-Lagoon-still.jpg",
-        video: "../assets/scenes/jawbone-nature-conservation-reserve/03-Jawbone-Saltmarsh-Lagoon.mp4",
-        ambientAudio: "../assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/03-Jawbone-Saltmarsh-Lagoon.mp3",
+        photo: "assets/scenes/jawbone-nature-conservation-reserve/03-Jawbone-Saltmarsh-Lagoon-still.jpg",
+        video: "assets/scenes/jawbone-nature-conservation-reserve/03-Jawbone-Saltmarsh-Lagoon.mp4",
+        ambientAudio: "assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/03-Jawbone-Saltmarsh-Lagoon.mp3",
         pannable: true,
         // Rotated — now sits where wetland-lake's dot used to be. See
         // comment above.
         mapX: "44.67%", mapY: "63.42%",
         hotspots: [{ id: "lg1", x: "18.71%", y: "65.73%" }, { id: "lg2", x: "71.21%", y: "75.72%" }] },
       { id: "wetland-lake", name: "The wetland lake",
-        photo: "../assets/scenes/jawbone-nature-conservation-reserve/02-Jawbone-Wetland-Lake-still.jpg",
-        video: "../assets/scenes/jawbone-nature-conservation-reserve/02-Jawbone-Wetland-Lake.mp4",
-        ambientAudio: "../assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/02-Jawbone-Wetland-Lake.mp3",
+        photo: "assets/scenes/jawbone-nature-conservation-reserve/02-Jawbone-Wetland-Lake-still.jpg",
+        video: "assets/scenes/jawbone-nature-conservation-reserve/02-Jawbone-Wetland-Lake.mp4",
+        ambientAudio: "assets/scenes/jawbone-nature-conservation-reserve/jawbone-bg-sound/02-Jawbone-Wetland-Lake.mp3",
         pannable: true,
         // Rotated — now sits where boardwalk-marsh's (estuary) dot used to
         // be. See comment above.
@@ -403,15 +403,15 @@ const RESERVES = {
   trin: {
     id: "trin",
     name: "Trin Warren Tam-Boore Bellbird Waterhole",
-    mapImage: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/Trin Warren Tam-Boore Bellbird Waterhole Reserve Map.jpg",
+    mapImage: "assets/scenes/trin-warren-tam-boore-bellbird-waterhole/Trin Warren Tam-Boore Bellbird Waterhole Reserve Map.jpg",
     mapAlt: "Illustrated aerial map of Trin Warren Tam-Boore Bellbird Waterhole, showing a large lake beside a road on the western side of the reserve, and a pair of smaller ponds within a wooded loop track to the east. A car park sits between the two areas, a residential street borders the reserve to the north, and a sports oval sits to the south.",
     quizLabelIds: ["brown-tree","spotted-tree","banjo","bell"],
     targetSpecies: "brown-tree",
     scenes: [
       { id: "wetland-channel", name: "The narrow wetland channel",
-        photo: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/01-Trin-narrow-wetland-channel-still.jpg",
-        video: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/01-Trin-narrow-wetland-channel.mp4",
-        ambientAudio: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-bg-sound/01-Trin-narrow-wetland-channel.mp3",
+        photo: "assets/scenes/trin-warren-tam-boore-bellbird-waterhole/01-Trin-narrow-wetland-channel-still.jpg",
+        video: "assets/scenes/trin-warren-tam-boore-bellbird-waterhole/01-Trin-narrow-wetland-channel.mp4",
+        ambientAudio: "assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-bg-sound/01-Trin-narrow-wetland-channel.mp3",
         pannable: true,
         // mapX/mapY swapped with "wetland-waterhole" 2026-09-22, per the
         // user's request — dot positions unchanged, only which scene each
@@ -419,16 +419,16 @@ const RESERVES = {
         mapX: "74.53%", mapY: "61.01%",
         hotspots: [{ id: "wc1", x: "37.46%", y: "54.91%" }, { id: "wc2", x: "80.58%", y: "74.89%" }] },
       { id: "billabong-edge", name: "The billabong edge",
-        photo: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/03-Trin-billabong-edge-still.jpg",
-        video: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/03-Trin-billabong-edge.mp4",
-        ambientAudio: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-bg-sound/03-Trin-billabong-edge.mp3",
+        photo: "assets/scenes/trin-warren-tam-boore-bellbird-waterhole/03-Trin-billabong-edge-still.jpg",
+        video: "assets/scenes/trin-warren-tam-boore-bellbird-waterhole/03-Trin-billabong-edge.mp4",
+        ambientAudio: "assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-bg-sound/03-Trin-billabong-edge.mp3",
         pannable: true,
         mapX: "18.26%", mapY: "56.93%",
         hotspots: [{ id: "be1", x: "28.09%", y: "82.38%" }, { id: "be2", x: "54.34%", y: "59.07%" }] },
       { id: "wetland-waterhole", name: "The wetland waterhole",
-        photo: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/02-Trin-Wetland-Waterhole-still.jpg",
-        video: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/02-Trin-Wetland-Waterhole.mp4",
-        ambientAudio: "../assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-bg-sound/02-Trin-Wetland-Waterhole.mp3",
+        photo: "assets/scenes/trin-warren-tam-boore-bellbird-waterhole/02-Trin-Wetland-Waterhole-still.jpg",
+        video: "assets/scenes/trin-warren-tam-boore-bellbird-waterhole/02-Trin-Wetland-Waterhole.mp4",
+        ambientAudio: "assets/scenes/trin-warren-tam-boore-bellbird-waterhole/trin-bg-sound/02-Trin-Wetland-Waterhole.mp3",
         pannable: true,
         // mapX/mapY swapped with "wetland-channel" — see comment above.
         mapX: "58.44%", mapY: "38.55%",
@@ -458,32 +458,32 @@ const RESERVES = {
   newport: {
     id: "newport",
     name: "Newport Lakes Reserve",
-    mapImage: "../assets/scenes/newport-lakes-reserve/Newport Lakes Reserve Map.jpg",
+    mapImage: "assets/scenes/newport-lakes-reserve/Newport Lakes Reserve Map.jpg",
     mapAlt: "Illustrated aerial map of Newport Lakes Reserve, showing a densely wooded loop track around a small central pond and two larger connected quarry lakes to the east. A residential street grid borders the reserve on both the west and east sides.",
     quizLabelIds: ["spotted-marsh","striped-marsh","spotted-tree","bell"],
     targetSpecies: "spotted-marsh",
     scenes: [
       { id: "quarry-lake", name: "The quarry lake",
-        photo: "../assets/scenes/newport-lakes-reserve/01-newport-quarry-lake-still.jpg",
-        video: "../assets/scenes/newport-lakes-reserve/01-newport-quarry-lake.mp4",
-        ambientAudio: "../assets/scenes/newport-lakes-reserve/newport-bg-sound/01-newport-quarry-lake.mp3",
+        photo: "assets/scenes/newport-lakes-reserve/01-newport-quarry-lake-still.jpg",
+        video: "assets/scenes/newport-lakes-reserve/01-newport-quarry-lake.mp4",
+        ambientAudio: "assets/scenes/newport-lakes-reserve/newport-bg-sound/01-newport-quarry-lake.mp3",
         pannable: true,
         // mapX/mapY swapped with "lake-inlet" 2026-09-22, per the user's
         // request — dot positions unchanged, only which scene each opens.
         mapX: "51.57%", mapY: "46.72%",
         hotspots: [{ id: "ql1", x: "28.09%", y: "74.89%" }, { id: "ql2", x: "80.58%", y: "71.56%" }] },
       { id: "lake-inlet", name: "The lake inlet",
-        photo: "../assets/scenes/newport-lakes-reserve/03-newport-lake-inlet-still.jpg",
-        video: "../assets/scenes/newport-lakes-reserve/03-newport-lake-inlet.mp4",
-        ambientAudio: "../assets/scenes/newport-lakes-reserve/newport-bg-sound/03-newport-lake-inlet.mp3",
+        photo: "assets/scenes/newport-lakes-reserve/03-newport-lake-inlet-still.jpg",
+        video: "assets/scenes/newport-lakes-reserve/03-newport-lake-inlet.mp4",
+        ambientAudio: "assets/scenes/newport-lakes-reserve/newport-bg-sound/03-newport-lake-inlet.mp3",
         pannable: true,
         // mapX/mapY swapped with "quarry-lake" — see comment above.
         mapX: "77.98%", mapY: "20.19%",
         hotspots: [{ id: "li1", x: "13.09%", y: "42.42%" }, { id: "li2", x: "80.58%", y: "72.39%" }] },
       { id: "rocky-lakeside-slope", name: "The rocky lakeside slope",
-        photo: "../assets/scenes/newport-lakes-reserve/02-newport-rocky-lakeside-slope-still.jpg",
-        video: "../assets/scenes/newport-lakes-reserve/02-newport-rocky-lakeside-slope.mp4",
-        ambientAudio: "../assets/scenes/newport-lakes-reserve/newport-bg-sound/02-newport-rocky-lakeside-slope.mp3",
+        photo: "assets/scenes/newport-lakes-reserve/02-newport-rocky-lakeside-slope-still.jpg",
+        video: "assets/scenes/newport-lakes-reserve/02-newport-rocky-lakeside-slope.mp4",
+        ambientAudio: "assets/scenes/newport-lakes-reserve/newport-bg-sound/02-newport-rocky-lakeside-slope.mp3",
         pannable: true,
         mapX: "60.75%", mapY: "73.24%",
         hotspots: [{ id: "rl1", x: "26.22%", y: "49.92%" }, { id: "rl2", x: "69.33%", y: "69.89%" }] }
@@ -512,29 +512,29 @@ const RESERVES = {
   bawbaw: {
     id: "bawbaw",
     name: "Baw Baw National Park",
-    mapImage: "../assets/scenes/baw-baw-national-park/Baw Baw National Park Map.jpg",
+    mapImage: "assets/scenes/baw-baw-national-park/Baw Baw National Park Map.jpg",
     mapAlt: "Illustrated aerial map of Baw Baw National Park, showing forested mountain ridges and valleys crossed by hiking trails, with a long narrow reservoir running north-south through a steeper, more rugged range on the eastern side.",
     quizLabelIds: ["baw-baw","banjo","spotted-marsh","bell"],
     targetSpecies: "baw-baw",
     scenes: [
       { id: "alpine-creek", name: "The alpine creek among snow gums",
-        photo: "../assets/scenes/baw-baw-national-park/01-BawBaw-Alpine-Creek-Among-Snow-Gums-still.jpg",
-        video: "../assets/scenes/baw-baw-national-park/01-BawBaw-Alpine-Creek-Among-Snow-Gums.mp4",
-        ambientAudio: "../assets/scenes/baw-baw-national-park/baw-baw-bg-sound/01-BawBaw-Alpine-Creek-Among-Snow-Gums.mp3",
+        photo: "assets/scenes/baw-baw-national-park/01-BawBaw-Alpine-Creek-Among-Snow-Gums-still.jpg",
+        video: "assets/scenes/baw-baw-national-park/01-BawBaw-Alpine-Creek-Among-Snow-Gums.mp4",
+        ambientAudio: "assets/scenes/baw-baw-national-park/baw-baw-bg-sound/01-BawBaw-Alpine-Creek-Among-Snow-Gums.mp3",
         pannable: true,
         mapX: "38.93%", mapY: "34.49%",
         hotspots: [{ id: "ac1", x: "22.46%", y: "61.57%" }, { id: "ac2", x: "76.83%", y: "49.91%" }] },
       { id: "snow-gum-woodland", name: "The snow gum woodland",
-        photo: "../assets/scenes/baw-baw-national-park/03-BawBaw-Snow-Gum-Woodland-still.jpg",
-        video: "../assets/scenes/baw-baw-national-park/03-BawBaw-Snow-Gum-Woodland.mp4",
-        ambientAudio: "../assets/scenes/baw-baw-national-park/baw-baw-bg-sound/03-BawBaw-Snow-Gum-Woodland.mp3",
+        photo: "assets/scenes/baw-baw-national-park/03-BawBaw-Snow-Gum-Woodland-still.jpg",
+        video: "assets/scenes/baw-baw-national-park/03-BawBaw-Snow-Gum-Woodland.mp4",
+        ambientAudio: "assets/scenes/baw-baw-national-park/baw-baw-bg-sound/03-BawBaw-Snow-Gum-Woodland.mp3",
         pannable: true,
         mapX: "65.35%", mapY: "46.72%",
         hotspots: [{ id: "sg1", x: "31.84%", y: "65.73%" }, { id: "sg2", x: "88.08%", y: "69.06%" }] },
       { id: "moorland-pools", name: "The moorland pools",
-        photo: "../assets/scenes/baw-baw-national-park/02-BawBaw-Moorland-Pools-and-Snow-Gums-still.jpg",
-        video: "../assets/scenes/baw-baw-national-park/02-BawBaw-Moorland-Pools-and-Snow-Gums.mp4",
-        ambientAudio: "../assets/scenes/baw-baw-national-park/baw-baw-bg-sound/02-BawBaw-Moorland-Pools-and-Snow-Gums.mp3",
+        photo: "assets/scenes/baw-baw-national-park/02-BawBaw-Moorland-Pools-and-Snow-Gums-still.jpg",
+        video: "assets/scenes/baw-baw-national-park/02-BawBaw-Moorland-Pools-and-Snow-Gums.mp4",
+        ambientAudio: "assets/scenes/baw-baw-national-park/baw-baw-bg-sound/02-BawBaw-Moorland-Pools-and-Snow-Gums.mp3",
         pannable: true,
         mapX: "23.99%", mapY: "67.11%",
         hotspots: [{ id: "mp1", x: "24.34%", y: "59.90%" }, { id: "mp2", x: "69.33%", y: "76.56%" }] }
@@ -572,31 +572,31 @@ const RESERVES = {
   enoch: {
     id: "enoch",
     name: "Enoch Falls",
-    mapImage: "../assets/scenes/enoch-falls/Enoch Falls Reserve Map.jpg",
+    mapImage: "assets/scenes/enoch-falls/Enoch Falls Reserve Map.jpg",
     mapAlt: "Illustrated aerial map of Enoch Falls, showing dense forest crossed by winding creeks and walking trails, with a small cluster of huts near a creek bend in the northwest and a waterfall along a southern branch of the creek.",
     quizLabelIds: ["spotted-tree","bell","brown-tree","striped-marsh"],
     targetSpecies: "spotted-tree",
     scenes: [
       { id: "forest-waterfall", name: "The forest waterfall",
-        photo: "../assets/scenes/enoch-falls/01-Enoch-Forest-Waterfall-still.jpg",
-        video: "../assets/scenes/enoch-falls/01-Enoch-Forest-Waterfall.mp4",
-        ambientAudio: "../assets/scenes/enoch-falls/enoch-bg-sound/01-Au-Enoch-Forest-Waterfall.mp3",
+        photo: "assets/scenes/enoch-falls/01-Enoch-Forest-Waterfall-still.jpg",
+        video: "assets/scenes/enoch-falls/01-Enoch-Forest-Waterfall.mp4",
+        ambientAudio: "assets/scenes/enoch-falls/enoch-bg-sound/01-Au-Enoch-Forest-Waterfall.mp3",
         pannable: true,
         mapX: "18.24%", mapY: "22.22%",
         hotspots: [{ id: "wf1", x: "33.71%", y: "44.92%" }, { id: "wf2", x: "80.58%", y: "74.89%" }] },
       { id: "fern-gully-pool", name: "The fern gully pool",
-        photo: "../assets/scenes/enoch-falls/03-Enoch-Fern-Gully-Pool-still.jpg",
-        video: "../assets/scenes/enoch-falls/03-Enoch-Fern-Gully-Pool.mp4",
-        ambientAudio: "../assets/scenes/enoch-falls/enoch-bg-sound/03-Au-Enoch-Fern-Gully-Pool.mp3",
+        photo: "assets/scenes/enoch-falls/03-Enoch-Fern-Gully-Pool-still.jpg",
+        video: "assets/scenes/enoch-falls/03-Enoch-Fern-Gully-Pool.mp4",
+        ambientAudio: "assets/scenes/enoch-falls/enoch-bg-sound/03-Au-Enoch-Fern-Gully-Pool.mp3",
         pannable: true,
         // mapX/mapY swapped with "forest-creek" 2026-09-22, per the user's
         // request — dot positions unchanged, only which scene each opens.
         mapX: "27.43%", mapY: "75.29%",
         hotspots: [{ id: "fg1", x: "16.84%", y: "75.72%" }, { id: "fg2", x: "73.08%", y: "52.42%" }] },
       { id: "forest-creek", name: "The forest creek",
-        photo: "../assets/scenes/enoch-falls/02-Enoch-Forest-Creek-still.jpg",
-        video: "../assets/scenes/enoch-falls/02-Enoch-Forest-Creek.mp4",
-        ambientAudio: "../assets/scenes/enoch-falls/enoch-bg-sound/02-Au-Enoch-Forest-Creek.mp3",
+        photo: "assets/scenes/enoch-falls/02-Enoch-Forest-Creek-still.jpg",
+        video: "assets/scenes/enoch-falls/02-Enoch-Forest-Creek.mp4",
+        ambientAudio: "assets/scenes/enoch-falls/enoch-bg-sound/02-Au-Enoch-Forest-Creek.mp3",
         pannable: true,
         // mapX/mapY swapped with "fern-gully-pool" — see comment above.
         mapX: "61.90%", mapY: "49.91%",
@@ -1604,7 +1604,7 @@ function openScene(idx) {
     el.className = "hotspot" + (isTarget ? " sounding" : "");
     el.style.left = h.x;
     el.style.top = h.y;
-    el.innerHTML = '<img src="../assets/buttons/Icon_Eye.png" alt="">';
+    el.innerHTML = '<img src="assets/buttons/Icon_Eye.png" alt="">';
     el.addEventListener("click", () => onHotspotClick(isTarget, key, el));
     // Matches exactly what a sighted player already perceives (the pulsing
     // "sounding" ring), not revealing anything a mouse/touch player doesn't
@@ -2032,13 +2032,13 @@ function handleGuess(id) {
   }
 }
 
-const CORRECT_GUESS_SOUND = "../assets/overlays/feedback-sounds/correct answer.mp3";
-const INCORRECT_GUESS_SOUND = "../assets/overlays/feedback-sounds/Incorrect Answer.mp3";
-const WALKING_SOUND = "../assets/overlays/feedback-sounds/walking.mp3";
-const FROG_ESCAPE_SOUND = "../assets/overlays/feedback-sounds/frog_escape.mp3";
-const FROG_FOUND_SOUND = "../assets/overlays/feedback-sounds/frog_found.mp3";
-const OPEN_BOOK_SOUND = "../assets/overlays/feedback-sounds/open_book.mp3";
-const PAGE_TURN_SOUND = "../assets/overlays/feedback-sounds/page_turn.mp3";
+const CORRECT_GUESS_SOUND = "assets/overlays/feedback-sounds/correct answer.mp3";
+const INCORRECT_GUESS_SOUND = "assets/overlays/feedback-sounds/Incorrect Answer.mp3";
+const WALKING_SOUND = "assets/overlays/feedback-sounds/walking.mp3";
+const FROG_ESCAPE_SOUND = "assets/overlays/feedback-sounds/frog_escape.mp3";
+const FROG_FOUND_SOUND = "assets/overlays/feedback-sounds/frog_found.mp3";
+const OPEN_BOOK_SOUND = "assets/overlays/feedback-sounds/open_book.mp3";
+const PAGE_TURN_SOUND = "assets/overlays/feedback-sounds/page_turn.mp3";
 // Added 2026-09-21. OPEN_RESERVE_MAP_SOUND covers every "open the reserve
 // map" action regardless of which screen it's triggered from (the scene's
 // own "Reserve Map" button, and the Fail screen's "Open the Reserve's Map"
@@ -2052,9 +2052,9 @@ const PAGE_TURN_SOUND = "../assets/overlays/feedback-sounds/page_turn.mp3";
 // Overview" action (the reserve screen's "Main Map" button and the success
 // screen's "Return to Main Map" button — also confirmed to share the sound
 // despite the different label).
-const OPEN_RESERVE_MAP_SOUND = "../assets/overlays/feedback-sounds/open_reserve_map.mp3";
-const MAP_OVERVIEW_OPEN_SOUND = "../assets/overlays/feedback-sounds/map_o_open.mp3";
-const MAP_OVERVIEW_RETURN_SOUND = "../assets/overlays/feedback-sounds/map_o_return.mp3";
+const OPEN_RESERVE_MAP_SOUND = "assets/overlays/feedback-sounds/open_reserve_map.mp3";
+const MAP_OVERVIEW_OPEN_SOUND = "assets/overlays/feedback-sounds/map_o_open.mp3";
+const MAP_OVERVIEW_RETURN_SOUND = "assets/overlays/feedback-sounds/map_o_return.mp3";
 
 // One-shot feedback stings — not looped, plays alongside whatever else is
 // already playing (scene ambient, frog-call preview) rather than pausing it.
@@ -2304,7 +2304,7 @@ function openFieldGuide(openToPage) {
   fgBg.className = "scene-bg dim";
   const bgPhoto = state.returnScreen === "success"
     ? state.scenes[state.currentSceneIdx].photo
-    : "../assets/scenes/victoria-map-overview.jpg";
+    : "assets/scenes/victoria-map-overview.jpg";
   setPhotoBg(fgBg, bgPhoto);
 
   // Immediate wave = the book (desktop) / the scrollable sheet column + its
@@ -2354,7 +2354,7 @@ document.querySelector('[data-action="close-fieldguide"]').addEventListener("cli
 // play/stop toggle per screen. Buttons opt in via the shared .sound-btn
 // class plus a data-audio URL; only species with a real recording
 // (SPECIES[..].callAudio) get a button rendered at all.
-const SOUND_ICON_HTML = '<img src="../assets/buttons/Btn_Sound.png" alt="Play call">';
+const SOUND_ICON_HTML = '<img src="assets/buttons/Btn_Sound.png" alt="Play call">';
 
 // Field Guide buttons carry a data-species-name attribute (set in
 // fgFactsHtml() only — not the quiz/success buttons) so this shared handler
@@ -2362,14 +2362,14 @@ const SOUND_ICON_HTML = '<img src="../assets/buttons/Btn_Sound.png" alt="Play ca
 // Bell Frog call") while the quiz/success buttons keep the generic "Play
 // call" — same shared audio/toggle logic either way, just a different name.
 function soundIconHtml(label) {
-  return `<img src="../assets/buttons/Btn_Sound.png" alt="${label}">`;
+  return `<img src="assets/buttons/Btn_Sound.png" alt="${label}">`;
 }
 // Same pattern as soundIconHtml() above, for the "stop" state — replaces
 // the old plain "⏹" text glyph with the supplied Btn_Stop.png icon, so the
 // button always shows a real icon in both states instead of an icon for
 // play but a text character for stop.
 function stopIconHtml(label) {
-  return `<img src="../assets/buttons/Btn_Stop.png" alt="${label}">`;
+  return `<img src="assets/buttons/Btn_Stop.png" alt="${label}">`;
 }
 
 function resetSoundButtons() {
@@ -2827,7 +2827,7 @@ function stopCallTone() {
 function toggleAudioMute() {
   state.audioMuted = !state.audioMuted;
   const label = state.audioMuted ? "Unmute sound" : "Mute sound";
-  const iconSrc = state.audioMuted ? "../assets/buttons/Btn_SoundOff.png" : "../assets/buttons/Btn_Sound.png";
+  const iconSrc = state.audioMuted ? "assets/buttons/Btn_SoundOff.png" : "assets/buttons/Btn_Sound.png";
   document.querySelectorAll(".mute-btn").forEach(btn => {
     btn.title = label;
     btn.setAttribute("aria-label", label);
@@ -2908,7 +2908,7 @@ function initMapVideo() {
   const video = document.getElementById("map-video");
   if (prefersStills()) return;
   video.addEventListener("playing", () => video.classList.add("ready"), { once: true });
-  video.src = "../assets/scenes/victoria-map-overview-anim.mp4";
+  video.src = "assets/scenes/victoria-map-overview-anim.mp4";
   syncMapMedia(); // starts it if the Map Overview is showing (it is, on first load)
 }
 if (document.readyState === "complete") initMapVideo();
