@@ -1063,7 +1063,7 @@ html, body {
    .quiz-bottom-band pinned to the very bottom, sized to reflow within a
    fixed overlay shape — stop working: a flex-wrap row of 4 pills with no
    height cap can grow to eat most of the screen once longer names (e.g.
-   "Southern Bell Frog / Litoria raniformis") force extra wrapping. Replaced
+   "Growling Grass Frog / Litoria raniformis") force extra wrapping. Replaced
    here with one real in-flow flex column (title → photo/drop-field →
    label grid → hint panel) that actually reserves space for each piece
    instead of letting them float over each other, sized to fit one screen

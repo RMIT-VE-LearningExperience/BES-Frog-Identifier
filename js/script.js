@@ -104,10 +104,10 @@ const SPECIES = {
     habitat: "This species occurs across a wide range of habitats, including forests, heathlands, alpine environments, agricultural land, and suburban areas. Its adaptability allows it to thrive in both natural and human-modified landscapes."
   },
   bell: {
-    id: "bell", name: "Southern Bell Frog", latin: "Litoria raniformis",
-    photo: "assets/frogs/01-Southern-Bell-Frog-square.jpg",
-    photoFull: "assets/frogs/01-Southern-Bell-Frog.jpg",
-    callAudio: "assets/scenes/yalukit-willam-nature-reserve/frog-sound/fr-southern-bell-frog.mp4",
+    id: "bell", name: "Growling Grass Frog", latin: "Litoria raniformis",
+    photo: "assets/frogs/01-Growling-Grass-Frog-square.jpg",
+    photoFull: "assets/frogs/01-Growling-Grass-Frog.jpg",
+    callAudio: "assets/scenes/yalukit-willam-nature-reserve/frog-sound/fr-growling-grass-frog.mp4",
     hint: [
       "Green back with brown patches and a pale longitudinal stripe along the middle",
       "White belly",
@@ -2358,8 +2358,8 @@ const SOUND_ICON_HTML = '<img src="assets/buttons/Btn_Sound.png" alt="Play call"
 
 // Field Guide buttons carry a data-species-name attribute (set in
 // fgFactsHtml() only — not the quiz/success buttons) so this shared handler
-// can give just that one button a species-specific name ("Play Southern
-// Bell Frog call") while the quiz/success buttons keep the generic "Play
+// can give just that one button a species-specific name ("Play Growling
+// Grass Frog call") while the quiz/success buttons keep the generic "Play
 // call" — same shared audio/toggle logic either way, just a different name.
 function soundIconHtml(label) {
   return `<img src="assets/buttons/Btn_Sound.png" alt="${label}">`;
