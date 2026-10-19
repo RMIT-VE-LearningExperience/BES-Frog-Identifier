@@ -48,7 +48,7 @@ const SPECIES = {
     // The Rosanna Golf Club's target species — added 2026-09-18 wiring in
     // that reserve. Path convention matches SPECIES.bell.callAudio below
     // (frog-sound folder under that reserve's own scenes/ subfolder).
-    callAudio: "assets/scenes/rosanna-golf-course/rosanna-frog-sound/fr-striped-marsh-frog-Dani Kowalski.mp4",
+    callAudio: "assets/scenes/rosanna-golf-course/rosanna-frog-sound/fr-striped-marsh-frog-Jodi Rowley.mp3",
     hint: [
       "Brown back with dark longitudinal stripes, sometimes with a cream or reddish stripe along the middle",
       "White belly and pale stripe running from below the eye to the arm",
