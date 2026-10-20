@@ -165,7 +165,30 @@ def publication_errors(draft):
     return errors
 
 
-def launch_job(action):
+def job_file(job_id):
+    if len(job_id) != 32 or any(c not in "0123456789abcdef" for c in job_id):
+        raise HTTPException(404, "Job not found")
+    return DATA / "jobs" / f"{job_id}.json"
+
+
+def public_job(job):
+    return {k: v for k, v in job.items() if k != "task"}
+
+
+def load_job(job_id):
+    if job_id in JOBS:
+        return public_job(JOBS[job_id])
+    path = job_file(job_id)
+    if not path.exists():
+        raise HTTPException(404, "Job no longer available")
+    job = json.loads(path.read_text())
+    if job["status"] == "running":
+        job.update(status="failed", error="The server restarted before this request finished. Start this request again.")
+        atomic_write(path, json.dumps(job))
+    return job
+
+
+def launch_job(action, **metadata):
     # Retain running work and only a bounded number of finished jobs.
     if sum(j["status"] == "running" for j in JOBS.values()) >= 4:
         raise HTTPException(429, "Four jobs are already queued. Wait for one to finish.")
@@ -175,8 +198,9 @@ def launch_job(action):
         if JOBS[key]["status"] != "running":
             del JOBS[key]
     job_id = uuid.uuid4().hex
-    job = {"id": job_id, "status": "running"}
+    job = {"id": job_id, "status": "running", **metadata}
     JOBS[job_id] = job
+    atomic_write(job_file(job_id), json.dumps(public_job(job)))
 
     async def work():
         try:
@@ -186,6 +210,8 @@ def launch_job(action):
         except Exception as exc:
             job["status"] = "failed"
             job["error"] = str(exc)[:1500] if isinstance(exc, (ValError, ValueError)) else "The job could not complete. Check the local server."
+        finally:
+            atomic_write(job_file(job_id), json.dumps(public_job(job)))
     job["task"] = asyncio.create_task(work())
     return {"job_id": job_id}
 
@@ -272,8 +298,27 @@ def audio_signature(raw, ext):
 
 @app.post("/api/drafts/{draft_id}/suggest")
 async def suggest(draft_id: str):
+    async with LOCK:
+        draft = read_draft(draft_id)
+        pointer = DATA / "suggestions" / f"{draft_id}.json"
+        if pointer.exists():
+            previous = load_job(json.loads(pointer.read_text())["job_id"])
+            if previous["status"] == "running" and previous.get("location") == draft.name:
+                return {"job_id": previous["id"]}
+        job = launch_job(lambda: ValClient().suggest(draft.name), kind="suggest", draft_id=draft_id, location=draft.name)
+        atomic_write(pointer, json.dumps(job))
+    return job
+
+
+@app.get("/api/drafts/{draft_id}/suggestions")
+def suggestions(draft_id: str):
     draft = read_draft(draft_id)
-    return launch_job(lambda: ValClient().suggest(draft.name))
+    pointer = DATA / "suggestions" / f"{draft_id}.json"
+    if not pointer.exists():
+        return {"status": "none"}
+    job = load_job(json.loads(pointer.read_text())["job_id"])
+    # A result for the old reserve name must not appear to describe a new site.
+    return job if job.get("location") == draft.name else {"status": "none"}
 
 
 @app.post("/api/drafts/{draft_id}/generate")
@@ -317,9 +362,7 @@ async def generate(draft_id: str, body: GenerateRequest):
 
 @app.get("/api/jobs/{job_id}")
 def job_status(job_id: str):
-    if job_id not in JOBS:
-        raise HTTPException(404, "Job no longer available; the server may have restarted")
-    return {k: v for k, v in JOBS[job_id].items() if k != "task"}
+    return load_job(job_id)
 
 
 @app.post("/api/drafts/{draft_id}/publish")

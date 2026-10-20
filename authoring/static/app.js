@@ -66,6 +66,37 @@ async function openDraft(id) {
   draft = await api(`/api/drafts/${id}`); dirty = false; candidates = []; activeScene = draft.scenes[0]?.id || null; selectedHotspot = null;
   localStorage.setItem("frog-author-last-draft", id);
   message(""); render(); await library();
+  await restoreSuggestions(id);
+}
+
+async function waitForJob(jobId) {
+  while(true) {
+    const job=await api(`/api/jobs/${jobId}`);
+    if(job.status==='failed')throw new Error(job.error);
+    if(job.status==='complete')return job.result;
+    await new Promise(resolve=>setTimeout(resolve,1600));
+  }
+}
+
+async function restoreSuggestions(id) {
+  const job=await api(`/api/drafts/${id}/suggestions`);
+  if(draft?.id!==id)return;
+  if(job.status==='complete'){
+    candidates=job.result.candidates;render();
+    message(`${candidates.length} saved candidates are available in the Frog step. These are unverified suggestions.`);
+  }
+  if(job.status==='failed')message(job.error,true);
+  if(job.status==='running'){
+    busy=true;render();await library();
+    message('Claude is still preparing candidates. Reconnected to the running request; you do not need to start it again.');
+    try {
+      const result=await waitForJob(job.id);
+      if(draft?.id!==id||draft.name!==job.location)throw new Error('The location changed while Claude was working. The result was saved for the earlier location; request new candidates for this one.');
+      candidates=result.candidates;tab=1;
+      message(`${candidates.length} candidates generated and saved. Verify site-level records before choosing a species.`);
+    }catch(error){message(error.message,true);}
+    finally{busy=false;render();await library();}
+  }
 }
 async function createDraft() {
   if (busy) return;
@@ -79,7 +110,7 @@ function render() {
   $("#new-draft").disabled = busy;
   $("#save-state").textContent = dirty ? "Unsaved changes" : "Saved on this computer";
   $("#steps").hidden = false;
-  $("#steps").innerHTML = steps.map((s,i) => `<button data-tab="${i}" class="${i===tab?'active':''}" aria-current="${i===tab?'step':'false'}">${String(i+1).padStart(2,"0")} &nbsp;${s}</button>`).join("");
+  $("#steps").innerHTML = steps.map((s,i) => `<button data-tab="${i}" class="${i===tab?'active':''}" aria-current="${i===tab?'step':'false'}">${String(i+1).padStart(2,"0")} &nbsp;${s}${i===1&&candidates.length?` (${candidates.length})`:''}</button>`).join("");
   workspace.innerHTML = [locationView, frogView, mapView, scenesView, audioView, reviewView][tab]();
 }
 function locationView() {
@@ -91,8 +122,8 @@ function locationView() {
 }
 function frogView() {
   const suggestions = candidates.map((c,i) => `<div class="candidate"><b>${escapeHTML(c.name)}</b><p><i>${escapeHTML(c.scientific_name)}</i><br>${escapeHTML(c.verification_note || "Verify the local occurrence before use.")}</p><button data-action="candidate" data-index="${i}">Use as a draft</button></div>`).join("");
-  return `<div class="section-head"><div><h2>The frog in the field guide.</h2><p class="lede">Enter a species, or ask Claude for candidates to verify. Image generation uses the existing frog artwork as a style reference.</p></div><button data-action="suggest" ${busy?'disabled':''}>Ask Claude for candidates</button></div>
-    <div class="columns"><div class="inspector">${suggestions ? `<p class="warning-note">Unverified suggestions · check real site records.</p>${suggestions}`:''}
+  return `<div class="section-head"><div><h2>The frog in the field guide.</h2><p class="lede">Enter a species, or ask Claude for candidates using the reserve name from the Location step. The illustrated pin does not identify a real site automatically.</p></div><button data-action="suggest" ${busy?'disabled':''}>Ask Claude for candidates</button></div>
+    <div class="columns"><div class="inspector">${suggestions ? `<p class="warning-note">${candidates.length} saved candidates · unverified. Check real site records.</p>${suggestions}`:''}
     ${field("Common name", "frog.name")}${field("Scientific name", "frog.scientific_name")}${field("Identification description", "frog.description", {area:true})}${field("Visual hints", "frog.hints", {area:true,list:true,help:"One identifying feature per line. Review the generated image against these."})}${field("Habitat", "frog.habitat", {area:true})}
     <h3>Calling months</h3><p class="help">Leave unknown unless supported by a source. 0 = unknown/no activity; 1 = possible; 2 = active; 3 = peak.</p><div class="month-grid">${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m,i) => `<label>${m}<select data-field="frog.calling.${i}" data-number="true">${[0,1,2,3].map(v=>`<option value="${v}" ${draft.frog.calling[i]===v?'selected':''}>${v===0?'Unknown / none':v}</option>`).join('')}</select></label>`).join('')}</div></div>
     <div class="visual">${imageFrame(draft.frog.photo, draft.frog.name || "Frog illustration")}${imageActions("frog")}${direction()}<p class="image-caption">GPT Image through VAL · 1536 × 1024. Check anatomy, markings and pupil shape before publishing.</p></div></div>`;
@@ -156,16 +187,12 @@ function pickUpload(target, sceneId=null) {
   const input=$("#file-upload"); input.accept=['call','ambient'].includes(target)?'.mp3,.wav,.ogg,.m4a':'.png,.jpg,.jpeg,.webp';input.value="";input.click();
 }
 async function runJob(path, body) {
-  await save(); busy=true; render(); await library();
-  message("VAL is working. Image requests can take a few minutes. Keep this editor open.");
+  busy=true;render();
   try {
+    await save();await library();
+    message(path.endsWith('/suggest')?'Claude is preparing frog candidates. This can take a minute; results will be saved even if you reload.':'VAL is generating the image. This can take a few minutes. Keep this editor open.');
     const started=await api(path,{method:"POST",...(body?{body:JSON.stringify(body)}:{})});
-    while(true) {
-      await new Promise(resolve=>setTimeout(resolve,1600));
-      const job=await api(`/api/jobs/${started.job_id}`);
-      if(job.status==='failed')throw new Error(job.error);
-      if(job.status==='complete')return job.result;
-    }
+    return await waitForJob(started.job_id);
   } finally {busy=false;render();await library();}
 }
 
@@ -174,7 +201,10 @@ document.addEventListener("input",event=>{
   let value=el.type==='checkbox'?el.checked:el.type==='number'||el.dataset.number?Number(el.value):el.value;
   if(el.dataset.list)value=value.split('\n').map(s=>s.trim()).filter(Boolean);
   put(el.dataset.field,value);markDirty(el.dataset.field!=='reviewed');
-  if(el.dataset.field==='name')$("#draft-title").textContent=draft.name;
+  if(el.dataset.field==='name'){
+    $("#draft-title").textContent=draft.name;
+    candidates=[]; // Do not present another location's candidates as this site's.
+  }
   // Update coordinate markers without replacing the focused numeric input.
   const st=$("#placement-stage");
   if(st&&el.type==='number'){
@@ -210,7 +240,10 @@ document.addEventListener("click",async event=>{
     if(action==='clear-call'){draft.frog.call_audio="";markDirty();render();}
     if(action==='clear-ambient'){draft.scenes.find(s=>s.id===el.dataset.scene).ambient_audio="";markDirty();render();}
     if(action==='suggest'){
-      const result=await runJob(`/api/drafts/${draft.id}/suggest`);candidates=result.candidates;message("Claude's candidates are drafts. Verify site-level records before choosing a species.");render();
+      const requestedLocation=draft.name;
+      const result=await runJob(`/api/drafts/${draft.id}/suggest`);
+      if(draft.name!==requestedLocation)throw new Error('The location changed while Claude was working. Request candidates for the new location.');
+      candidates=result.candidates;tab=1;message(`${candidates.length} candidates generated and saved. Verify site-level records before choosing a species.`);render();
     }
     if(action==='candidate'){
       const c=candidates[Number(el.dataset.index)];
@@ -283,7 +316,7 @@ $("#file-upload").addEventListener('change',async event=>{
   } catch(error){message(error.message,true);}finally{busy=false;render();await library();}
 });
 window.addEventListener('beforeunload',event=>{if(dirty||busy){event.preventDefault();event.returnValue='';}});
-window.render_game_to_text=()=>JSON.stringify({mode:'authoring',step:steps[tab],draft:draft?.name,scene:scene()?.name,coordinates:'percent; origin top left; x right, y down',hotspots:scene()?.hotspots||[],busy,dirty});
+window.render_game_to_text=()=>JSON.stringify({mode:'authoring',step:steps[tab],draft:draft?.name,scene:scene()?.name,coordinates:'percent; origin top left; x right, y down',hotspots:scene()?.hotspots||[],candidate_count:candidates.length,busy,dirty});
 window.advanceTime=()=>{};
 (async()=>{
   try {

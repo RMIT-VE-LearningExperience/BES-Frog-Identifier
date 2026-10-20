@@ -60,7 +60,11 @@ Save drafts explicitly. Switching drafts saves outstanding changes; closing a
 tab warns when there is unsaved work or a VAL job. Other tabs cannot silently
 overwrite a newer revision. Generation jobs last for the server session; keep
 the editor open until the image is applied and saved. A restart cancels pending
-jobs. Existing image versions stay on disk so regenerating does not destroy them.
+jobs. Candidate results and their status are persisted separately from the draft:
+reopening or reloading reconnects to an in-progress candidate request, or restores
+its completed list. A server restart marks interrupted requests as failed with an
+actionable message. A changed location name hides the previous location's list.
+Existing image versions stay on disk so regenerating does not destroy them.
 At most two VAL jobs execute concurrently, with up to four queued/running jobs.
 
 ## How VAL is used
@@ -70,8 +74,10 @@ At most two VAL jobs execute concurrently, with up to four queued/running jobs.
 - Image model: `openai-gpt-image-1.5`, configurable with `VAL_IMAGE_MODEL`.
 - Base URL: `https://val-npe.rmit.edu.au/api` (a non-production environment).
 - Species suggestions: `/chat/completions`. The request asks for a draft answer
-  without tools; if VAL returns its own tool calls, the job reports the problem
-  and manual entry remains available.
+  without tools. Prose-wrapped/fenced JSON is accepted and candidate fields are
+  validated. A tool-only or unusable answer gets one offline retry; persistent
+  failures are reported and manual entry remains available. No unsupported
+  `tool_choice=none` parameter is sent to the Bedrock-backed VAL Claude model.
 - Images: `/api/v1/images/edit`, `1536x1024`, using the existing repository
   artwork as style references. Authenticated downloads stay on the same VAL host.
 - The VAL image-model listing is stale: despite listing DALL-E models, the

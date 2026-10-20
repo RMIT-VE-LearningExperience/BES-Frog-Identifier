@@ -26,3 +26,10 @@ Limits:
 - Species suggestions require source verification; generated cartography/anatomy require review.
 - Still scene authoring only. No video generation or synthetic animal audio.
 - Job state is session-local; keep the editor open and finish/save a generation before restarting.
+
+Candidate recovery fix:
+- Reproduced a successful four-candidate answer for the user's saved draft; results previously existed only in browser memory and disappeared on draft reopen/reload.
+- Persisted job results/status and per-draft candidate pointers, reconnected running jobs after refresh, and restored completed lists without another paid request.
+- Added bounded retry and validated parsing for fenced/prose-wrapped JSON and tool-only answers. VAL rejected an explicit tool_choice=none during live testing, so that parameter is omitted.
+- Added regression tests for candidate persistence, interrupted requests, changed location names and malformed/tool-only replies.
+- Live retest returned four candidates in the editor after reloading during the request. Reconnection was visible and no duplicate request was needed. Twelve regression tests pass.

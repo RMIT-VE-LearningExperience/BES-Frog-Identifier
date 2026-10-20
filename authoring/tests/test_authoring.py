@@ -127,6 +127,34 @@ class AuthoringTests(unittest.TestCase):
             self.assertIn(self.draft["frog"]["call_audio"], archive.namelist())
             self.assertNotIn(".env", archive.namelist())
 
+    def test_candidates_survive_reopen_and_job_eviction(self):
+        result = {"candidates": [{"name": "Test frog"}], "verified": False}
+        with patch("authoring.server.ValClient.suggest", new=AsyncMock(return_value=result)):
+            response = self.client.post(f'/api/drafts/{self.draft["id"]}/suggest')
+            self.assertEqual(response.status_code, 200)
+            job_id = response.json()["job_id"]
+            for _ in range(50):
+                job = self.client.get('/api/jobs/' + job_id).json()
+                if job["status"] != "running":
+                    break
+                time.sleep(.02)
+        self.assertEqual(job["status"], "complete")
+        # Reopening a draft must recover results without another paid VAL call.
+        server.JOBS.pop(job_id)
+        reopened = self.client.get(f'/api/drafts/{self.draft["id"]}/suggestions').json()
+        self.assertEqual(reopened["result"], result)
+        self.draft["name"] = "Another location"
+        self.draft = self.save().json()
+        self.assertEqual(self.client.get(f'/api/drafts/{self.draft["id"]}/suggestions').json()["status"], "none")
+
+    def test_interrupted_candidate_job_has_actionable_status(self):
+        job_id = "b" * 32
+        server.atomic_write(server.job_file(job_id), json.dumps({"id": job_id, "status": "running", "kind": "suggest", "location": self.draft["name"]}))
+        server.atomic_write(self.root / "data/suggestions" / f'{self.draft["id"]}.json', json.dumps({"job_id": job_id}))
+        job = self.client.get(f'/api/drafts/{self.draft["id"]}/suggestions').json()
+        self.assertEqual(job["status"], "failed")
+        self.assertIn("server restarted", job["error"])
+
 
 if __name__ == "__main__":
     unittest.main()
