@@ -5,6 +5,7 @@ Browser-based 2D point-and-click frog identification game for RMIT students. Pla
 ## Layout
 - `bes-frog-id.html` (repo root, so the Pages URL is `/BES-Frog-Identifier/bes-frog-id.html`), `css/styles.css`, `js/script.js`: the whole game, plain HTML/CSS/JS with no build step. Open the HTML file directly, or serve the folder statically. Asset paths in the HTML and `script.js` are relative to the HTML (`assets/...`); paths in the CSS are relative to `css/` (`../assets/...`).
 - `assets/`: images, per-reserve scene videos and ambient audio, buttons, overlays. Already compressed; keep new assets in the same formats (JPEG for photos and maps, PNG only where alpha is needed, MP3/AAC audio, MP4 video).
+- `authoring/`: local FastAPI + plain-JavaScript authoring workspace; see `README.md` for setup. Drafts and generated draft media are ignored. Reviewed custom content lives in `content/generated.json`, `js/generated-content.js`, and `assets/published/`. The authoring image pipeline currently preserves generated PNG files. Do not expose the authoring service publicly or put VAL keys in browser code.
 - `documents/`: **gitignored and not in this repo** (the repo is public). It holds the source material and is only on the author's machine.
 
 ## Local-only context (not in the repo)

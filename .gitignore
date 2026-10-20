@@ -1,2 +1,11 @@
 documents/
 .DS_Store
+.env
+.env.*
+!.env.example
+__pycache__/
+.venv/
+authoring/data/
+.playwright-cli/
+test-results/
+assets/generated/

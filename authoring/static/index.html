@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Frog Explorer · Authoring</title><link rel="stylesheet" href="/author/static/styles.css"></head>
+<body>
+<aside class="sidebar">
+  <a class="brand" href="/author"><img src="/assets/buttons/Frog-Silhouette.png" alt=""><span>Frog Explorer<small>AUTHORING WORKSPACE</small></span></a>
+  <button id="new-draft" class="primary">＋ New location</button>
+  <p class="eyebrow">YOUR LOCATIONS</p><nav id="draft-list" aria-label="Locations"></nav>
+  <div class="sidebar-bottom"><span class="connection-dot"></span><span id="connection">Checking VAL…</span><small>Local workspace · drafts stay on this computer</small><a href="/bes-frog-id.html" target="_blank" rel="noopener">Open Frog Explorer ↗</a></div>
+</aside>
+<main>
+  <header><div><p class="eyebrow">CONTENT STUDIO / VICTORIA</p><h1 id="draft-title">Create another place to explore.</h1></div><div class="header-actions"><span id="save-state">No draft selected</span><button id="save-draft" disabled>Save draft</button></div></header>
+  <div id="message" role="status" aria-live="polite" hidden></div>
+  <nav id="steps" aria-label="Authoring steps" hidden></nav>
+  <section id="workspace" aria-label="Authoring workspace">
+    <div class="welcome"><div><p class="eyebrow">EXTEND THE FIELD GUIDE</p><h2>A location.<br>A frog.<br>A new discovery.</h2><p>Build a reserve, paint its world with VAL, and place the clues that bring it to life.</p><button class="primary" data-action="new">Create a location</button></div><img src="/assets/frogs/01-Growling-Grass-Frog.jpg" alt="Watercolour Growling Grass Frog on white paper"></div>
+  </section>
+</main>
+<input type="file" id="file-upload" hidden>
+<script src="/author/static/app.js"></script>
+</body></html>

@@ -161,7 +161,13 @@ const SPECIES = {
   }
 };
 
-const FIELD_GUIDE_ORDER = ["banjo","striped-marsh","spotted-marsh","brown-tree","bell","baw-baw","spotted-tree"];
+// Local authoring publishes data separately; the original seven remain intact.
+const GENERATED_CONTENT = window.FROG_GENERATED_CONTENT || { species: {}, reserves: {} };
+for (const [id, species] of Object.entries(GENERATED_CONTENT.species || {})) {
+  if (/^custom-[a-f0-9]{12}$/.test(id) && !SPECIES[id]) SPECIES[id] = species;
+}
+const escapeGameText = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const FIELD_GUIDE_ORDER = ["banjo","striped-marsh","spotted-marsh","brown-tree","bell","baw-baw","spotted-tree", ...Object.keys(GENERATED_CONTENT.species || {}).filter(id => /^custom-[a-f0-9]{12}$/.test(id) && SPECIES[id])];
 
 // One extra "page" appended after the last species — the field guide's own
 // References entry (see fgReferencesFactsHtml()/fgReferencesStoryHtml()/
@@ -605,6 +611,22 @@ const RESERVES = {
   }
 };
 
+// Add custom reserve pins before keyboard, click and offscreen listeners bind.
+for (const [id, reserve] of Object.entries(GENERATED_CONTENT.reserves || {})) {
+  if (!/^custom-[a-f0-9]{12}$/.test(id) || RESERVES[id] || !SPECIES[reserve.targetSpecies] || !reserve.scenes?.length) continue;
+  RESERVES[id] = reserve;
+  const pin = document.createElement("div");
+  pin.className = "pin unlocked label-right";
+  pin.dataset.park = id;
+  pin.style.left = `${Number(reserve.pinX)}%`;
+  pin.style.top = `${Number(reserve.pinY)}%`;
+  const icon = document.createElement("img");
+  icon.className = "pin-dot"; icon.src = "assets/buttons/Icon_Pin.png"; icon.alt = "";
+  const label = document.createElement("div"); label.className = "pin-label"; label.textContent = reserve.name;
+  pin.append(icon, label);
+  document.getElementById("map-pins-frame").appendChild(pin);
+}
+
 function setPhotoBg(el, url) {
   el.style.backgroundImage = `url('${url}')`;
   el.style.backgroundSize = "cover";
@@ -927,6 +949,8 @@ document.getElementById("intro-start-btn").addEventListener("click", () => {
   // this is where the Map Overview's ambient track is allowed to begin.
   state.mapAudioUnlocked = true;
   syncMapMedia();
+  const requestedReserve = window.FROG_PREVIEW_RESERVE || new URLSearchParams(location.search).get("reserve");
+  if (!state.analyticsStartSent && requestedReserve && RESERVES[requestedReserve]) enterPark(requestedReserve);
   // The same Start button is reused by the Map Overview's "Instructions"
   // re-open, so this only counts the first press of a page load.
   if (!state.analyticsStartSent) {
@@ -1117,7 +1141,7 @@ function renderScenePoints() {
       <div class="map-point-dot"></div>
       <div class="scene-card">
         <div class="thumb" style="background-image:url('${scene.photo}')"></div>
-        <div class="name">${scene.name}</div>
+        <div class="name">${escapeGameText(scene.name)}</div>
         <div class="sound-flag">${hasSound ? "🔊 a call echoes here…" : ""}</div>
       </div>
     `;
@@ -1491,7 +1515,7 @@ let cancelSceneLoad = () => {};
 function beginSceneLoading(scene, useVideo, imgEl, videoEl) {
   const screenEl = document.getElementById("screen-scene");
   const loader = document.getElementById("scene-loader");
-  loader.style.setProperty("--still", `url('${scene.photo}')`);
+  loader.style.setProperty("--still", `url('${new URL(scene.photo, document.baseURI).href}')`);
   screenEl.classList.add("scene-loading");
 
   let done = false;
@@ -1816,7 +1840,7 @@ function openQuiz() {
   setPhotoBg(quizBg, state.scenes[state.currentSceneIdx].photo);
   const targetSp = SPECIES[state.targetSpecies];
   document.getElementById("quiz-frog-photo").innerHTML = `
-    <img src="${targetSp.photo}" alt="${targetSp.name}">
+    <img src="${targetSp.photo}" alt="${escapeGameText(targetSp.name)}">
     ${targetSp.callAudio ? `<button class="sound-btn frog-photo-sound" data-audio="${targetSp.callAudio}" title="Play call">${SOUND_ICON_HTML}</button>` : ""}
   `;
   stopPreviewAudio();
@@ -1863,7 +1887,7 @@ function openQuiz() {
     el.className = "species-label" + (isCrossed ? " crossed-out" : "");
     el.draggable = !isCrossed;
     el.dataset.id = id;
-    el.innerHTML = `${sp.name}<span class="latin">${sp.latin}</span>`;
+    el.innerHTML = `${escapeGameText(sp.name)}<span class="latin">${escapeGameText(sp.latin)}</span>`;
     el.addEventListener("dragstart", e => {
       e.dataTransfer.setData("text/plain", id);
       el.classList.add("dragging");
@@ -1966,7 +1990,7 @@ function openQuiz() {
 function hintHtml(hint) {
   return `
     <div class="hint-title">Hints</div>
-    <ul class="hint-list">${hint.map(line => `<li>${line}</li>`).join("")}</ul>
+    <ul class="hint-list">${hint.map(line => `<li>${escapeGameText(line)}</li>`).join("")}</ul>
   `;
 }
 
@@ -2188,7 +2212,7 @@ function showSuccess(useTransition) {
   successBg.className = "scene-bg dim";
   setPhotoBg(successBg, state.scenes[state.currentSceneIdx].photo);
   document.getElementById("success-photo").innerHTML = `
-    <img src="${sp.photo}" alt="${sp.name}">
+    <img src="${sp.photo}" alt="${escapeGameText(sp.name)}">
     ${sp.callAudio ? `<button class="sound-btn frog-photo-sound" data-audio="${sp.callAudio}" title="Play call">${SOUND_ICON_HTML}</button>` : ""}
   `;
   document.getElementById("success-species").textContent = `${sp.name} (${sp.latin})`;
@@ -2362,14 +2386,14 @@ const SOUND_ICON_HTML = '<img src="assets/buttons/Btn_Sound.png" alt="Play call"
 // Grass Frog call") while the quiz/success buttons keep the generic "Play
 // call" — same shared audio/toggle logic either way, just a different name.
 function soundIconHtml(label) {
-  return `<img src="assets/buttons/Btn_Sound.png" alt="${label}">`;
+  return `<img src="assets/buttons/Btn_Sound.png" alt="${escapeGameText(label)}">`;
 }
 // Same pattern as soundIconHtml() above, for the "stop" state — replaces
 // the old plain "⏹" text glyph with the supplied Btn_Stop.png icon, so the
 // button always shows a real icon in both states instead of an icon for
 // play but a text character for stop.
 function stopIconHtml(label) {
-  return `<img src="assets/buttons/Btn_Stop.png" alt="${label}">`;
+  return `<img src="assets/buttons/Btn_Stop.png" alt="${escapeGameText(label)}">`;
 }
 
 function resetSoundButtons() {
@@ -2577,12 +2601,12 @@ function fgFactsHtml(id) {
     `;
   }
   return `
-    <div class="fg-photo"><img src="${sp.photoFull}" alt="${sp.name}"></div>
+    <div class="fg-photo"><img src="${sp.photoFull}" alt="${escapeGameText(sp.name)}"></div>
     <div class="fg-name-row">
-      <h2 class="fg-name">${sp.name}</h2>
-      ${sp.callAudio ? `<button class="sound-btn fg-sound-btn" data-audio="${sp.callAudio}" data-species-name="${sp.name}" title="Play ${sp.name} call">${soundIconHtml(`Play ${sp.name} call`)}</button>` : ""}
+      <h2 class="fg-name">${escapeGameText(sp.name)}</h2>
+      ${sp.callAudio ? `<button class="sound-btn fg-sound-btn" data-audio="${sp.callAudio}" data-species-name="${escapeGameText(sp.name)}" title="Play ${escapeGameText(sp.name)} call">${soundIconHtml(`Play ${sp.name} call`)}</button>` : ""}
     </div>
-    <p class="fg-latin">${sp.latin}</p>
+    <p class="fg-latin">${escapeGameText(sp.latin)}</p>
     <div class="fg-field">
       <div class="fg-field-label">Conservation Status</div>
       ${statusRowsHtml(sp)}
@@ -2622,11 +2646,13 @@ function fgStoryHtml(id) {
   return `
     <div class="fg-field">
       <div class="fg-field-label">Description</div>
-      ${sp.description.map(p => `<p>${p}</p>`).join("")}
+      ${sp.description.map(p => `<p>${escapeGameText(p)}</p>`).join("")}
     </div>
     <div class="fg-field">
       <div class="fg-field-label">Habitat</div>
-      <p>${sp.habitat}</p>
+      <p>${escapeGameText(sp.habitat)}</p>
+      ${sp.audioCredit ? `<p class="fg-source-note">Call recording: ${escapeGameText(sp.audioCredit)}</p>` : ""}
+      ${sp.sources?.length ? `<p class="fg-source-note">Sources: ${sp.sources.map(escapeGameText).join("; ")}</p>` : ""}
     </div>
   `;
 }
@@ -2738,9 +2764,9 @@ function fgPageHtml(id) {
     `;
   }
   return `
-    <div class="fg-photo"><img src="${sp.photoFull}" alt="${sp.name}"></div>
-    <h2 class="fg-name">${sp.name}</h2>
-    <p class="fg-latin">${sp.latin}</p>
+    <div class="fg-photo"><img src="${sp.photoFull}" alt="${escapeGameText(sp.name)}"></div>
+    <h2 class="fg-name">${escapeGameText(sp.name)}</h2>
+    <p class="fg-latin">${escapeGameText(sp.latin)}</p>
     <div class="fg-field">
       <p class="calling-period-text"><span class="fg-field-label">${calling.label}:</span> ${calling.months}</p>
     </div>
@@ -2750,11 +2776,13 @@ function fgPageHtml(id) {
     </div>
     <div class="fg-field">
       <div class="fg-field-label">Description</div>
-      ${sp.description.map(p => `<p>${p}</p>`).join("")}
+      ${sp.description.map(p => `<p>${escapeGameText(p)}</p>`).join("")}
     </div>
     <div class="fg-field">
       <div class="fg-field-label">Habitat</div>
-      <p>${sp.habitat}</p>
+      <p>${escapeGameText(sp.habitat)}</p>
+      ${sp.audioCredit ? `<p class="fg-source-note">Call recording: ${escapeGameText(sp.audioCredit)}</p>` : ""}
+      ${sp.sources?.length ? `<p class="fg-source-note">Sources: ${sp.sources.map(escapeGameText).join("; ")}</p>` : ""}
     </div>
     ${pageNum}
   `;
@@ -2953,3 +2981,15 @@ initAnalytics();
 
 // ===================== Init =====================
 showScreen("map");
+
+// Read-only state hook for local integration checks.
+window.render_game_to_text = () => JSON.stringify({
+  screen: document.querySelector(".screen.active")?.id,
+  reserve: state.currentReserveId,
+  scene: state.currentSceneIdx,
+  targetSpecies: state.targetSpecies,
+  hotspots: state.scenes[state.currentSceneIdx]?.hotspots || [],
+  completed: [...state.completedReserves],
+  coordinates: "percent of full image; origin top left; x right, y down"
+});
+window.advanceTime = () => {}; // This point-and-click game has no simulation clock.
